@@ -1,26 +1,367 @@
 @import "tailwindcss";
 
+@theme inline {
+  --color-unigo-red: #d7192d;
+  --color-unigo-navy: #082b4c;
+  --color-unigo-background: #f7fafe;
+  --font-sans: Arial, Helvetica, sans-serif;
+}
+
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #082b4c;
+  --unigo-red: #d7192d;
+  --unigo-navy: #082b4c;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+* {
+  box-sizing: border-box;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 90px;
 }
 
 body {
+  margin: 0;
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+a {
+  text-decoration: none;
+}
+
+button {
+  cursor: pointer;
+}
+
+::selection {
+  background: #d7192d;
+  color: white;
+}
+
+.hero-grid {
+  background-image:
+    linear-gradient(rgba(8, 43, 76, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(8, 43, 76, 0.035) 1px, transparent 1px);
+  background-size: 42px 42px;
+  mask-image: linear-gradient(to bottom, black, transparent 90%);
+}
+
+.earth-loading-sphere {
+  width: 140px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 28%, #75b7ff, #1555a1 58%, #082b4c);
+  box-shadow: 0 0 80px rgba(47, 125, 221, 0.22);
+  animation: earth-pulse 2s ease-in-out infinite;
+}
+
+.earth-experience {
+  isolation: isolate;
+}
+
+.earth-experience canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: pan-y;
+}
+
+@keyframes earth-pulse {
+  0%,
+  100% {
+    transform: scale(0.96);
+    opacity: 0.75;
+  }
+
+  50% {
+    transform: scale(1.04);
+    opacity: 1;
+  }
+}
+
+@media (max-width: 640px) {
+  .earth-experience {
+    min-height: 400px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.vector-earth-scene {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  max-width: 650px;
+  min-height: 570px;
+  margin-inline: auto;
+}
+
+.vector-earth-glow {
+  position: absolute;
+  z-index: -2;
+  top: 10%;
+  left: 10%;
+  width: 80%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(105, 174, 255, 0.19) 0%,
+    rgba(105, 174, 255, 0.07) 45%,
+    transparent 72%
+  );
+  filter: blur(12px);
+}
+
+.vector-orbit {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.vector-orbit-one {
+  opacity: 0.8;
+}
+
+.vector-orbit-two {
+  opacity: 0.65;
+}
+
+.vector-globe {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(76%, 420px);
+  transform: translate(-50%, -53%);
+  aspect-ratio: 1;
+}
+
+.vector-globe > svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.vector-destination-card {
+  position: absolute;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 64px;
+  padding: 12px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 12px 30px rgba(28, 58, 91, 0.12);
+  color: #082b4c;
+  font-size: 15px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  backdrop-filter: blur(12px);
+  transition:
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    background 0.25s ease;
+}
+
+.vector-destination-card:hover,
+.vector-destination-card.is-selected {
+  border-color: #d7192d;
+  box-shadow: 0 12px 32px rgba(215, 25, 45, 0.12);
+}
+
+.vector-destination-card img {
+  display: block;
+  width: 34px;
+  height: 23px;
+  flex-shrink: 0;
+  border-radius: 3px;
+  object-fit: cover;
+}
+
+.vector-card-uk {
+  top: 8%;
+  left: 3%;
+}
+
+.vector-card-canada {
+  top: 10%;
+  right: 3%;
+}
+
+.vector-card-australia {
+  right: 0;
+  bottom: 27%;
+}
+
+.vector-card-usa {
+  bottom: 17%;
+  left: 4%;
+}
+
+.vector-selected-destination {
+  position: absolute;
+  z-index: 4;
+  right: 4%;
+  bottom: 3%;
+  left: 4%;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 78px;
+  padding: 16px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: 17px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 14px 30px rgba(28, 58, 91, 0.13);
+  backdrop-filter: blur(14px);
+}
+
+.vector-selected-destination > img {
+  width: 40px;
+  height: 27px;
+  flex-shrink: 0;
+  border-radius: 4px;
+  object-fit: cover;
+}
+
+.vector-selected-destination p {
+  margin: 0;
+  color: #082b4c;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.vector-selected-destination span {
+  display: block;
+  margin-top: 5px;
+  color: #64748b;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.vector-earth-hint {
+  position: absolute;
+  top: 1%;
+  right: 5%;
+  color: #64748b;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+@media (min-width: 1200px) {
+  .vector-earth-scene {
+    min-height: 620px;
+  }
+
+  .vector-globe {
+    width: min(78%, 440px);
+  }
+
+  .vector-destination-card {
+    padding: 13px 20px;
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 640px) {
+  .vector-earth-scene {
+    min-height: 430px;
+  }
+
+  .vector-globe {
+    top: 44%;
+    width: min(77%, 330px);
+  }
+
+  .vector-destination-card {
+    min-height: 45px;
+    gap: 7px;
+    padding: 9px 11px;
+    font-size: 11px;
+  }
+
+  .vector-destination-card img {
+    width: 25px;
+    height: 17px;
+  }
+
+  .vector-card-uk {
+    top: 8%;
+    left: 0;
+  }
+
+  .vector-card-canada {
+    top: 12%;
+    right: 0;
+  }
+
+  .vector-card-australia {
+    right: 0;
+    bottom: 28%;
+  }
+
+  .vector-card-usa {
+    bottom: 21%;
+    left: 0;
+  }
+
+  .vector-selected-destination {
+    right: 0;
+    bottom: 2%;
+    left: 0;
+    min-height: 70px;
+    padding: 12px;
+  }
+
+  .vector-selected-destination span {
+    font-size: 11px;
+  }
+
+  .vector-earth-hint {
+    top: 0;
+    right: 0;
+    font-size: 9px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vector-destination-card {
+    transition: none;
+  }
 }
