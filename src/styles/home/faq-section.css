@@ -1,0 +1,737 @@
+.unigo-faq {
+  position: relative;
+  overflow: hidden;
+  padding: 96px 24px;
+  background: #f7f9fc;
+  color: #102b4e;
+}
+
+.unigo-faq::before {
+  position: absolute;
+  top: -180px;
+  right: -140px;
+  width: 420px;
+  height: 420px;
+  border: 1px solid rgba(16, 43, 78, 0.045);
+  border-radius: 50%;
+  content: "";
+  pointer-events: none;
+}
+
+.unigo-faq::after {
+  position: absolute;
+  top: -110px;
+  right: -70px;
+  width: 280px;
+  height: 280px;
+  border: 1px solid rgba(215, 25, 45, 0.06);
+  border-radius: 50%;
+  content: "";
+  pointer-events: none;
+}
+
+.unigo-faq__container {
+  position: relative;
+  z-index: 1;
+  max-width: 1280px;
+}
+
+.unigo-faq__header {
+  max-width: 720px;
+  margin: 0 auto 54px;
+  text-align: center;
+}
+
+.unigo-faq__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  color: #d7192d;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.7px;
+}
+
+.unigo-faq__eyebrow-icon {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border: 1px solid #f5d8dc;
+  border-radius: 5px;
+  background: #fff0f2;
+}
+
+.unigo-faq__header h2 {
+  margin: 19px 0 14px;
+  color: #102b4e;
+  font-size: clamp(32px, 3.5vw, 46px);
+  font-weight: 850;
+  line-height: 1.15;
+  letter-spacing: -1.5px;
+}
+
+.unigo-faq__header h2 span {
+  color: #d7192d;
+}
+
+.unigo-faq__header > p {
+  max-width: 610px;
+  margin: 0 auto;
+  color: #687a91;
+  font-size: 15px;
+  line-height: 1.8;
+}
+
+.unigo-faq__layout {
+  display: grid;
+  grid-template-columns: 285px minmax(0, 1fr);
+  align-items: start;
+  gap: 42px;
+}
+
+.unigo-faq__sidebar {
+  min-width: 0;
+}
+
+.unigo-faq__sidebar-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  padding: 0 3px 14px;
+  border-bottom: 1px solid #e3eaf2;
+  color: #102b4e;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.unigo-faq__category-count {
+  color: #a0adbf;
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+}
+
+.unigo-faq__categories {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.unigo-faq__category {
+  position: relative;
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr) 20px;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 52px;
+  padding: 8px 11px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: #63748b;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    color 180ms ease,
+    background 180ms ease,
+    border-color 180ms ease,
+    transform 180ms ease;
+}
+
+.unigo-faq__category:hover {
+  background: #ffffff;
+  color: #102b4e;
+}
+
+.unigo-faq__category.is-active {
+  border-color: #f2dfe2;
+  background: #ffffff;
+  box-shadow: 0 4px 14px rgba(16, 43, 78, 0.035);
+  color: #102b4e;
+}
+
+.unigo-faq__category.is-active::before {
+  position: absolute;
+  top: 10px;
+  bottom: 10px;
+  left: -1px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: #d7192d;
+  content: "";
+}
+
+.unigo-faq__category-icon {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border-radius: 5px;
+  background: #edf3fa;
+  color: #526d8c;
+  transition:
+    color 180ms ease,
+    background 180ms ease;
+}
+
+.unigo-faq__category.is-active .unigo-faq__category-icon {
+  background: #fff0f2;
+  color: #d7192d;
+}
+
+.unigo-faq__category-name {
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.5;
+}
+
+.unigo-faq__category-index {
+  color: #a3afbf;
+  font-size: 10px;
+  text-align: right;
+}
+
+.unigo-faq__sidebar-note {
+  margin-top: 28px;
+  padding: 22px 20px;
+  border: 1px solid #e3eaf3;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.unigo-faq__sidebar-note-icon {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  border-radius: 6px;
+  background: #fff0f2;
+  color: #d7192d;
+}
+
+.unigo-faq__sidebar-note h3 {
+  margin: 17px 0 8px;
+  color: #102b4e;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+}
+
+.unigo-faq__sidebar-note p {
+  margin: 0;
+  color: #718198;
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+.unigo-faq__sidebar-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 17px;
+  color: #d7192d;
+  font-size: 12px;
+  font-weight: 750;
+  text-decoration: none;
+}
+
+.unigo-faq__sidebar-link svg {
+  transition: transform 180ms ease;
+}
+
+.unigo-faq__sidebar-link:hover svg {
+  transform: translateX(3px);
+}
+
+.unigo-faq__main {
+  min-width: 0;
+}
+
+.unigo-faq__section-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.unigo-faq__section-label {
+  display: block;
+  margin-bottom: 8px;
+  color: #d7192d;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+}
+
+.unigo-faq__section-heading h3 {
+  margin: 0;
+  color: #102b4e;
+  font-size: clamp(21px, 2vw, 27px);
+  font-weight: 800;
+  line-height: 1.3;
+  letter-spacing: -0.6px;
+}
+
+.unigo-faq__results-count {
+  flex-shrink: 0;
+  padding: 7px 9px;
+  border: 1px solid #e1e8f1;
+  border-radius: 4px;
+  background: #ffffff;
+  color: #7d8ba0;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.7px;
+}
+
+.unigo-faq__list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.unigo-faq__item {
+  overflow: hidden;
+  border: 1px solid #e3eaf2;
+  border-radius: 7px;
+  background: #ffffff;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.unigo-faq__item:hover {
+  border-color: #cbd8e8;
+}
+
+.unigo-faq__item.is-open {
+  border-color: #edcbd1;
+  box-shadow: 0 7px 22px rgba(16, 43, 78, 0.045);
+}
+
+.unigo-faq__question {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) 34px;
+  align-items: center;
+  gap: 13px;
+  width: 100%;
+  min-height: 70px;
+  padding: 14px 18px;
+  border: 0;
+  background: transparent;
+  color: #243d5c;
+  text-align: left;
+  cursor: pointer;
+}
+
+.unigo-faq__question-number {
+  color: #9ba8ba;
+  font-size: 11px;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+}
+
+.unigo-faq__question-text {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+.unigo-faq__toggle {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border: 1px solid #e3eaf2;
+  border-radius: 5px;
+  background: #f8fafd;
+  color: #63748b;
+  transition:
+    transform 200ms ease,
+    color 200ms ease,
+    border-color 200ms ease,
+    background 200ms ease;
+}
+
+.unigo-faq__item.is-open .unigo-faq__toggle {
+  transform: rotate(180deg);
+  border-color: #f3d7dc;
+  background: #fff0f2;
+  color: #d7192d;
+}
+
+.unigo-faq__answer {
+  padding: 0 65px 22px;
+  animation: unigo-faq-reveal 180ms ease-out;
+}
+
+.unigo-faq__answer p {
+  max-width: 760px;
+  margin: 0;
+  color: #697b92;
+  font-size: 13px;
+  line-height: 1.9;
+}
+
+.unigo-faq__contact {
+  display: flex;
+  align-items: center;
+  gap: 17px;
+  margin-top: 27px;
+  padding: 23px;
+  border: 1px solid #e0e8f2;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.unigo-faq__contact-icon {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+  place-items: center;
+  border-radius: 6px;
+  background: #fff0f2;
+  color: #d7192d;
+}
+
+.unigo-faq__contact-copy {
+  min-width: 0;
+  flex: 1;
+}
+
+.unigo-faq__contact-eyebrow {
+  display: block;
+  margin-bottom: 5px;
+  color: #d7192d;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 1.1px;
+}
+
+.unigo-faq__contact-copy h3 {
+  margin: 0;
+  color: #102b4e;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.4px;
+}
+
+.unigo-faq__contact-copy p {
+  margin: 6px 0 0;
+  color: #78879b;
+  font-size: 11px;
+  line-height: 1.7;
+}
+
+.unigo-faq__contact-button {
+  display: inline-flex;
+  min-height: 43px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 0 15px;
+  border: 1px solid #d7192d;
+  border-radius: 5px;
+  background: #d7192d;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 750;
+  text-decoration: none;
+  transition:
+    background 180ms ease,
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.unigo-faq__contact-button:hover {
+  transform: translateY(-1px);
+  background: #b91427;
+  box-shadow: 0 5px 13px rgba(215, 25, 45, 0.15);
+}
+
+.unigo-faq__contact-button svg {
+  transition: transform 180ms ease;
+}
+
+.unigo-faq__contact-button:hover svg {
+  transform: translateX(3px);
+}
+
+.unigo-faq__bottom-note {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  margin-top: 35px;
+  padding-top: 20px;
+  border-top: 1px solid #e2e9f1;
+}
+
+.unigo-faq__bottom-mark {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  place-items: center;
+  border-radius: 5px;
+  background: #edf3fa;
+  color: #536d8a;
+}
+
+.unigo-faq__bottom-note p {
+  flex: 1;
+  margin: 0;
+  color: #8190a3;
+  font-size: 11px;
+  line-height: 1.7;
+}
+
+.unigo-faq__bottom-brand {
+  color: #d7192d;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 1.3px;
+}
+
+@keyframes unigo-faq-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (min-width: 1500px) {
+  .unigo-faq {
+    padding-top: 110px;
+    padding-bottom: 110px;
+  }
+
+  .unigo-faq__layout {
+    grid-template-columns: 305px minmax(0, 1fr);
+    gap: 50px;
+  }
+}
+
+@media (max-width: 950px) {
+  .unigo-faq {
+    padding: 76px 22px;
+  }
+
+  .unigo-faq__layout {
+    grid-template-columns: 235px minmax(0, 1fr);
+    gap: 26px;
+  }
+
+  .unigo-faq__category {
+    grid-template-columns: 30px minmax(0, 1fr);
+    gap: 9px;
+    padding-inline: 8px;
+  }
+
+  .unigo-faq__category-icon {
+    width: 30px;
+    height: 30px;
+  }
+
+  .unigo-faq__category-index {
+    display: none;
+  }
+
+  .unigo-faq__question {
+    grid-template-columns: 25px minmax(0, 1fr) 32px;
+    gap: 10px;
+    padding-inline: 13px;
+  }
+
+  .unigo-faq__answer {
+    padding-right: 48px;
+    padding-left: 48px;
+  }
+
+  .unigo-faq__contact {
+    flex-wrap: wrap;
+    padding: 18px;
+  }
+}
+
+@media (max-width: 700px) {
+  .unigo-faq {
+    padding: 62px 18px;
+  }
+
+  .unigo-faq__header {
+    margin-bottom: 35px;
+  }
+
+  .unigo-faq__header h2 {
+    font-size: clamp(30px, 6vw, 39px);
+    letter-spacing: -1px;
+  }
+
+  .unigo-faq__header > p {
+    font-size: 13px;
+  }
+
+  .unigo-faq__layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 32px;
+  }
+
+  .unigo-faq__sidebar-heading {
+    margin-bottom: 12px;
+  }
+
+  .unigo-faq__categories {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .unigo-faq__category {
+    grid-template-columns: 30px minmax(0, 1fr);
+    min-height: 55px;
+    border-color: #e5ebf3;
+    background: rgba(255, 255, 255, 0.65);
+  }
+
+  .unigo-faq__category-name {
+    font-size: 11px;
+  }
+
+  .unigo-faq__sidebar-note {
+    display: none;
+  }
+
+  .unigo-faq__section-heading {
+    align-items: center;
+  }
+
+  .unigo-faq__section-heading h3 {
+    font-size: 23px;
+  }
+
+  .unigo-faq__question {
+    min-height: 66px;
+  }
+
+  .unigo-faq__answer {
+    padding: 0 20px 21px 48px;
+  }
+
+  .unigo-faq__contact {
+    gap: 13px;
+  }
+
+  .unigo-faq__contact-copy {
+    flex-basis: calc(100% - 65px);
+  }
+
+  .unigo-faq__contact-button {
+    margin-left: 61px;
+  }
+}
+
+@media (max-width: 420px) {
+  .unigo-faq {
+    padding: 48px 14px;
+  }
+
+  .unigo-faq__header h2 {
+    font-size: 29px;
+  }
+
+  .unigo-faq__eyebrow {
+    font-size: 10px;
+  }
+
+  .unigo-faq__categories {
+    gap: 6px;
+  }
+
+  .unigo-faq__category {
+    grid-template-columns: 26px minmax(0, 1fr);
+    gap: 7px;
+    padding: 7px;
+  }
+
+  .unigo-faq__category-icon {
+    width: 26px;
+    height: 26px;
+  }
+
+  .unigo-faq__category-icon svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  .unigo-faq__category-name {
+    font-size: 10px;
+  }
+
+  .unigo-faq__results-count {
+    padding: 6px;
+    font-size: 8px;
+  }
+
+  .unigo-faq__question {
+    grid-template-columns: 21px minmax(0, 1fr) 29px;
+    gap: 8px;
+    padding: 12px 10px;
+  }
+
+  .unigo-faq__question-text {
+    font-size: 12px;
+  }
+
+  .unigo-faq__toggle {
+    width: 29px;
+    height: 29px;
+  }
+
+  .unigo-faq__answer {
+    padding-right: 15px;
+    padding-left: 39px;
+  }
+
+  .unigo-faq__answer p {
+    font-size: 12px;
+  }
+
+  .unigo-faq__contact {
+    padding: 15px;
+  }
+
+  .unigo-faq__contact-copy h3 {
+    font-size: 16px;
+  }
+
+  .unigo-faq__contact-button {
+    min-height: 40px;
+    margin-left: 0;
+  }
+
+  .unigo-faq__bottom-brand {
+    font-size: 9px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .unigo-faq *,
+  .unigo-faq *::before,
+  .unigo-faq *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}

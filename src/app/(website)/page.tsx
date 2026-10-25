@@ -1,19 +1,23 @@
 import { HeroSection } from "@/components/home/hero-section";
-import { DestinationsSection } from "@/components/home/destinations-section";
-import { ServicesSection } from "@/components/home/services-section";
-import { WhyUnigoSection } from "@/components/home/why-unigo-section";
-import { TestimonialsSection } from "@/components/home/testimonials-section";
 import { DestinationShowcase } from "@/components/home/destination-showcase";
+import WhyChooseUs from "@/components/home/why-choose-us";
+import OurServices from "@/components/home/our-services";
+import StudentStories from "@/components/home/student-stories";
+import GlobalFutureCTA from "@/components/home/global-future-cta";
+import FAQSection from "@/components/home/faq-section";
+import PartnerLogos from "@/components/home/partner-logos";
 
 export default function HomePage() {
   return (
     <>
       <HeroSection />
       <DestinationShowcase />
-      <DestinationsSection />
-      <ServicesSection />
-      <WhyUnigoSection />
-      <TestimonialsSection />
+      <WhyChooseUs />
+      <FAQSection />
+      <OurServices />
+      <StudentStories />
+      <PartnerLogos />
+      <GlobalFutureCTA />
     </>
   );
 }

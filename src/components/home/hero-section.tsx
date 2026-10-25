@@ -1,8 +1,8 @@
 "use client";
 
+import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
-import { useRef } from "react";
 import {
   GraduationCap,
   UsersRound,
@@ -12,8 +12,8 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { Container } from "@/components/shared/container";
-import { HeroIllustration } from "./hero-illustration";
-import "./hero-section.css";
+import HeroIllustration from "./hero-illustration";
+import "../../styles/home/hero-section.css";
 
 const services = [
   {
@@ -57,46 +57,46 @@ export function HeroSection() {
       intro
         .from(".hero-eyebrow", {
           opacity: 0,
-          y: 16,
-          duration: 0.55,
+          y: 12,
+          duration: 0.45,
         })
         .from(
           ".hero-title",
           {
             opacity: 0,
-            y: 25,
-            duration: 0.75,
+            y: 20,
+            duration: 0.65,
           },
-          "-=0.25",
+          "-=0.2",
         )
         .from(
           ".hero-description",
           {
             opacity: 0,
-            y: 16,
-            duration: 0.55,
+            y: 12,
+            duration: 0.45,
           },
-          "-=0.35",
+          "-=0.3",
         )
         .from(
           ".hero-service",
           {
             opacity: 0,
-            y: 15,
-            stagger: 0.1,
-            duration: 0.45,
+            y: 10,
+            stagger: 0.07,
+            duration: 0.35,
           },
-          "-=0.2",
+          "-=0.15",
         )
         .from(
           ".hero-stat",
           {
             opacity: 0,
-            y: 12,
-            stagger: 0.08,
-            duration: 0.4,
+            y: 8,
+            stagger: 0.06,
+            duration: 0.35,
           },
-          "-=0.15",
+          "-=0.1",
         );
     },
     { scope: root },
@@ -110,23 +110,23 @@ export function HeroSection() {
         <div className="unigo-hero-content">
           <div className="hero-eyebrow">
             <span className="hero-eyebrow-icon">
-              <GraduationCap size={18} strokeWidth={2} />
+              <GraduationCap size={19} strokeWidth={2} />
             </span>
             <span>Your Global Education Partner</span>
           </div>
 
           <h1 className="hero-title">
-            Explore the World
+            Explore the World.
             <br />
             Build a Brighter
             <br />
-            <span>Tomorrow</span>
+            <span>Tomorrow.</span>
           </h1>
 
           <p className="hero-description">
-            We help students achieve their international education dreams with
-            personalized guidance, university admissions support and end-to-end
-            visa assistance.
+            Your journey to international education starts here. Get
+            personalized guidance, university admission support, and end-to-end
+            visa assistance from a team that puts your future first.
           </p>
 
           <div className="hero-services">
@@ -136,7 +136,7 @@ export function HeroSection() {
               return (
                 <div className="hero-service" key={service.title}>
                   <div className={`hero-service-icon ${service.className}`}>
-                    <Icon size={23} strokeWidth={1.9} />
+                    <Icon size={22} strokeWidth={1.8} />
                   </div>
                   <span>{service.title}</span>
                 </div>
@@ -154,7 +154,7 @@ export function HeroSection() {
           </div>
 
           <div className="hero-trust-note">
-            <CheckCircle2 size={16} />
+            <CheckCircle2 size={16} strokeWidth={2} />
             <span>Personalized support for your study abroad journey</span>
           </div>
         </div>

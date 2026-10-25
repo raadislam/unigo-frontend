@@ -4,7 +4,8 @@ import Image from "next/image";
 import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
-import "./hero-illustration.css";
+import { GraduationCap, ArrowUpRight } from "lucide-react";
+import "../../styles/home/hero-illustration.css";
 
 const destinations = [
   {
@@ -39,31 +40,33 @@ const destinations = [
   },
 ];
 
-export function HeroIllustration() {
+export default function HeroIllustration() {
   const root = useRef<HTMLDivElement>(null);
 
   useGSAP(
     () => {
       gsap.from(".student-card", {
         opacity: 0,
-        y: 24,
-        duration: 0.8,
-        stagger: 0.14,
+        y: 20,
+        duration: 0.75,
+        stagger: 0.12,
         ease: "power3.out",
+        clearProps: "opacity",
       });
 
       gsap.from(".destination-label", {
         opacity: 0,
-        y: 10,
-        duration: 0.5,
-        stagger: 0.08,
-        delay: 0.35,
+        y: 8,
+        duration: 0.45,
+        stagger: 0.07,
+        delay: 0.25,
         ease: "power2.out",
+        clearProps: "opacity",
       });
 
       gsap.to(".student-card-featured", {
         y: -5,
-        duration: 3.2,
+        duration: 3.5,
         repeat: -1,
         yoyo: true,
         ease: "sine.inOut",
@@ -92,7 +95,7 @@ export function HeroIllustration() {
         <div className="student-card-image">
           <Image
             src="/images/student-uk.png"
-            alt="Student exploring an international study destination"
+            alt="Student exploring international education opportunities"
             fill
             priority
             sizes="(max-width: 800px) 42vw, 240px"
@@ -109,7 +112,7 @@ export function HeroIllustration() {
         <div className="student-card-image">
           <Image
             src="/images/student-australia.png"
-            alt="Student preparing for international education"
+            alt="Student preparing for an international education journey"
             fill
             priority
             sizes="(max-width: 800px) 42vw, 240px"
@@ -126,7 +129,7 @@ export function HeroIllustration() {
         <div className="student-card-image">
           <Image
             src="/images/student-canada.png"
-            alt="Student celebrating an education journey"
+            alt="Students celebrating their education journey"
             fill
             sizes="(max-width: 800px) 42vw, 240px"
           />
@@ -138,11 +141,14 @@ export function HeroIllustration() {
       </div>
 
       <div className="student-card student-card-featured">
-        <div className="student-card-kicker">YOUR FUTURE, WORLDWIDE</div>
+        <div className="student-card-kicker">
+          <GraduationCap size={14} />
+          <span>YOUR FUTURE, WORLDWIDE</span>
+        </div>
         <div className="student-card-image">
           <Image
             src="/images/student-destinations.png"
-            alt="Students pursuing international education"
+            alt="Student celebrating an international education achievement"
             fill
             priority
             sizes="(max-width: 800px) 58vw, 320px"
@@ -159,14 +165,20 @@ export function HeroIllustration() {
           key={destination.code}
           className={`destination-label ${destination.className}`}
         >
-          <img
+          <Image
             src={destination.flag}
             alt={`${destination.name} flag`}
             width={25}
             height={17}
             className="destination-flag"
+            unoptimized
           />
           <span>{destination.name}</span>
+          <ArrowUpRight
+            className="destination-arrow"
+            size={12}
+            aria-hidden="true"
+          />
         </div>
       ))}
 

@@ -1,0 +1,46 @@
+
+.unigo-logo {
+  display: inline-flex;
+  width: fit-content;
+  max-width: 100%;
+  flex: 0 0 auto;
+  align-items: center;
+  line-height: 0;
+  text-decoration: none;
+}
+
+.unigo-logo__image {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+  object-position: left center;
+}
+
+.unigo-logo--footer {
+  align-items: center;
+}
+
+.unigo-logo--footer .unigo-logo__image {
+  object-position: left center;
+}
+
+.unigo-logo:focus-visible {
+  outline: 2px solid #ed1c24;
+  outline-offset: 5px;
+  border-radius: 3px;
+}
+
+@media (max-width: 640px) {
+  .unigo-logo__image {
+    max-width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .unigo-logo,
+  .unigo-logo__image {
+    transition: none;
+  }
+}

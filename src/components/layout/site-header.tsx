@@ -7,6 +7,7 @@ import { navigation } from "@/config/navigation";
 import { siteConfig } from "@/config/site";
 import { ConsultationButton } from "@/components/shared/consultation-button";
 import { MobileNavigation } from "@/components/layout/mobile-navigation";
+import UniGoLogo from "../common/unigo-logo";
 
 export function SiteHeader() {
   const [expanded, setExpanded] = useState<string | null>(null);
@@ -16,10 +17,8 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-50 border-b border-slate-100 bg-white/95 backdrop-blur-xl">
       <div className="mx-auto flex h-[82px] max-w-[1440px] items-center justify-between gap-6 px-5 sm:px-8 lg:px-10">
-        <Link href="/" aria-label="UniGo homepage" className="shrink-0">
-          <span className="text-[32px] font-black tracking-[-0.07em] text-[#082B4C]">
-            Uni<span className="text-[#D7192D]">Go</span>
-          </span>
+        <Link href="/" aria-label="UniGo home" className="shrink-0">
+          <UniGoLogo width={160} priority />
         </Link>
 
         <nav className="hidden items-center gap-5 xl:flex">
