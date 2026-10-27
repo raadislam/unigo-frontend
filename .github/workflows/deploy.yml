@@ -1,0 +1,98 @@
+name: Deploy UniGo to Hostinger
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: unigo-hostinger-deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Build and deploy UniGo
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build static website
+        run: npm run build
+
+      - name: Verify static export
+        run: |
+          test -d out
+          test -s out/index.html
+          echo "Static export generated successfully."
+
+      - name: Configure SSH
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.HOSTINGER_SSH_KEY }}
+          HOSTINGER_KNOWN_HOSTS: ${{ secrets.HOSTINGER_KNOWN_HOSTS }}
+        run: |
+          test -n "$SSH_PRIVATE_KEY"
+          test -n "$HOSTINGER_KNOWN_HOSTS"
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/unigo_deploy
+          chmod 600 ~/.ssh/unigo_deploy
+          printf '%s\n' "$HOSTINGER_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: Verify SSH connection and deployment directory
+        env:
+          HOSTINGER_HOST: ${{ secrets.HOSTINGER_HOST }}
+          HOSTINGER_PORT: ${{ secrets.HOSTINGER_PORT }}
+          HOSTINGER_USER: ${{ secrets.HOSTINGER_USER }}
+          HOSTINGER_DEPLOY_PATH: ${{ secrets.HOSTINGER_DEPLOY_PATH }}
+        run: |
+          ssh \
+            -i ~/.ssh/unigo_deploy \
+            -p "$HOSTINGER_PORT" \
+            -o BatchMode=yes \
+            -o StrictHostKeyChecking=yes \
+            "$HOSTINGER_USER@$HOSTINGER_HOST" \
+            "test -d '$HOSTINGER_DEPLOY_PATH'"
+
+      - name: Deploy static files
+        env:
+          HOSTINGER_HOST: ${{ secrets.HOSTINGER_HOST }}
+          HOSTINGER_PORT: ${{ secrets.HOSTINGER_PORT }}
+          HOSTINGER_USER: ${{ secrets.HOSTINGER_USER }}
+          HOSTINGER_DEPLOY_PATH: ${{ secrets.HOSTINGER_DEPLOY_PATH }}
+        run: |
+          rsync -az \
+            --exclude='.htaccess' \
+            -e "ssh -i ~/.ssh/unigo_deploy -p $HOSTINGER_PORT -o BatchMode=yes -o StrictHostKeyChecking=yes" \
+            out/ \
+            "$HOSTINGER_USER@$HOSTINGER_HOST:$HOSTINGER_DEPLOY_PATH/"
+
+      - name: Verify deployed homepage
+        env:
+          HOSTINGER_HOST: ${{ secrets.HOSTINGER_HOST }}
+          HOSTINGER_PORT: ${{ secrets.HOSTINGER_PORT }}
+          HOSTINGER_USER: ${{ secrets.HOSTINGER_USER }}
+          HOSTINGER_DEPLOY_PATH: ${{ secrets.HOSTINGER_DEPLOY_PATH }}
+        run: |
+          ssh \
+            -i ~/.ssh/unigo_deploy \
+            -p "$HOSTINGER_PORT" \
+            -o BatchMode=yes \
+            -o StrictHostKeyChecking=yes \
+            "$HOSTINGER_USER@$HOSTINGER_HOST" \
+            "test -s '$HOSTINGER_DEPLOY_PATH/index.html' && echo 'Deployment verified successfully.'"
