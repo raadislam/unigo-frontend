@@ -95,7 +95,7 @@ export default function AboutPage() {
             <div className="about-hero__visual">
               <div className="about-hero__image-frame">
                 <Image
-                  src="/images/about/hero.jpg"
+                  src="/images/about/hero.png"
                   alt="Students exploring international education opportunities"
                   fill
                   priority
@@ -159,7 +159,7 @@ export default function AboutPage() {
             <div className="about-mission__visual">
               <div className="about-mission__image-frame">
                 <Image
-                  src="/images/about/mission.jpg"
+                  src="/images/about/mission.png"
                   alt="Students collaborating on their educational goals"
                   fill
                   sizes="(max-width: 760px) 100vw, 45vw"
