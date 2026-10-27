@@ -155,11 +155,11 @@ export default function SiteFooter() {
           </a>
 
           <a
-            href="mailto:support@unigo.com"
+            href="mailto:contact@unigo-bd.com"
             className="site-footer__contact-item"
           >
             <Mail size={18} />
-            <span>support@unigo.com</span>
+            <span>contact@unigo-bd.com</span>
           </a>
 
           <div className="site-footer__contact-item">
