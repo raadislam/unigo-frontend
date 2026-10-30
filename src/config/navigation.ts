@@ -15,4 +15,5 @@ export const navigation = [
   { label: "Destinations", href: "/destinations/" },
   { label: "Blog", href: "/blog/" },
   { label: "Contact", href: "/contact/" },
+  { label: "Legal & Policies", href: "/legal/policy-updates" },
 ];
