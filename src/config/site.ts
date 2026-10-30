@@ -3,7 +3,7 @@ export const siteConfig = {
   title: "UniGo | Your Global Education Journey",
   description:
     "Discover international study opportunities, explore destinations, and get expert guidance for your education journey.",
-  url: "https://unigo.com",
+  url: "https://unigo-bd.com",
   phone: "+880 1352 408649",
   email: "contact@unigo-bd.com",
   address: "Dhaka, Bangladesh",
