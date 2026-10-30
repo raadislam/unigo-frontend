@@ -4,7 +4,7 @@ export const siteConfig = {
   description:
     "Discover international study opportunities, explore destinations, and get expert guidance for your education journey.",
   url: "https://unigo.com",
-  phone: "+880 1234 567890",
+  phone: "+880 1352 408649",
   email: "info@unigo.com",
   address: "Dhaka, Bangladesh",
   themeColor: "#D7192D",

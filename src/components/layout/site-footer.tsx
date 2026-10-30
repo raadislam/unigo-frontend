@@ -151,7 +151,7 @@ export default function SiteFooter() {
 
           <a href="tel:+8801234567890" className="site-footer__contact-item">
             <Phone size={18} />
-            <span>+880 1234 567890</span>
+            <span>+880 1352 408649</span>
           </a>
 
           <a
