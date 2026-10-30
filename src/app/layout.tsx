@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { siteConfig } from "@/config/site";
 
-import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://unigo-bd.com"),
