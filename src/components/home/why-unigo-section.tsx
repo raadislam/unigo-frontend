@@ -6,7 +6,7 @@ const benefits = [
   "Guidance tailored to your goals",
   "Clear explanations of the next steps",
   "Support with application preparation",
-  "Help comparing study destinations",
+  "Help comparing Destinations",
 ];
 
 export function WhyUnigoSection() {

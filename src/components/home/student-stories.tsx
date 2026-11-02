@@ -80,7 +80,7 @@ export default function StudentStories() {
 
                 <div className="student-stories__student">
                   <h3>{story.name}</h3>
-                  <span>Study destination: {story.destination}</span>
+                  <span>Destination: {story.destination}</span>
                 </div>
               </div>
 
@@ -105,9 +105,7 @@ export default function StudentStories() {
                   ))}
                 </div>
 
-                <span className="student-stories__story-label">
-                  STUDENT STORY
-                </span>
+                <span className="student-stories__story-label">VISA STORY</span>
               </div>
             </article>
           ))}

@@ -83,9 +83,9 @@ export default function ContactPage() {
               </h2>
 
               <p className="mt-4 max-w-2xl leading-8 text-slate-600">
-                Whether you are exploring study destinations, planning an
-                application, or looking for expert guidance, our team is ready
-                to hear from you.
+                Whether you are exploring Destinations, planning an application,
+                or looking for expert guidance, our team is ready to hear from
+                you.
               </p>
             </div>
 
@@ -109,7 +109,7 @@ export default function ContactPage() {
 
                 <p className="mt-3 text-sm leading-7 text-slate-500">
                   Reach out to our team directly. We will be happy to discuss
-                  your international  plans.
+                  your international plans.
                 </p>
 
                 <div className="mt-8 space-y-6">

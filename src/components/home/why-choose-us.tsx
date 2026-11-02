@@ -58,11 +58,11 @@ export default function WhyChooseUs() {
           <h2>
             Your Trusted
             <br />
-            <span>Study Abroad</span> Partner
+            <span>Visa Consultancy</span> Partner
           </h2>
 
           <p className="why-choose-us__description">
-            We go beyond consultancy — we become your study abroad partner,
+            We go beyond consultancy — we become your Visa Consultancy partner,
             offering personalized guidance, trusted support, and opportunities
             to help you plan your next chapter.
           </p>

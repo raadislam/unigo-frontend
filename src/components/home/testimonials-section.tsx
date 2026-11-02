@@ -19,7 +19,7 @@ const testimonials = [
     name: "Student testimonial",
     location: "Prospective international student",
     quote:
-      "The support helped me understand what to consider when comparing study destinations and programs.",
+      "The support helped me understand what to consider when comparing Destinations and programs.",
   },
 ];
 

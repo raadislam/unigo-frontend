@@ -38,7 +38,7 @@ const faqs = [
     category: "General Information",
     question: "How can UniGo help me study abroad?",
     answer:
-      "We help you explore suitable study destinations, understand admission requirements, prepare application documents, and navigate the steps involved in planning your education abroad.",
+      "We help you explore suitable Destinations, understand admission requirements, prepare application documents, and navigate the steps involved in planning your education abroad.",
   },
   {
     category: "General Information",

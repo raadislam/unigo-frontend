@@ -112,7 +112,7 @@ export function HeroSection() {
             <span className="hero-eyebrow-icon">
               <GraduationCap size={19} strokeWidth={2} />
             </span>
-            <span>Your Global Education Partner</span>
+            <span>Your Global Journey Starts Here.</span>
           </div>
 
           <h1 className="hero-title">

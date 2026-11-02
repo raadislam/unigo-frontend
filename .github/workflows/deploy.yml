@@ -67,7 +67,7 @@ jobs:
             -o BatchMode=yes \
             -o StrictHostKeyChecking=yes \
             "$HOSTINGER_USER@$HOSTINGER_HOST" \
-            "test -d '$HOSTINGER_DEPLOY_PATH'"
+            "test -d '$HOSTINGER_DEPLOY_PATH' && test -w '$HOSTINGER_DEPLOY_PATH'"
 
       - name: Deploy static files
         env:
@@ -76,7 +76,7 @@ jobs:
           HOSTINGER_USER: ${{ secrets.HOSTINGER_USER }}
           HOSTINGER_DEPLOY_PATH: ${{ secrets.HOSTINGER_DEPLOY_PATH }}
         run: |
-          rsync -az \
+          rsync -az --delete \
             --exclude='.htaccess' \
             -e "ssh -i ~/.ssh/unigo_deploy -p $HOSTINGER_PORT -o BatchMode=yes -o StrictHostKeyChecking=yes" \
             out/ \
