@@ -116,17 +116,17 @@ export function HeroSection() {
           </div>
 
           <h1 className="hero-title">
+            Study Abroad.
+            <br />
             Explore the World.
             <br />
-            Build a Brighter
-            <br />
-            <span>Tomorrow.</span>
+            <span>Build Your Future.</span>
           </h1>
 
           <p className="hero-description">
-            Your journey to international education starts here. Get
-            personalized guidance, university admission support, and end-to-end
-            visa assistance from a team that puts your future first.
+            Start your global journey with UniGo Bangladesh. Get personalized
+            guidance for international university admissions, student visa
+            applications, and travel services—all with support from our team.
           </p>
 
           <div className="hero-services">

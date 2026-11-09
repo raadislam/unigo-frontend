@@ -1,8 +1,8 @@
 export const siteConfig = {
   name: "UniGo",
-  title: "UniGo | Your Global Education Journey",
+  title: "UniGo Bangladesh | Study Abroad, Visa & Travel Consultancy",
   description:
-    "Discover international study opportunities, explore destinations, and get expert guidance for your education journey.",
+    "Explore international education, student visa guidance and global travel services with UniGo Bangladesh. Get professional assistance for your global journey.",
   url: "https://unigo-bd.com",
   phone: "+880 1352 408649",
   email: "contact@unigo-bd.com",
