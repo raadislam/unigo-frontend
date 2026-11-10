@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { GraduationCap, Phone, Mail, MapPin, ArrowRight } from "lucide-react";
+import { Phone, Mail, MapPin, ArrowRight } from "lucide-react";
 
 import "./site-footer.css";
 import UniGoLogo from "../common/unigo-logo";
@@ -83,10 +83,14 @@ const destinations = [
 ];
 
 const socialLinks = [
-  { label: "Facebook", href: "https://www.facebook.com/", icon: "facebook" },
+  {
+    label: "Facebook",
+    href: "https://www.facebook.com/share/19zTW4CQLV/",
+    icon: "facebook",
+  },
   { label: "Instagram", href: "https://www.instagram.com/", icon: "instagram" },
   { label: "LinkedIn", href: "https://www.linkedin.com/", icon: "linkedin" },
-  { label: "YouTube", href: "https://www.youtube.com/", icon: "youtube" },
+  // { label: "YouTube", href: "https://www.youtube.com/", icon: "youtube" },
 ];
 
 export default function SiteFooter() {
@@ -149,9 +153,16 @@ export default function SiteFooter() {
         <div className="site-footer__column site-footer__contact">
           <h2>Contact Us</h2>
 
-          <a href="tel:+8801234567890" className="site-footer__contact-item">
+          <a href="tel:+8801901644300" className="site-footer__contact-item">
             <Phone size={18} />
-            <span>+880 1352 408649</span>
+            <span>+880 1901 644300</span>
+          </a>
+          <a
+            href="tel:+8801901644301"
+            style={{ marginLeft: 30 }}
+            className="site-footer__contact-item"
+          >
+            <span>+880 1901 644301</span>
           </a>
 
           <a

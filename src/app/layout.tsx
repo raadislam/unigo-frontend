@@ -50,7 +50,7 @@ const organizationSchema = {
   url: "https://unigo-bd.com/",
   description:
     "UniGo provides international education guidance, university admission support, visa application assistance and travel services in Bangladesh.",
-  telephone: "+880 1352 408649",
+  telephone: "+8801901644300",
   email: "contact@unigo-bd.com",
   address: {
     "@type": "PostalAddress",

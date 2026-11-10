@@ -4,7 +4,7 @@ export const siteConfig = {
   description:
     "Explore international education, student visa guidance and global travel services with UniGo Bangladesh. Get professional assistance for your global journey.",
   url: "https://unigo-bd.com",
-  phone: "+880 1352 408649",
+  phone: "+8801901644300",
   email: "contact@unigo-bd.com",
   address: "Dhaka, Bangladesh",
   themeColor: "#D7192D",
