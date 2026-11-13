@@ -75,11 +75,11 @@ export default function ContactPage() {
           <div className="grid items-start gap-x-10 gap-y-10 lg:grid-cols-[1.15fr_0.85fr] lg:gap-x-12 lg:gap-y-12">
             <div className="min-w-0">
               <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#D7192D]">
-                Let's Connect
+                Let&apos;s Connect
               </p>
 
               <h2 className="mt-4 max-w-xl text-3xl font-black leading-tight tracking-tight text-[#082B4C] sm:text-4xl">
-                We're here to help you move forward.
+                We&apos;re here to help you move forward.
               </h2>
 
               <p className="mt-4 max-w-2xl leading-8 text-slate-600">
@@ -104,7 +104,7 @@ export default function ContactPage() {
                 </p>
 
                 <h3 className="mt-3 text-2xl font-bold leading-tight text-[#082B4C]">
-                  Let's start a conversation.
+                  Let&apos;s start a conversation.
                 </h3>
 
                 <p className="mt-3 text-sm leading-7 text-slate-500">
