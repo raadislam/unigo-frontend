@@ -1,8 +1,17 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { ArrowUpRight, Check, MapPin, Navigation, Send } from "lucide-react";
+import {
+  ArrowUpRight,
+  Check,
+  LoaderCircle,
+  MapPin,
+  Navigation,
+  Send,
+} from "lucide-react";
 import { siteConfig } from "@/config/site";
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL?.replace(/\/+$/, "");
 
 const offices = [
   {
@@ -26,27 +35,77 @@ const offices = [
 
 export function ContactForm() {
   const [isSending, setIsSending] = useState(false);
+  const [status, setStatus] = useState<{
+    type: "success" | "error";
+    message: string;
+  } | null>(null);
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    const formData = new FormData(event.currentTarget);
+    if (!API_BASE_URL) {
+      setStatus({
+        type: "error",
+        message:
+          "The contact service is not configured. Please try again later.",
+      });
+      return;
+    }
 
-    const name = String(formData.get("name") || "");
-    const phone = String(formData.get("phone") || "");
-    const email = String(formData.get("email") || "");
-    const message = String(formData.get("message") || "");
+    const form = event.currentTarget;
+    const formData = new FormData(form);
 
-    const subject = encodeURIComponent("New Website Enquiry - UniGo");
-    const body = encodeURIComponent(
-      `Name: ${name}\nPhone: ${phone}\nEmail: ${email}\n\nMessage:\n${message}`,
-    );
+    const payload = {
+      name: String(formData.get("name") || "").trim(),
+      phone: String(formData.get("phone") || "").trim(),
+      email: String(formData.get("email") || "").trim(),
+      message: String(formData.get("message") || "").trim(),
+    };
 
     setIsSending(true);
+    setStatus(null);
 
-    window.location.href = `mailto:${siteConfig.email}?subject=${subject}&body=${body}`;
+    try {
+      const response = await fetch(`${API_BASE_URL}/contact`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
 
-    window.setTimeout(() => setIsSending(false), 1000);
+      const result = await response.json();
+
+      if (!response.ok) {
+        const validationMessage = result.errors
+          ? Object.values(result.errors).flat().join(" ")
+          : result.message;
+
+        throw new Error(
+          validationMessage ||
+            "Unable to submit your enquiry. Please try again.",
+        );
+      }
+
+      setStatus({
+        type: "success",
+        message:
+          "Thank you! Your enquiry has been received. Our team will contact you shortly.",
+      });
+
+      form.reset();
+    } catch (error) {
+      setStatus({
+        type: "error",
+        message:
+          error instanceof Error
+            ? error.message
+            : "Something went wrong. Please try again.",
+      });
+    } finally {
+      setIsSending(false);
+    }
   }
 
   return (
@@ -87,6 +146,7 @@ export function ContactForm() {
               type="text"
               placeholder="Enter your name"
               autoComplete="name"
+              maxLength={120}
               required
               className="h-[50px] w-full rounded-xl border border-slate-200 bg-[#FAFBFD] px-4 text-sm text-[#082B4C] outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-[#0D5960] focus:bg-white focus:ring-4 focus:ring-[#0D5960]/[0.07]"
             />
@@ -106,6 +166,7 @@ export function ContactForm() {
               type="tel"
               placeholder="+880 1XXXXXXXXX"
               autoComplete="tel"
+              maxLength={30}
               required
               className="h-[50px] w-full rounded-xl border border-slate-200 bg-[#FAFBFD] px-4 text-sm text-[#082B4C] outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-[#0D5960] focus:bg-white focus:ring-4 focus:ring-[#0D5960]/[0.07]"
             />
@@ -126,6 +187,7 @@ export function ContactForm() {
             type="email"
             placeholder="you@example.com"
             autoComplete="email"
+            maxLength={255}
             className="h-[50px] w-full rounded-xl border border-slate-200 bg-[#FAFBFD] px-4 text-sm text-[#082B4C] outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-[#0D5960] focus:bg-white focus:ring-4 focus:ring-[#0D5960]/[0.07]"
           />
         </div>
@@ -142,21 +204,41 @@ export function ContactForm() {
             id="contact-message"
             name="message"
             rows={7}
+            maxLength={5000}
             required
-            placeholder="Tell us how we can help with your international  plans..."
+            placeholder="Tell us how we can help with your international plans..."
             className="min-h-[170px] w-full resize-y rounded-xl border border-slate-200 bg-[#FAFBFD] p-4 text-sm leading-7 text-[#082B4C] outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-[#0D5960] focus:bg-white focus:ring-4 focus:ring-[#0D5960]/[0.07]"
           />
         </div>
 
+        {status && (
+          <div
+            role="status"
+            aria-live="polite"
+            className={`rounded-xl px-4 py-3 text-sm ${
+              status.type === "success"
+                ? "border border-emerald-200 bg-emerald-50 text-emerald-700"
+                : "border border-red-200 bg-red-50 text-red-700"
+            }`}
+          >
+            {status.message}
+          </div>
+        )}
+
         <button
           type="submit"
           disabled={isSending}
-          className="group flex min-h-[52px] w-full items-center justify-center gap-2 rounded-xl bg-[#D7192D] px-6 py-4 text-sm font-bold text-white transition hover:bg-[#B51225] hover:shadow-lg hover:shadow-[#D7192D]/15 disabled:opacity-70"
+          className="group flex min-h-[52px] w-full items-center justify-center gap-2 rounded-xl bg-[#D7192D] px-6 py-4 text-sm font-bold text-white transition hover:bg-[#B51225] hover:shadow-lg hover:shadow-[#D7192D]/15 disabled:cursor-not-allowed disabled:opacity-70"
         >
           {isSending ? (
             <>
+              <LoaderCircle size={17} className="animate-spin" />
+              Sending Message...
+            </>
+          ) : status?.type === "success" ? (
+            <>
               <Check size={17} />
-              Preparing Message
+              Message Sent
             </>
           ) : (
             <>
@@ -170,7 +252,7 @@ export function ContactForm() {
         </button>
 
         <p className="text-center text-[11px] text-slate-400">
-          Your email application will open with your message prepared.
+          Your message will be sent securely to the UniGo team.
         </p>
       </form>
     </div>

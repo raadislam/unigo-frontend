@@ -89,7 +89,11 @@ const socialLinks = [
     icon: "facebook",
   },
   { label: "Instagram", href: "https://www.instagram.com/", icon: "instagram" },
-  { label: "LinkedIn", href: "https://www.linkedin.com/", icon: "linkedin" },
+  {
+    label: "LinkedIn",
+    href: "https://www.linkedin.com/company/unigo-tours-travels",
+    icon: "linkedin",
+  },
   // { label: "YouTube", href: "https://www.youtube.com/", icon: "youtube" },
 ];
 
