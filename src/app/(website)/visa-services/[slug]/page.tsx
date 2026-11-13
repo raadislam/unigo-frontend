@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ChevronRight, Plane, FileText } from "lucide-react";
-import { getCountry, getCountryDirectory } from "@/lib/country-directory";
+import { getCountry, getCountryDirectory, type Country } from "@/lib/country-directory";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -50,7 +50,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function CountryVisaPage({ params }: Props) {
   const { slug } = await params;
-  let country;
+  let country: Country;
 
   try {
     country = await getCountry(slug);
