@@ -5,10 +5,10 @@ import { useEffect, useState } from "react";
 import { ArrowLeft, BadgeCheck, ChevronRight, FileText, Globe2, Headphones, MapPin, Plane, ShieldCheck } from "lucide-react";
 import { getCountry, getVisaRequirement, type Country, type VisaRequirement } from "@/lib/country-directory";
 
-export function CountryVisaPageClient({ slug }: { slug: string }) {
-  const [country, setCountry] = useState<Country | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [requirement, setRequirement] = useState<VisaRequirement | null>(null);
+export function CountryVisaPageClient({ slug, initialCountry, initialRequirement }: { slug: string; initialCountry: Country; initialRequirement: VisaRequirement | null }) {
+  const [country, setCountry] = useState<Country | null>(initialCountry);
+  const [loading, setLoading] = useState(false);
+  const [requirement, setRequirement] = useState<VisaRequirement | null>(initialRequirement);
   const [requirementError, setRequirementError] = useState(false);
   const [error, setError] = useState(false);
 

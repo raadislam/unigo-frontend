@@ -132,7 +132,7 @@ export async function getCountryDirectory(): Promise<CountryListResponse> {
       headers: {
         Accept: "application/json",
       },
-      cache: "no-store",
+      cache: "force-cache",
     });
 
     if (!response.ok) {
