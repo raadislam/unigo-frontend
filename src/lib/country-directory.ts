@@ -57,7 +57,7 @@ type CountryResponse = {
 };
 
 function getApiUrl() {
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\\/+$/, "");
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/+$/, "");
 
   if (!baseUrl) {
     throw new Error("NEXT_PUBLIC_API_URL is not configured.");
