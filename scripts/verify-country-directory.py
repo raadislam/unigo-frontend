@@ -305,9 +305,35 @@ def snapshot(api_url, expected_file):
 
         requirement = requirements_by_iso2.get(iso2)
         if requirement:
-            requirement_country = requirement.get("country") or {}
+            show_url = base + f"/visa-requirements/{iso2}?passport=BGD&purpose=tourism"
+            show_payload = json.loads(fetch_bytes(show_url).decode("utf-8"))
+            if show_payload.get("success") is not True or not isinstance(show_payload.get("data"), dict):
+                raise SystemExit(f"Public visa detail API returned an invalid record for {iso2}.")
+            detail_requirement = show_payload["data"]
+            if (
+                detail_requirement.get("id") != requirement.get("id")
+                or detail_requirement.get("passport_nationality_iso3") != "BGD"
+                or detail_requirement.get("travel_purpose") != "tourism"
+                or detail_requirement.get("verification_status") != "verified"
+                or detail_requirement.get("is_published") is not True
+            ):
+                raise SystemExit(f"Public visa detail API does not match the verified, published list record for {iso2}.")
+            list_sources = {
+                source.get("source_url")
+                for source in requirement.get("sources") or []
+                if source.get("source_type") == "official" and source.get("source_url")
+            }
+            detail_sources = {
+                source.get("source_url")
+                for source in detail_requirement.get("sources") or []
+                if source.get("source_type") == "official" and source.get("source_url")
+            }
+            if not list_sources.issubset(detail_sources):
+                raise SystemExit(f"Public visa detail API is missing official source links for {iso2}.")
+            requirement_country = detail_requirement.get("country") or {}
             if requirement_country.get("slug") != slug or requirement_country.get("name") != name:
-                raise SystemExit(f"Public country and visa APIs disagree about the identity of {iso2}.")
+                raise SystemExit(f"Public country and visa detail APIs disagree about the identity of {iso2}.")
+            requirement = detail_requirement
 
         countries.append({
             "slug": slug,
@@ -335,6 +361,7 @@ def snapshot(api_url, expected_file):
     print(f"Public country directory API HTTP 200; {len(countries)} eligible countries.")
     print("Authoritative API slugs: " + ", ".join(sorted(seen_slugs)))
     print(f"Public BGD tourism requirements API HTTP 200; {len(requirements_by_iso2)} verified and published records.")
+    print(f"Country-specific visa detail endpoints HTTP 200; {len(requirements_by_iso2)} records matched the public list API.")
 
 
 def verify_static(site_dir, base_url, expected_file):
