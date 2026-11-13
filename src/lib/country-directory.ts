@@ -155,33 +155,37 @@ export async function getCountryDirectory(): Promise<CountryListResponse> {
 }
 
 export async function getCountry(slug: string): Promise<Country> {
-  const response = await fetch(
-    `${getApiUrl()}/countries/${encodeURIComponent(slug)}`,
-    {
-      headers: {
-        Accept: "application/json",
+  try {
+    const response = await fetch(
+      `${getApiUrl()}/countries/${encodeURIComponent(slug)}`,
+      {
+        headers: {
+          Accept: "application/json",
+        },
+        cache: "force-cache",
       },
-      cache: "no-store",
-    },
-  );
+    );
 
-  if (response.status === 404) {
-    throw new Error("COUNTRY_NOT_FOUND");
+    if (response.ok) {
+      const payload = (await response.json()) as CountryResponse;
+
+      if (payload?.data) {
+        return payload.data;
+      }
+    }
+  } catch (error) {
+    console.error("Country detail API could not be loaded:", error);
   }
 
-  if (!response.ok) {
-    throw new Error(`Country API returned ${response.status}.`);
+  const directory = await getCountryDirectory();
+  const country = directory.data.find((item) => item.slug === slug);
+
+  if (country) {
+    return country;
   }
 
-  const payload = (await response.json()) as CountryResponse;
-
-  if (!payload?.data) {
-    throw new Error("Invalid country API response.");
-  }
-
-  return payload.data;
+  throw new Error("COUNTRY_NOT_FOUND");
 }
-
 export async function getVisaRequirement(destinationIso2: string): Promise<VisaRequirement | null> {
   const response = await fetch(
     `${getApiUrl()}/visa-requirements/${encodeURIComponent(destinationIso2)}?passport=BGD&purpose=tourism`,
