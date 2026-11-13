@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { LandingPage } from "@/components/shared/landing-page";
 import { BlogResources } from "@/components/blog/blog-resources";
 
 export const metadata: Metadata = {
@@ -30,12 +29,6 @@ export const metadata: Metadata = {
 export default function BlogPage() {
   return (
     <>
-      {/* <LandingPage
-        eyebrow="UniGo Journal"
-        title="Ideas and insights for your global journey"
-        description="Explore practical guidance, expert perspectives and inspiring stories across visa consultancy, international education, travel, global programs and more."
-      /> */}
-
       <BlogResources />
     </>
   );
