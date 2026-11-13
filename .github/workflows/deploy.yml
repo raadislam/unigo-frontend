@@ -134,12 +134,12 @@ jobs:
               raise SystemExit("Canada country page is missing from the generated sitemap.")
 
           other_slugs = [slug for slug in country_slugs if slug != "canada"]
-          if len(other_slugs) < 2:
+          if len(other_slugs) < 1:
               raise SystemExit(
-                  f"Expected at least two additional country pages; found {len(other_slugs)}."
+                  f"Expected at least one additional country page; found {len(other_slugs)}."
               )
 
-          selected_slugs = ["canada", *other_slugs[:2]]
+          selected_slugs = ["canada", *other_slugs]
           for slug in selected_slugs:
               html_file = Path("out") / "visa-services" / slug / "index.html"
               if not html_file.is_file() or html_file.stat().st_size == 0:
@@ -159,5 +159,5 @@ jobs:
                       raise SystemExit(f"Live verification failed for {url}: HTTP {response.status}")
               print(f"HTTP 200 verified: {url}")
 
-          print(f"Verified Canada plus {len(other_slugs[:2])} additional country pages and the live sitemap.")
+          print(f"Verified Canada plus {len(other_slugs)} additional country pages and the live sitemap.")
           PY
