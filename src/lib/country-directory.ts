@@ -179,12 +179,12 @@ export async function getCountry(slug: string): Promise<Country> {
 
   throw new Error("COUNTRY_NOT_FOUND");
 }
-export async function getVisaRequirement(destinationIso2: string): Promise<VisaRequirement | null> {
+export async function getVisaRequirement(destinationIso2: string, cache: RequestCache = "no-store"): Promise<VisaRequirement | null> {
   const response = await fetch(
     `${getApiUrl()}/visa-requirements/${encodeURIComponent(destinationIso2)}?passport=BGD&purpose=tourism`,
     {
       headers: { Accept: "application/json" },
-      cache: "no-store",
+      cache,
     },
   );
 
