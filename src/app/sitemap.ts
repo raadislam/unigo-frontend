@@ -14,8 +14,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   const directory = await getCountryDirectory();
-  const countryEntries = directory.data.map((country) => ({
-    url: `${baseUrl}/visa-services/${country.slug}/`,
+  const countrySlugs = new Set(directory.data.map((country) => country.slug));
+  countrySlugs.add("canada");
+
+  const countryEntries = Array.from(countrySlugs).map((slug) => ({
+    url: `${baseUrl}/visa-services/${slug}/`,
     changeFrequency: "weekly" as const,
     priority: 0.75,
   }));
