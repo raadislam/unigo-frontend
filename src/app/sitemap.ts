@@ -3,6 +3,8 @@ import { getCountryDirectory } from "@/lib/country-directory";
 
 const baseUrl = "https://unigo-bd.com";
 
+export const dynamic = "force-static";
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const routes = ["", "/about/", "/contact/", "/study-abroad/", "/services/", "/visa-services/"];
   const staticEntries = routes.map((route) => ({
