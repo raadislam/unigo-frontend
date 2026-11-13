@@ -130,8 +130,12 @@ jobs:
               if len(parts) == 2 and parts[0] == "visa-services":
                   country_slugs.append(parts[1])
 
-          if "canada" not in country_slugs:
-              raise SystemExit("Canada country page is missing from the generated sitemap.")
+          required_slugs = ["canada", "japan", "australia"]
+          missing_slugs = [slug for slug in required_slugs if slug not in country_slugs]
+          if missing_slugs:
+              raise SystemExit(
+                  f"Required published country pages are missing from the generated sitemap: {', '.join(missing_slugs)}"
+              )
 
           other_slugs = [slug for slug in country_slugs if slug != "canada"]
           if len(other_slugs) < 1:
@@ -139,7 +143,7 @@ jobs:
                   f"Expected at least one additional country page; found {len(other_slugs)}."
               )
 
-          selected_slugs = ["canada", *other_slugs]
+          selected_slugs = sorted(set(["canada", *other_slugs]))
           for slug in selected_slugs:
               html_file = Path("out") / "visa-services" / slug / "index.html"
               if not html_file.is_file() or html_file.stat().st_size == 0:
