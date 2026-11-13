@@ -1,21 +1,37 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
-import { Search, Plane, ArrowRight, Globe2, SlidersHorizontal, Sparkles } from "lucide-react";
-import type { Country, VisaCategory } from "@/lib/country-directory";
-
-type Props = {
-  countries: Country[];
-  categories: Pick<VisaCategory, "name" | "slug">[];
-};
+import { useEffect, useMemo, useState } from "react";
+import { Search, Plane, ArrowRight, Globe2, SlidersHorizontal } from "lucide-react";
+import { getCountryDirectory, type Country, type VisaCategory } from "@/lib/country-directory";
 
 const alphabet = ["ALL", ..."ABCDEFGHIJKLMNOPQRSTUVWXYZ"];
 
-export function CountryDirectory({ countries, categories }: Props) {
+export function CountryDirectory() {
+  const [countries, setCountries] = useState<Country[]>([]);
+  const [categories, setCategories] = useState<Pick<VisaCategory, "name" | "slug">[]>([]);
   const [search, setSearch] = useState("");
   const [activeLetter, setActiveLetter] = useState("ALL");
   const [activeCategory, setActiveCategory] = useState("all");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+
+  useEffect(() => {
+    let active = true;
+
+    getCountryDirectory().then((directory) => {
+      if (!active) return;
+      setCountries(directory.data);
+      setCategories(directory.meta.filters.categories);
+      setError(!directory.success);
+      setLoading(false);
+    });
+
+    return () => {
+      active = false;
+    };
+  }, [attempt]);
 
   const filteredCountries = useMemo(() => {
     const normalizedSearch = search.trim().toLowerCase();
@@ -93,7 +109,18 @@ export function CountryDirectory({ countries, categories }: Props) {
         <span className="hidden items-center gap-1.5 text-xs font-medium text-slate-400 sm:flex"><Globe2 size={14} /> Explore with UniGo</span>
       </div>
 
-      {filteredCountries.length > 0 ? (
+      {loading ? (
+        <div className="rounded-3xl border border-[#e3eaf1] bg-white px-6 py-16 text-center">
+          <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-[#d7192d]/20 border-t-[#d7192d]" />
+          <p className="mt-4 text-sm font-medium text-[#526579]">Loading destinations...</p>
+        </div>
+      ) : error ? (
+        <div className="rounded-3xl border border-dashed border-[#cbd8e4] bg-white px-6 py-16 text-center">
+          <p className="text-lg font-bold text-[#082b4c]">Unable to load destinations</p>
+          <p className="mt-2 text-sm text-slate-500">Please check your connection and try again.</p>
+          <button type="button" onClick={() => { setLoading(true); setError(false); setAttempt((value) => value + 1); }} className="mt-5 rounded-xl bg-[#d7192d] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#b91426]">Try again</button>
+        </div>
+      ) : filteredCountries.length > 0 ? (
         <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
           {filteredCountries.map((country) => (
             <Link href={`/visa-services/${country.slug}/`} key={country.id} className="group relative overflow-hidden rounded-2xl border border-[#e3eaf1] bg-white p-5 shadow-[0_8px_28px_rgba(8,43,76,0.045)] transition duration-300 hover:-translate-y-1 hover:border-[#d7192d]/40 hover:shadow-[0_18px_42px_rgba(8,43,76,0.11)]">
