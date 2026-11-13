@@ -3,25 +3,37 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ArrowLeft, BadgeCheck, ChevronRight, FileText, Globe2, Headphones, MapPin, Plane, ShieldCheck } from "lucide-react";
-import { getCountry, type Country } from "@/lib/country-directory";
+import { getCountry, getVisaRequirement, type Country, type VisaRequirement } from "@/lib/country-directory";
 
 export function CountryVisaPageClient({ slug }: { slug: string }) {
   const [country, setCountry] = useState<Country | null>(null);
   const [loading, setLoading] = useState(true);
+  const [requirement, setRequirement] = useState<VisaRequirement | null>(null);
+  const [requirementError, setRequirementError] = useState(false);
   const [error, setError] = useState(false);
 
   useEffect(() => {
     let active = true;
-    getCountry(slug)
-      .then((data) => {
-        if (active) setCountry(data);
-      })
-      .catch(() => {
+    async function loadDestination() {
+      try {
+        const data = await getCountry(slug);
+        if (!active) return;
+        setCountry(data);
+
+        try {
+          const visaData = await getVisaRequirement(data.iso2);
+          if (active) setRequirement(visaData);
+        } catch {
+          if (active) setRequirementError(true);
+        }
+      } catch {
         if (active) setError(true);
-      })
-      .finally(() => {
+      } finally {
         if (active) setLoading(false);
-      });
+      }
+    }
+
+    loadDestination();
     return () => {
       active = false;
     };
@@ -100,6 +112,88 @@ export function CountryVisaPageClient({ slug }: { slug: string }) {
           <div className="mb-4 flex items-center gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#fff0f1] text-[#d7192d]"><Globe2 size={19} /></span><h2 className="text-xl font-bold text-[#082b4c]">About travelling to {country.name}</h2></div>
           <p className="whitespace-pre-line text-sm leading-8 text-slate-600">{country.overview}</p>
         </section>}
+
+        <section className="mt-8 rounded-3xl border border-[#e3eaf1] bg-white p-6 shadow-sm sm:p-8">
+          <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#d7192d]">Bangladeshi ordinary passport</p>
+              <h2 className="mt-1 text-xl font-bold text-[#082b4c]">Visa and entry requirements</h2>
+              <p className="mt-1 text-sm text-slate-500">Travel purpose: Tourism</p>
+            </div>
+            {requirement && <span className="inline-flex w-fit items-center gap-2 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-700"><ShieldCheck size={14} /> Verified information</span>}
+          </div>
+          {requirementError ? (
+            <p className="rounded-xl bg-amber-50 p-4 text-sm leading-6 text-amber-800">Detailed entry requirements could not be loaded right now. Please try again later or contact UniGo.</p>
+          ) : requirement ? (
+            <>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {[
+                  ["Requirement type", requirement.requirement_type],
+                  ["Maximum permitted stay", requirement.maximum_permitted_stay],
+                  ["Entry count", requirement.entry_count],
+                  ["Application fee", requirement.application_fee],
+                  ["Processing time", requirement.processing_time],
+                  ["Application channel", requirement.application_channel],
+                ].filter((item): item is [string, string] => Boolean(item[1]?.trim())).map(([label, value]) => (
+                  <div key={label} className="rounded-2xl bg-[#f6f9fc] p-4">
+                    <p className="text-xs font-semibold text-slate-500">{label}</p>
+                    <p className="mt-2 whitespace-pre-line text-sm font-semibold leading-6 text-[#263f59]">{value}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                {[
+                  ["Visa required", requirement.visa_required],
+                  ["Visa free", requirement.visa_free_available],
+                  ["Visa on arrival", requirement.visa_on_arrival_available],
+                  ["eVisa available", requirement.evisa_available],
+                ].map(([label, value]) => (
+                  <div key={String(label)} className="flex items-center justify-between rounded-xl border border-[#e8edf2] px-4 py-3">
+                    <span className="text-sm text-slate-600">{String(label)}</span>
+                    <span className="text-sm font-bold text-[#082b4c]">{value === true ? "Yes" : value === false ? "No" : "Not specified"}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-6 grid gap-5 lg:grid-cols-2">
+                {[
+                  ["Passport validity", requirement.passport_validity_rule],
+                  ["Blank passport pages", requirement.blank_passport_pages_rule],
+                  ["Return or onward ticket", requirement.return_ticket_rule],
+                  ["Proof of funds", requirement.proof_of_funds_rule],
+                  ["Accommodation", requirement.accommodation_rule],
+                  ["Travel insurance", requirement.travel_insurance_rule],
+                  ["Health requirements", requirement.health_requirements],
+                  ["Transit requirements", requirement.transit_requirements],
+                ].filter((item): item is [string, string] => Boolean(item[1]?.trim())).map(([label, value]) => (
+                  <div key={label}>
+                    <h3 className="text-sm font-bold text-[#082b4c]">{label}</h3>
+                    <p className="mt-1 whitespace-pre-line text-sm leading-7 text-slate-600">{value}</p>
+                  </div>
+                ))}
+              </div>
+              {requirement.required_documents?.length ? (
+                <div className="mt-6 border-t border-[#edf1f5] pt-6">
+                  <h3 className="text-base font-bold text-[#082b4c]">Required documents</h3>
+                  <ul className="mt-3 grid gap-2 sm:grid-cols-2">
+                    {requirement.required_documents.map((document, index) => <li key={index} className="flex gap-2 rounded-xl bg-[#f6f9fc] p-3 text-sm leading-6 text-slate-600"><FileText size={16} className="mt-0.5 shrink-0 text-[#d7192d]" />{document}</li>)}
+                  </ul>
+                </div>
+              ) : null}
+              {requirement.sources?.length ? (
+                <div className="mt-6 border-t border-[#edf1f5] pt-5">
+                  <h3 className="text-sm font-bold text-[#082b4c]">Official sources</h3>
+                  <div className="mt-2 flex flex-col gap-2">
+                    {requirement.sources.map((source) => <a key={source.id} href={source.source_url || "#"} target="_blank" rel="noreferrer" className="text-sm font-medium text-[#b91f32] underline underline-offset-4">{source.source_name || "Government source"}{source.is_primary ? " · Primary source" : ""}</a>)}
+                  </div>
+                  {requirement.official_source_checked_at && <p className="mt-3 text-xs text-slate-400">Last official source check: {new Date(requirement.official_source_checked_at).toLocaleDateString("en-GB")}</p>}
+                </div>
+              ) : null}
+              <p className="mt-6 rounded-xl bg-[#f6f9fc] p-4 text-xs leading-6 text-slate-500">Visa and entry requirements may change. Always confirm current requirements with the destination government before booking or travelling.</p>
+            </>
+          ) : (
+            <p className="rounded-xl bg-[#f6f9fc] p-4 text-sm leading-7 text-slate-500">No currently published and verified tourism requirement is available for Bangladeshi passport holders. Contact UniGo for guidance.</p>
+          )}
+        </section>
 
         <section className="mt-8">
           <div className="mb-5 flex items-center gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#fff0f1] text-[#d7192d]"><Plane size={19} /></span><div><p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#d7192d]">Entry options</p><h2 className="text-xl font-bold text-[#082b4c]">Visa categories</h2></div></div>
