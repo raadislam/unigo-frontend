@@ -39,7 +39,7 @@ export type Country = {
   services: CountryService[];
 };
 
-type CountryListResponse = {
+export type CountryListResponse = {
   success: boolean;
   data: Country[];
   meta: {
@@ -57,7 +57,7 @@ type CountryResponse = {
 };
 
 function getApiUrl() {
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/+$/, "");
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\\/+$/, "");
 
   if (!baseUrl) {
     throw new Error("NEXT_PUBLIC_API_URL is not configured.");
@@ -86,12 +86,11 @@ export async function getCountryDirectory(): Promise<CountryListResponse> {
       headers: {
         Accept: "application/json",
       },
-      cache: "force-cache",
+      cache: "no-store",
     });
 
     if (!response.ok) {
       console.error(`Country directory API returned HTTP ${response.status}.`);
-
       return emptyCountryDirectory();
     }
 
@@ -99,14 +98,12 @@ export async function getCountryDirectory(): Promise<CountryListResponse> {
 
     if (!payload || !Array.isArray(payload.data)) {
       console.error("Country directory API returned an invalid response.");
-
       return emptyCountryDirectory();
     }
 
     return payload;
   } catch (error) {
     console.error("Country directory could not be loaded:", error);
-
     return emptyCountryDirectory();
   }
 }
@@ -118,7 +115,7 @@ export async function getCountry(slug: string): Promise<Country> {
       headers: {
         Accept: "application/json",
       },
-      cache: "force-cache",
+      cache: "no-store",
     },
   );
 
