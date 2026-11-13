@@ -17,68 +17,58 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
+  const country = await getCountry(slug);
+  const requirement = await getVisaRequirement(country.iso2, "force-cache");
+  const title =
+    country.seo_title?.trim() ||
+    `${country.name} Visa Requirements for Bangladeshi Citizens | UniGo`;
+  const description =
+    country.seo_description?.trim() ||
+    country.short_description?.trim() ||
+    `Explore ${country.name} visa requirements for Bangladeshi passport holders, entry rules, required documents and visa assistance from UniGo Bangladesh.`;
+  const canonical = `${baseUrl}/visa-services/${country.slug}/`;
+  const keywords = [
+    ...(country.seo_keywords ?? []),
+    `${country.name} visa from Bangladesh`,
+    `${country.name} visa requirements for Bangladeshi citizens`,
+    `${country.name} visa application`,
+  ];
 
-  try {
-    const country = await getCountry(slug);
-    const requirement = await getVisaRequirement(country.iso2).catch(() => null);
-    const title =
-      country.seo_title?.trim() ||
-      `${country.name} Visa Requirements for Bangladeshi Citizens | UniGo`;
-    const description =
-      country.seo_description?.trim() ||
-      country.short_description?.trim() ||
-      `Explore ${country.name} visa requirements for Bangladeshi passport holders, entry rules, required documents and visa assistance from UniGo Bangladesh.`;
-    const canonical = `${baseUrl}/visa-services/${country.slug}/`;
-    const keywords = [
-      ...(country.seo_keywords ?? []),
-      `${country.name} visa from Bangladesh`,
-      `${country.name} visa requirements for Bangladeshi citizens`,
-      `${country.name} visa application`,
-    ];
-
-    return {
+  return {
+    title,
+    description,
+    keywords,
+    alternates: { canonical },
+    openGraph: {
+      type: "article",
+      locale: "en_BD",
+      siteName: "UniGo Bangladesh",
       title,
       description,
-      keywords,
-      alternates: { canonical },
-      openGraph: {
-        type: "article",
-        locale: "en_BD",
-        siteName: "UniGo Bangladesh",
-        title,
-        description,
-        url: canonical,
-        images: [
-          {
-            url: "/images/unigo-social-preview.png",
-            width: 1200,
-            height: 630,
-            alt: `${country.name} visa information - UniGo Bangladesh`,
-          },
-        ],
-      },
-      twitter: {
-        card: "summary_large_image",
-        title,
-        description,
-        images: ["/images/unigo-social-preview.png"],
-      },
-      robots: {
-        index: true,
-        follow: true,
-      },
-      other: requirement?.official_source_checked_at
-        ? { "visa-information-last-verified": requirement.official_source_checked_at }
-        : undefined,
-    };
-  } catch {
-    return {
-      title: "Visa Information and Services | UniGo Bangladesh",
-      description:
-        "Explore destination visa information, entry requirements and travel assistance from UniGo Bangladesh.",
-      robots: { index: false, follow: true },
-    };
-  }
+      url: canonical,
+      images: [
+        {
+          url: "/images/unigo-social-preview.png",
+          width: 1200,
+          height: 630,
+          alt: `${country.name} visa information - UniGo Bangladesh`,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: ["/images/unigo-social-preview.png"],
+    },
+    robots: {
+      index: true,
+      follow: true,
+    },
+    other: requirement?.official_source_checked_at
+      ? { "visa-information-last-verified": requirement.official_source_checked_at }
+      : undefined,
+  };
 }
 
 export default async function CountryVisaPage({ params }: Props) {
@@ -91,7 +81,7 @@ export default async function CountryVisaPage({ params }: Props) {
     notFound();
   }
 
-  const requirement = await getVisaRequirement(country.iso2).catch(() => null);
+  const requirement = await getVisaRequirement(country.iso2, "force-cache");
 
   return (
     <CountryVisaPageClient
