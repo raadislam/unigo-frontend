@@ -119,7 +119,7 @@ jobs:
           root = ElementTree.parse(sitemap_path).getroot()
           urls = [
               node.text.strip()
-              for node in root
+              for node in root.iter()
               if node.tag.endswith("loc") and node.text
           ]
 
