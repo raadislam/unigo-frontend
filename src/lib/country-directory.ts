@@ -21,6 +21,52 @@ export type CountryService = {
   };
 };
 
+
+export type VisaRequirementSource = {
+  id: number;
+  source_type: string;
+  source_name?: string | null;
+  source_url?: string | null;
+  source_last_checked_at?: string | null;
+  is_primary?: boolean;
+};
+
+export type VisaRequirement = {
+  id: number;
+  passport_nationality_iso3: string;
+  passport_nationality_name?: string | null;
+  travel_purpose: string;
+  requirement_type?: string | null;
+  visa_required?: boolean | null;
+  visa_free_available?: boolean | null;
+  visa_on_arrival_available?: boolean | null;
+  evisa_available?: boolean | null;
+  maximum_permitted_stay?: string | null;
+  entry_count?: string | null;
+  passport_validity_rule?: string | null;
+  blank_passport_pages_rule?: string | null;
+  return_ticket_rule?: string | null;
+  proof_of_funds_rule?: string | null;
+  accommodation_rule?: string | null;
+  travel_insurance_rule?: string | null;
+  health_requirements?: string | null;
+  transit_requirements?: string | null;
+  application_channel?: string | null;
+  application_fee?: string | null;
+  processing_time?: string | null;
+  required_documents?: string[] | null;
+  effective_from?: string | null;
+  effective_until?: string | null;
+  official_source_checked_at?: string | null;
+  sources?: VisaRequirementSource[];
+};
+
+type VisaRequirementResponse = {
+  success: boolean;
+  data: VisaRequirement;
+  meta?: { notice?: string };
+};
+
 export type Country = {
   id: number;
   name: string;
@@ -132,6 +178,24 @@ export async function getCountry(slug: string): Promise<Country> {
   if (!payload?.data) {
     throw new Error("Invalid country API response.");
   }
+
+  return payload.data;
+}
+
+export async function getVisaRequirement(destinationIso2: string): Promise<VisaRequirement | null> {
+  const response = await fetch(
+    `${getApiUrl()}/visa-requirements/${encodeURIComponent(destinationIso2)}?passport=BGD&purpose=tourism`,
+    {
+      headers: { Accept: "application/json" },
+      cache: "no-store",
+    },
+  );
+
+  if (response.status === 404) return null;
+  if (!response.ok) throw new Error(`Visa requirement API returned ${response.status}.`);
+
+  const payload = (await response.json()) as VisaRequirementResponse;
+  if (!payload?.data) throw new Error("Invalid visa requirement response.");
 
   return payload.data;
 }
