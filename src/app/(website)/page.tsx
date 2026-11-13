@@ -8,6 +8,8 @@ import GlobalFutureCTA from "@/components/home/global-future-cta";
 import FAQSection from "@/components/home/faq-section";
 import PartnerLogos from "@/components/home/partner-logos";
 import { VisaDirectoryCta } from "@/components/home/visa-directory-cta";
+import { HomepageCountryDiscovery } from "@/components/home/homepage-country-discovery";
+import { getCountryDirectory } from "@/lib/country-directory";
 
 export const metadata: Metadata = {
   title: "Study Abroad & Travel Consultancy in Bangladesh",
@@ -42,11 +44,14 @@ export const metadata: Metadata = {
   },
 };
 
-export default function HomePage() {
+export default async function HomePage() {
+  const directory = await getCountryDirectory();
+
   return (
     <>
       <HeroSection />
       <DestinationShowcase />
+      <HomepageCountryDiscovery countries={directory.data} />
       <VisaDirectoryCta />
       <WhyChooseUs />
       <FAQSection />
