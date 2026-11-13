@@ -120,15 +120,26 @@ def static_country_slugs(site_dir):
     }
 
 
+def normalize_text(value):
+    return re.sub(r"\\s+", " ", str(value or "")).strip()
+
+
+def require_visible(parser, value, field, label):
+    expected = normalize_text(value)
+    if expected and expected.casefold() not in normalize_text(parser.text).casefold():
+        raise SystemExit(f"{label} does not render the API {field} value.")
+
+
 def validate_country_page(parser, country, base_url, label):
     slug = country["slug"]
     name = country["name"]
     canonical = f"{base_url.rstrip('/')}/visa-services/{slug}/"
     title = parser.title or parser.meta.get("og:title", "")
     description = parser.meta.get("description", "")
+    og_title = parser.meta.get("og:title", "")
     og_url = parser.meta.get("og:url", "")
     robots = parser.meta.get("robots", "").lower()
-    visible = parser.text.casefold()
+    visible = normalize_text(parser.text).casefold()
 
     if name.casefold() not in visible:
         raise SystemExit(f"{label} does not render the expected country name: {name}.")
@@ -136,12 +147,87 @@ def validate_country_page(parser, country, base_url, label):
         raise SystemExit(f"{label} title/OG title does not include the country name: {name}.")
     if not description.strip():
         raise SystemExit(f"{label} is missing its SEO description.")
+
+    expected_description = (
+        country.get("seo_description")
+        or country.get("short_description")
+        or f"Explore {name} visa requirements for Bangladeshi passport holders, entry rules, required documents and visa assistance from UniGo Bangladesh."
+    )
+    if normalize_text(description) != normalize_text(expected_description):
+        raise SystemExit(f"{label} SEO description does not match the country API data.")
+
+    if country.get("seo_title") and country["seo_title"].casefold() not in og_title.casefold():
+        raise SystemExit(f"{label} Open Graph title does not match the country API SEO title.")
     if parser.canonical.rstrip("/") + "/" != canonical:
         raise SystemExit(f"{label} canonical is missing or incorrect: {parser.canonical!r}.")
     if og_url.rstrip("/") + "/" != canonical:
         raise SystemExit(f"{label} Open Graph URL is missing or incorrect: {og_url!r}.")
     if "noindex" in robots:
         raise SystemExit(f"{label} is marked noindex.")
+
+    for field in ("short_description", "overview", "visa_information", "capital"):
+        require_visible(parser, country.get(field), field, label)
+
+    requirement = country.get("requirement")
+    if requirement is None:
+        if "no currently published and verified tourism requirement is available" not in visible:
+            raise SystemExit(f"{label} does not explain that no verified tourism requirement is currently published.")
+        return
+
+    if requirement.get("passport_nationality_iso3") != "BGD" or requirement.get("travel_purpose") != "tourism":
+        raise SystemExit(f"{label} contains a requirement for the wrong passport nationality or travel purpose.")
+    if requirement.get("verification_status") != "verified" or requirement.get("is_published") is not True:
+        raise SystemExit(f"{label} contains a requirement that is not verified and published.")
+
+    for phrase in ("Bangladeshi ordinary passport", "Travel purpose: Tourism", "Visa and entry requirements", "Verified information"):
+        if phrase.casefold() not in visible:
+            raise SystemExit(f"{label} is missing the expected verified-requirement section text: {phrase}.")
+
+    text_fields = (
+        "requirement_type",
+        "maximum_permitted_stay",
+        "entry_count",
+        "application_fee",
+        "processing_time",
+        "application_channel",
+        "passport_validity_rule",
+        "blank_passport_pages_rule",
+        "return_ticket_rule",
+        "proof_of_funds_rule",
+        "accommodation_rule",
+        "travel_insurance_rule",
+        "health_requirements",
+        "transit_requirements",
+    )
+    for field in text_fields:
+        require_visible(parser, requirement.get(field), field, label)
+
+    boolean_fields = (
+        ("Visa required", "visa_required"),
+        ("Visa free", "visa_free_available"),
+        ("Visa on arrival", "visa_on_arrival_available"),
+        ("eVisa available", "evisa_available"),
+    )
+    for field_label, field in boolean_fields:
+        value = requirement.get(field)
+        expected_value = "Yes" if value is True else "No" if value is False else "Not specified"
+        if field_label.casefold() not in visible or expected_value.casefold() not in visible:
+            raise SystemExit(f"{label} is missing the rendered {field_label} value.")
+
+    for document in requirement.get("required_documents") or []:
+        require_visible(parser, document, "required document", label)
+
+    sources = requirement.get("sources") or []
+    if not any(source.get("source_type") == "official" and source.get("is_primary") is True for source in sources):
+        raise SystemExit(f"{label} has no published primary official source.")
+    for source in sources:
+        require_visible(parser, source.get("source_name"), "official source name", label)
+        source_url = source.get("source_url")
+        if source_url and source_url not in parser.anchors:
+            raise SystemExit(f"{label} is missing an official source link from the API.")
+    checked_at = requirement.get("official_source_checked_at")
+    if checked_at and parser.meta.get("visa-information-last-verified") != checked_at:
+        raise SystemExit(f"{label} verification-date metadata does not match the public visa API.")
 
 
 def verify_directory_links(parser, countries, label):
@@ -167,33 +253,88 @@ def snapshot(api_url, expected_file):
     base = api_url.rstrip("/")
     if not base:
         raise SystemExit("NEXT_PUBLIC_API_URL is not configured.")
+
     body = fetch_bytes(base + "/countries")
     payload = json.loads(body.decode("utf-8"))
-    if payload.get("success") is not True or not isinstance(payload.get("data"), list) or not payload["data"]:
+    if (
+        payload.get("success") is not True
+        or not isinstance(payload.get("data"), list)
+        or not payload["data"]
+        or not isinstance(payload.get("meta", {}).get("filters", {}).get("categories"), list)
+        or not isinstance(payload.get("meta", {}).get("filters", {}).get("services"), list)
+    ):
         raise SystemExit("Public country directory API returned an unsuccessful or empty response.")
+
+    requirements_body = fetch_bytes(base + "/visa-requirements?passport=BGD&purpose=tourism")
+    requirements_payload = json.loads(requirements_body.decode("utf-8"))
+    if requirements_payload.get("success") is not True or not isinstance(requirements_payload.get("data"), list):
+        raise SystemExit("Public BGD tourism visa requirement API returned an unsuccessful or invalid response.")
+
+    requirements_by_iso2 = {}
+    for requirement in requirements_payload["data"]:
+        country_data = requirement.get("country") or {}
+        iso2 = str(country_data.get("iso2") or "").upper()
+        if (
+            not re.fullmatch(r"[A-Z]{2}", iso2)
+            or requirement.get("passport_nationality_iso3") != "BGD"
+            or requirement.get("travel_purpose") != "tourism"
+            or requirement.get("verification_status") != "verified"
+            or requirement.get("is_published") is not True
+        ):
+            raise SystemExit("Public visa API returned a record outside the verified, published BGD tourism scope.")
+        if iso2 in requirements_by_iso2:
+            raise SystemExit(f"Public visa API returned duplicate BGD tourism requirements for {iso2}.")
+        sources = requirement.get("sources") or []
+        if not any(source.get("source_type") == "official" and source.get("is_primary") is True for source in sources):
+            raise SystemExit(f"Public visa API record for {iso2} has no primary official source.")
+        requirements_by_iso2[iso2] = requirement
+
     countries = []
-    seen = set()
+    seen_slugs = set()
+    seen_iso2 = set()
     for item in payload["data"]:
         slug = item.get("slug", "")
         name = item.get("name", "")
-        iso2 = item.get("iso2", "")
-        if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", slug) or not name or not iso2:
+        iso2 = str(item.get("iso2", "")).upper()
+        if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", slug) or not name or not re.fullmatch(r"[A-Z]{2}", iso2):
             raise SystemExit("Public country directory API returned a malformed country record.")
-        if slug in seen:
-            raise SystemExit(f"Public country directory API returned a duplicate slug: {slug}.")
-        seen.add(slug)
+        if slug in seen_slugs or iso2 in seen_iso2:
+            raise SystemExit(f"Public country directory API returned a duplicate country slug or ISO2: {slug}.")
+        seen_slugs.add(slug)
+        seen_iso2.add(iso2)
+
+        requirement = requirements_by_iso2.get(iso2)
+        if requirement:
+            requirement_country = requirement.get("country") or {}
+            if requirement_country.get("slug") != slug or requirement_country.get("name") != name:
+                raise SystemExit(f"Public country and visa APIs disagree about the identity of {iso2}.")
+
         countries.append({
             "slug": slug,
             "name": name,
             "iso2": iso2,
             "is_published": bool(item.get("is_published", False)),
+            "capital": item.get("capital") or "",
+            "short_description": item.get("short_description") or "",
+            "overview": item.get("overview") or "",
+            "visa_information": item.get("visa_information") or "",
+            "seo_title": item.get("seo_title") or "",
+            "seo_description": item.get("seo_description") or "",
+            "requirement": requirement,
         })
-    missing = REQUIRED_SLUGS - seen
+
+    orphaned = sorted(set(requirements_by_iso2) - seen_iso2)
+    if orphaned:
+        raise SystemExit("Published BGD tourism requirements are missing from the country directory: " + ", ".join(orphaned))
+
+    missing = REQUIRED_SLUGS - seen_slugs
     if missing:
         raise SystemExit("Japan and Australia must remain in the public directory: " + ", ".join(sorted(missing)))
+
     Path(expected_file).write_text(json.dumps(countries, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"Public country directory API HTTP 200; {len(countries)} eligible countries.")
-    print("Authoritative API slugs: " + ", ".join(sorted(seen)))
+    print("Authoritative API slugs: " + ", ".join(sorted(seen_slugs)))
+    print(f"Public BGD tourism requirements API HTTP 200; {len(requirements_by_iso2)} verified and published records.")
 
 
 def verify_static(site_dir, base_url, expected_file):
