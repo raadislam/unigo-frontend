@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="820" viewBox="0 0 1200 820" fill="none">
+<defs>
+  <linearGradient id="sky" x1="120" y1="60" x2="1080" y2="760" gradientUnits="userSpaceOnUse"><stop stop-color="#EAF5FF"/><stop offset=".55" stop-color="#B9DDF8"/><stop offset="1" stop-color="#F8FCFF"/></linearGradient>
+  <linearGradient id="water" x1="600" y1="560" x2="600" y2="820" gradientUnits="userSpaceOnUse"><stop stop-color="#3988B9"/><stop offset="1" stop-color="#082B4C"/></linearGradient>
+  <linearGradient id="red" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#F04455"/><stop offset="1" stop-color="#C8172B"/></linearGradient>
+  <filter id="shadow" x="0" y="0" width="1" height="1" color-interpolation-filters="sRGB"><feGaussianBlur stdDeviation="18"/></filter>
+  <clipPath id="clip"><rect x="34" y="34" width="1132" height="752" rx="48"/></clipPath>
+</defs>
+<g clip-path="url(#clip)">
+<rect x="34" y="34" width="1132" height="752" rx="48" fill="url(#sky)"/>
+<circle cx="1030" cy="130" r="88" fill="#FFF8E9" opacity=".9"/>
+<path d="M34 510C220 455 330 470 490 500C680 535 855 455 1166 480V820H34V510Z" fill="url(#water)"/>
+<path d="M34 584C270 545 390 595 600 580C810 565 970 520 1166 548" stroke="#D6F0FF" stroke-width="5" opacity=".55"/>
+<path d="M34 640C260 605 430 650 620 625C810 600 970 590 1166 608" stroke="#D6F0FF" stroke-width="3" opacity=".3"/>
+<g opacity=".95" fill="#214D70">
+<path d="M620 485V340H652V485H620ZM660 485V275H686V485H660ZM694 485V365H730V485H694ZM744 485V310H774V485H744ZM784 485V390H824V485H784ZM836 485V290H862V485H836ZM875 485V350H910V485H875ZM920 485V255H950V485H920ZM960 485V365H990V485H960ZM1000 485V315H1032V485H1000ZM1042 485V385H1082V485H1042ZM1090 485V330H1120V485H1090Z"/>
+<path d="M913 255L935 215L957 255H913Z" fill="#D7192D"/>
+<path d="M934 215V118" stroke="#214D70" stroke-width="8"/>
+<path d="M924 150H944L934 118L924 150Z" fill="#D7192D"/>
+</g>
+<g fill="#F7FBFF" opacity=".9">
+<path d="M34 476H1166V490H34Z"/>
+<path d="M34 505H1166V510H34Z" opacity=".35"/>
+</g>
+<g transform="translate(120 0)">
+<path d="M170 545C150 470 166 374 210 323C249 278 322 278 365 323C408 369 416 457 396 548L374 641H191L170 545Z" fill="#082B4C"/>
+<path d="M220 329C222 274 255 230 299 230C344 230 375 275 377 329C347 365 252 365 220 329Z" fill="#F1C8A8"/>
+<path d="M205 283C212 207 257 168 305 168C357 168 395 208 399 284C349 249 260 246 205 283Z" fill="#F4F8FC"/>
+<path d="M196 260C228 204 275 188 330 196C366 201 393 224 408 258C341 243 264 245 196 260Z" fill="#E9A83D"/>
+<path d="M218 280C246 257 341 253 383 281" stroke="#D58B2D" stroke-width="12"/>
+<path d="M174 378C136 404 109 453 92 523L143 550L220 441L174 378Z" fill="#F1C8A8"/>
+<path d="M375 378C412 406 435 453 449 522L401 548L334 441L375 378Z" fill="#F1C8A8"/>
+<path d="M169 386C205 354 241 346 298 350C351 353 384 373 403 410L383 610H190L169 386Z" fill="url(#red)"/>
+<path d="M211 377L294 426L365 377L383 610H190L211 377Z" fill="#D7192D"/>
+<path d="M207 386L294 443L371 385" stroke="#F8B4BC" stroke-width="10" stroke-linecap="round"/>
+<rect x="250" y="455" width="96" height="112" rx="24" fill="#A80F22" opacity=".5"/>
+<path d="M268 495H327" stroke="#FFF" stroke-width="7" stroke-linecap="round" opacity=".9"/>
+<text x="296" y="531" fill="#FFF" font-family="Arial,sans-serif" font-size="24" font-weight="700" text-anchor="middle">UniGo</text>
+<path d="M196 400C161 420 150 458 146 497" stroke="#082B4C" stroke-width="20" stroke-linecap="round"/>
+<path d="M386 400C416 423 426 462 429 496" stroke="#082B4C" stroke-width="20" stroke-linecap="round"/>
+<path d="M221 600L205 786H280L300 613L319 786H394L372 600H221Z" fill="#173D5B"/>
+</g>
+<g transform="translate(760 95)" fill="#FFFFFF">
+<path d="M0 44L124 0L91 46L124 92L0 44Z" opacity=".95"/>
+<path d="M49 44H147" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round" opacity=".85"/>
+</g>
+<path d="M34 700C250 660 390 700 570 690C800 676 1010 620 1166 660V786H34V700Z" fill="#082B4C" opacity=".9"/>
+<path d="M34 700C250 660 390 700 570 690C800 676 1010 620 1166 660" stroke="#D7192D" stroke-width="12"/>
+</g>
+<rect x="34" y="34" width="1132" height="752" rx="48" stroke="#FFFFFF" stroke-width="8"/>
+</svg>
