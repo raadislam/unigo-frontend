@@ -60,30 +60,64 @@ function getApiUrl() {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/+$/, "");
 
   if (!baseUrl) {
-    throw new Error("NEXT_PUBLIC_API_URL is required to generate country pages.");
+    throw new Error("NEXT_PUBLIC_API_URL is not configured.");
   }
 
   return baseUrl;
 }
 
+function emptyCountryDirectory(): CountryListResponse {
+  return {
+    success: false,
+    data: [],
+    meta: {
+      total: 0,
+      filters: {
+        categories: [],
+        services: [],
+      },
+    },
+  };
+}
+
 export async function getCountryDirectory(): Promise<CountryListResponse> {
-  const response = await fetch(`${getApiUrl()}/countries`, {
-    headers: { Accept: "application/json" },
-    cache: "force-cache",
-  });
+  try {
+    const response = await fetch(`${getApiUrl()}/countries`, {
+      headers: {
+        Accept: "application/json",
+      },
+      cache: "force-cache",
+    });
 
-  if (!response.ok) {
-    throw new Error(`Country directory API returned ${response.status}.`);
+    if (!response.ok) {
+      console.error(`Country directory API returned HTTP ${response.status}.`);
+
+      return emptyCountryDirectory();
+    }
+
+    const payload = (await response.json()) as CountryListResponse;
+
+    if (!payload || !Array.isArray(payload.data)) {
+      console.error("Country directory API returned an invalid response.");
+
+      return emptyCountryDirectory();
+    }
+
+    return payload;
+  } catch (error) {
+    console.error("Country directory could not be loaded:", error);
+
+    return emptyCountryDirectory();
   }
-
-  return response.json();
 }
 
 export async function getCountry(slug: string): Promise<Country> {
   const response = await fetch(
     `${getApiUrl()}/countries/${encodeURIComponent(slug)}`,
     {
-      headers: { Accept: "application/json" },
+      headers: {
+        Accept: "application/json",
+      },
       cache: "force-cache",
     },
   );
@@ -97,5 +131,10 @@ export async function getCountry(slug: string): Promise<Country> {
   }
 
   const payload = (await response.json()) as CountryResponse;
+
+  if (!payload?.data) {
+    throw new Error("Invalid country API response.");
+  }
+
   return payload.data;
 }
