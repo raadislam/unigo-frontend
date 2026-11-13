@@ -7,6 +7,7 @@ import StudentStories from "@/components/home/student-stories";
 import GlobalFutureCTA from "@/components/home/global-future-cta";
 import FAQSection from "@/components/home/faq-section";
 import PartnerLogos from "@/components/home/partner-logos";
+import { VisaDirectoryCta } from "@/components/home/visa-directory-cta";
 
 export const metadata: Metadata = {
   title: "Study Abroad & Travel Consultancy in Bangladesh",
@@ -46,6 +47,7 @@ export default function HomePage() {
     <>
       <HeroSection />
       <DestinationShowcase />
+      <VisaDirectoryCta />
       <WhyChooseUs />
       <FAQSection />
       <OurServices />
