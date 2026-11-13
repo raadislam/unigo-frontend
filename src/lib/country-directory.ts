@@ -112,48 +112,41 @@ function getApiUrl() {
   return baseUrl;
 }
 
-function emptyCountryDirectory(): CountryListResponse {
-  return {
-    success: false,
-    data: [],
-    meta: {
-      total: 0,
-      filters: {
-        categories: [],
-        services: [],
-      },
-    },
-  };
-}
-
 export async function getCountryDirectory(): Promise<CountryListResponse> {
-  try {
-    const response = await fetch(`${getApiUrl()}/countries`, {
-      headers: {
-        Accept: "application/json",
-      },
-      cache: "force-cache",
-    });
+  const response = await fetch(`${getApiUrl()}/countries`, {
+    headers: {
+      Accept: "application/json",
+    },
+    cache: "force-cache",
+  });
 
-    if (!response.ok) {
-      console.error(`Country directory API returned HTTP ${response.status}.`);
-      return emptyCountryDirectory();
-    }
-
-    const payload = (await response.json()) as CountryListResponse;
-
-    if (!payload || !Array.isArray(payload.data)) {
-      console.error("Country directory API returned an invalid response.");
-      return emptyCountryDirectory();
-    }
-
-    return payload;
-  } catch (error) {
-    console.error("Country directory could not be loaded:", error);
-    return emptyCountryDirectory();
+  if (!response.ok) {
+    throw new Error(`Country directory API returned HTTP ${response.status}.`);
   }
-}
 
+  const payload = (await response.json()) as CountryListResponse;
+
+  if (
+    payload?.success !== true ||
+    !Array.isArray(payload.data) ||
+    payload.data.length === 0 ||
+    !Array.isArray(payload.meta?.filters?.categories) ||
+    !Array.isArray(payload.meta?.filters?.services)
+  ) {
+    throw new Error("Country directory API returned an empty or invalid response.");
+  }
+
+  const slugs = payload.data.map((country) => country.slug);
+  if (
+    slugs.some((slug) => !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) ||
+    new Set(slugs).size !== slugs.length ||
+    payload.data.some((country) => !country.name || !country.iso2)
+  ) {
+    throw new Error("Country directory API returned invalid or duplicate country records.");
+  }
+
+  return payload;
+}
 export async function getCountry(slug: string): Promise<Country> {
   try {
     const response = await fetch(

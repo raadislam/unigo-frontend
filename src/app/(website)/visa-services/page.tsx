@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Globe2, ShieldCheck, PlaneTakeoff, Headphones } from "lucide-react";
 import { CountryDirectory } from "@/components/visa-services/country-directory";
+import { getCountryDirectory } from "@/lib/country-directory";
 
 export const metadata: Metadata = {
   title: "Visa Services by Country",
@@ -14,7 +15,9 @@ export const metadata: Metadata = {
   },
 };
 
-export default function VisaServicesPage() {
+export default async function VisaServicesPage() {
+  const directory = await getCountryDirectory();
+
   return (
     <main className="bg-[#f7fafe]">
       <section className="relative isolate overflow-hidden bg-[#082b4c]">
@@ -54,7 +57,7 @@ export default function VisaServicesPage() {
           </div>
           <div className="flex items-center gap-2 text-xs font-semibold text-[#526579]"><span className="h-2 w-2 rounded-full bg-[#d7192d]" /> Updated destination information</div>
         </div>
-        <CountryDirectory />
+        <CountryDirectory initialCountries={directory.data} initialCategories={directory.meta.filters.categories} />
       </section>
     </main>
   );

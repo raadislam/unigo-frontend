@@ -12,7 +12,6 @@ export const dynamicParams = false;
 export async function generateStaticParams() {
   const directory = await getCountryDirectory();
   const slugs = new Set(directory.data.map((country) => country.slug));
-  slugs.add("canada");
   return Array.from(slugs).map((slug) => ({ slug }));
 }
 
