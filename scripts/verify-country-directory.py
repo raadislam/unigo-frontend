@@ -121,7 +121,7 @@ def static_country_slugs(site_dir):
 
 
 def normalize_text(value):
-    return re.sub(r"\\s+", " ", str(value or "")).strip()
+    return re.sub(r"\s+", " ", str(value or "")).strip()
 
 
 def require_visible(parser, value, field, label):
