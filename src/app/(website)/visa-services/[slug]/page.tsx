@@ -11,13 +11,23 @@ type Props = {
 export async function generateStaticParams() {
   const directory = await getCountryDirectory();
 
-  return directory.data.map((country) => ({
+  const params = directory.data.map((country) => ({
     slug: country.slug,
   }));
+
+  return params.length ? params : [{ slug: "__directory-pending__" }];
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
+
+  if (slug === "__directory-pending__") {
+    return {
+      title: "Country Visa Directory | UniGo Bangladesh",
+      description: "Country visa information is being prepared by UniGo Bangladesh.",
+      robots: { index: false, follow: false },
+    };
+  }
 
   try {
     const country = await getCountry(slug);
@@ -50,6 +60,26 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function CountryVisaPage({ params }: Props) {
   const { slug } = await params;
+
+  if (slug === "__directory-pending__") {
+    return (
+      <article className="bg-white">
+        <div className="mx-auto max-w-5xl px-5 py-16 sm:px-8 lg:py-20">
+          <p className="text-sm font-medium text-[#D7192D]">UniGo Visa Services</p>
+          <h1 className="mt-3 text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">
+            Country information is being prepared
+          </h1>
+          <p className="mt-5 max-w-2xl text-base leading-8 text-slate-600">
+            Our destination directory is currently being updated. Please visit the Visa Services directory or contact UniGo for assistance.
+          </p>
+          <Link href="/visa-services/" className="mt-7 inline-flex rounded-lg bg-[#082B4C] px-5 py-3 text-sm font-semibold text-white">
+            Browse Visa Services
+          </Link>
+        </div>
+      </article>
+    );
+  }
+
   let country: Country;
 
   try {
