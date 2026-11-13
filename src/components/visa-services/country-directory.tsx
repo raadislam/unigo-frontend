@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { Search, Plane, ArrowRight, Globe2, SlidersHorizontal } from "lucide-react";
+import { Search, Plane, ArrowRight, Globe2, SlidersHorizontal, MapPin, BadgeCheck, BriefcaseBusiness } from "lucide-react";
 import { getCountryDirectory, type Country, type VisaCategory } from "@/lib/country-directory";
 
 const alphabet = ["ALL", ..."ABCDEFGHIJKLMNOPQRSTUVWXYZ"];
@@ -123,39 +123,55 @@ export function CountryDirectory() {
       ) : filteredCountries.length > 0 ? (
         <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
           {filteredCountries.map((country) => (
-            <Link href={`/visa-services/${country.slug}/`} key={country.id} className="group relative overflow-hidden rounded-2xl border border-[#e3eaf1] bg-white p-5 shadow-[0_8px_28px_rgba(8,43,76,0.045)] transition duration-300 hover:-translate-y-1 hover:border-[#d7192d]/40 hover:shadow-[0_18px_42px_rgba(8,43,76,0.11)]">
+            <Link href={`/visa-services/${country.slug}/`} key={country.id} className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-[#e3eaf1] bg-white p-5 shadow-[0_10px_32px_rgba(8,43,76,0.055)] transition duration-300 hover:-translate-y-1 hover:border-[#d7192d]/35 hover:shadow-[0_20px_48px_rgba(8,43,76,0.12)] sm:p-6">
               <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#082b4c] via-[#d7192d] to-[#f5a0a8] opacity-0 transition group-hover:opacity-100" />
-              <div className="flex items-center justify-between gap-3">
-                <div className="flex min-w-0 items-center gap-3">
-                  <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[#f3f7fb] text-3xl ring-1 ring-[#e7edf3]" aria-hidden="true">{country.flag_emoji || "🌍"}</span>
-                  <div className="min-w-0">
-                    <h3 className="truncate text-base font-bold text-[#082b4c] transition group-hover:text-[#d7192d]">{country.name}</h3>
-                    <p className="mt-1 text-[11px] font-medium uppercase tracking-[0.12em] text-slate-400">Visa information</p>
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex min-w-0 items-center gap-4">
+                  <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-[#f3f7fb] text-4xl ring-1 ring-[#e7edf3]" aria-hidden="true">{country.flag_emoji || "🌍"}</span>
+                  <div className="min-w-0 pt-1">
+                    <h3 className="truncate text-lg font-bold text-[#082b4c] transition group-hover:text-[#d7192d]">{country.name}</h3>
+                    <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.16em] text-slate-400">Destination guide</p>
+                    {country.capital && <p className="mt-2 flex items-center gap-1.5 text-xs text-slate-500"><MapPin size={13} className="shrink-0 text-[#d7192d]" />Capital: {country.capital}</p>}
                   </div>
                 </div>
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#fff0f1] text-[#d7192d] transition group-hover:bg-[#d7192d] group-hover:text-white"><ArrowRight size={16} /></span>
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#fff0f1] text-[#d7192d] transition group-hover:bg-[#d7192d] group-hover:text-white"><ArrowRight size={18} /></span>
               </div>
 
-              <div className="mt-5 rounded-xl bg-[#f7fafe] p-3.5">
-                <div className="mb-2 flex items-center gap-2 text-xs font-semibold text-[#082b4c]">
-                  <Plane size={14} className="text-[#d7192d]" />
-                  UniGo services
-                  <span className="ml-auto rounded-full bg-white px-2 py-0.5 text-[10px] font-bold text-[#d7192d] ring-1 ring-[#e6edf4]">{country.services.length}</span>
+              <p className="mt-5 min-h-[3.25rem] text-sm leading-6 text-slate-600 line-clamp-2">
+                {country.short_description || country.overview || `Explore visa information and travel guidance for ${country.name}.`}
+              </p>
+
+              <div className="mt-5 grid grid-cols-2 gap-2">
+                <div className="rounded-2xl bg-[#f6f9fc] p-3">
+                  <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide text-slate-400"><BadgeCheck size={13} className="text-[#d7192d]" />Visa categories</div>
+                  <p className="mt-1.5 text-lg font-bold text-[#082b4c]">{country.visa_categories.length}</p>
+                  <p className="text-[10px] text-slate-500">{country.visa_categories.length === 1 ? "Category listed" : "Categories listed"}</p>
                 </div>
-                {country.services.length ? (
-                  <div className="space-y-1.5">
-                    {country.services.slice(0, 2).map((service) => <p key={service.id} className="text-xs text-slate-600">{service.name}</p>)}
-                    {country.services.length > 2 && <p className="text-[11px] font-semibold text-[#d7192d]">+{country.services.length - 2} more services</p>}
-                  </div>
-                ) : <p className="text-xs text-slate-400">Service information coming soon</p>}
+                <div className="rounded-2xl bg-[#f6f9fc] p-3">
+                  <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide text-slate-400"><BriefcaseBusiness size={13} className="text-[#d7192d]" />UniGo services</div>
+                  <p className="mt-1.5 text-lg font-bold text-[#082b4c]">{country.services.length}</p>
+                  <p className="text-[10px] text-slate-500">{country.services.length === 1 ? "Service available" : "Services listed"}</p>
+                </div>
               </div>
 
-              <div className="mt-4 flex min-h-6 flex-wrap gap-1.5">
-                {country.visa_categories.slice(0, 3).map((category) => <span key={category.id} className="rounded-full border border-[#e4eaf0] bg-white px-2.5 py-1 text-[10px] font-medium text-[#526579]">{category.name}</span>)}
+              <div className="mt-4 min-h-8">
+                {country.services.length > 0 ? (
+                  <div className="flex flex-wrap gap-1.5">
+                    {country.services.slice(0, 3).map((service) => <span key={service.id} className="rounded-full border border-[#e4eaf0] bg-white px-2.5 py-1 text-[10px] font-medium text-[#526579]">{service.name}</span>)}
+                    {country.services.length > 3 && <span className="rounded-full bg-[#fff0f1] px-2.5 py-1 text-[10px] font-semibold text-[#c52a37]">+{country.services.length - 3} more</span>}
+                  </div>
+                ) : <p className="text-xs text-slate-400">Country-specific services are being updated.</p>}
               </div>
-              <div className="mt-5 flex items-center justify-between border-t border-[#edf1f5] pt-4">
-                <span className="text-xs font-bold text-[#082b4c] transition group-hover:text-[#d7192d]">Explore destination</span>
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">UniGo Bangladesh</span>
+
+              {country.visa_categories.length > 0 && (
+                <div className="mt-3 flex flex-wrap gap-1.5">
+                  {country.visa_categories.slice(0, 3).map((category) => <span key={category.id} className="rounded-full border border-[#e4eaf0] bg-[#f8fafc] px-2.5 py-1 text-[10px] font-medium text-[#526579]">{category.name}</span>)}
+                </div>
+              )}
+
+              <div className="mt-auto flex items-center justify-between border-t border-[#edf1f5] pt-5">
+                <span className="text-sm font-bold text-[#082b4c] transition group-hover:text-[#d7192d]">Explore destination</span>
+                <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-400">UniGo Bangladesh</span>
               </div>
             </Link>
           ))}
