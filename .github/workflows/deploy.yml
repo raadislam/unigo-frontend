@@ -38,7 +38,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Snapshot authoritative public country directory
+      - name: Snapshot authoritative public country directory and validate shared SVG flag component
         env:
           NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
         run: |
@@ -50,7 +50,7 @@ jobs:
         env:
           NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
 
-      - name: Verify static export
+      - name: Verify static export, every country SVG and FlagCDN network responses
         run: |
           test -d out
           test -s out/index.html
@@ -113,6 +113,6 @@ jobs:
             "$HOSTINGER_USER@$HOSTINGER_HOST" \
             "test -s '$HOSTINGER_DEPLOY_PATH/index.html'"
 
-      - name: Verify every deployed country page, directory link and live sitemap
+      - name: Verify every deployed country page, directory SVG flags, FlagCDN network responses and live sitemap
         run: |
           python3 scripts/verify-country-directory.py --phase live --site-dir out --base-url https://unigo-bd.com
