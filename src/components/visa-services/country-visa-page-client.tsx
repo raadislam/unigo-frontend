@@ -180,6 +180,57 @@ export function CountryVisaPageClient({ slug, initialCountry, initialRequirement
                   </ul>
                 </div>
               ) : null}
+              {requirement.photo_specifications ? (
+                <section className="mt-6 border-t border-[#edf1f5] pt-6">
+                  <h3 className="text-base font-bold text-[#082b4c]">Photograph specifications</h3>
+                  <p className="mt-1 text-xs text-slate-500">Follow the specification for the selected application route. Do not assume one photo size applies to every visa category.</p>
+                  {requirement.photo_specifications.status === "not_published" ? (
+                    <p className="mt-3 rounded-xl bg-amber-50 p-4 text-sm leading-6 text-amber-800">The reviewed authority has not published a specific photograph specification for this route. Confirm with the application centre before preparing your photo.</p>
+                  ) : (
+                    <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                      {[
+                        ["Application route", requirement.photo_specifications.route],
+                        ["Printed photo size", requirement.photo_specifications.dimensions_mm],
+                        ["Digital dimensions", requirement.photo_specifications.digital_dimensions_px],
+                        ["File size", requirement.photo_specifications.file_size],
+                        ["Background", requirement.photo_specifications.background],
+                        ["Head measurements", requirement.photo_specifications.head_measurements],
+                        ["Photo age", requirement.photo_specifications.photo_age],
+                        ["File format", requirement.photo_specifications.format],
+                        ["Number of copies", requirement.photo_specifications.copies],
+                      ].filter((item): item is [string, string] => Boolean(item[1]?.trim())).map(([label, value]) => (
+                        <div key={label} className="rounded-xl bg-[#f6f9fc] p-4">
+                          <p className="text-xs font-semibold text-slate-500">{label}</p>
+                          <p className="mt-1 whitespace-pre-line text-sm leading-6 text-[#263f59]">{value}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {requirement.photo_specifications.notes && <p className="mt-3 text-sm leading-6 text-slate-600">{requirement.photo_specifications.notes}</p>}
+                  {requirement.photo_specifications.source_url && <p className="mt-3 text-xs text-slate-500">Source: <a href={requirement.photo_specifications.source_url} target="_blank" rel="noreferrer" className="font-medium text-[#b91f32] underline">{requirement.photo_specifications.source_name || "Official application guidance"}</a>{requirement.photo_specifications.checked_at ? ` · Checked ${requirement.photo_specifications.checked_at}` : ""}</p>}
+                </section>
+              ) : null}
+              {requirement.applicant_checklists?.length ? (
+                <section className="mt-6 border-t border-[#edf1f5] pt-6">
+                  <h3 className="text-base font-bold text-[#082b4c]">Documents by applicant type</h3>
+                  <div className="mt-4 grid gap-4 lg:grid-cols-2">
+                    {requirement.applicant_checklists.map((checklist) => (
+                      <div key={checklist.applicant_type} className="rounded-2xl border border-[#e8edf2] p-4">
+                        <h4 className="font-bold capitalize text-[#082b4c]">{checklist.applicant_type.replaceAll("_", " ")}</h4>
+                        <ul className="mt-3 space-y-2">
+                          {checklist.documents.map((document, index) => (
+                            <li key={index} className="flex items-start gap-2 text-sm leading-6 text-slate-600">
+                              <FileText size={15} className="mt-1 shrink-0 text-[#d7192d]" />
+                              <span>{document.name}<span className="ml-2 rounded-full bg-[#f1f5f9] px-2 py-0.5 text-[10px] font-bold uppercase text-slate-500">{document.status.replaceAll("_", " ")}</span>{document.notes ? <span className="block text-xs text-slate-500">{document.notes}</span> : null}</span>
+                            </li>
+                          ))}
+                        </ul>
+                        {checklist.source_url && <p className="mt-3 text-xs text-slate-500">Source: <a href={checklist.source_url} target="_blank" rel="noreferrer" className="text-[#b91f32] underline">{checklist.source_name || "Application checklist"}</a>{checklist.checked_at ? ` · Checked ${checklist.checked_at}` : ""}</p>}
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              ) : null}
               {requirement.sources?.length ? (
                 <div className="mt-6 border-t border-[#edf1f5] pt-5">
                   <h3 className="text-sm font-bold text-[#082b4c]">Official sources</h3>
