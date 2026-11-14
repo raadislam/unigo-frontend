@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, Globe2, FileCheck2, Headset } from "lucide-react";
 import type { Country } from "@/lib/country-directory";
+import { CountryFlag } from "@/components/shared/country-flag";
 
 type Props = {
   countries: Country[];
@@ -44,7 +45,7 @@ export function VisaDirectoryCta({ countries }: Props) {
           {featuredCountries.map((country) => (
             <Link key={country.id} href={`/visa-services/${country.slug}/`} className="group flex min-h-[174px] flex-col rounded-2xl border border-white/10 bg-white p-5 shadow-[0_12px_34px_rgba(0,0,0,0.14)] transition duration-300 hover:-translate-y-1 hover:border-[#ff8791] hover:shadow-[0_18px_40px_rgba(0,0,0,0.22)]">
               <div className="flex items-center gap-3">
-                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#f3f7fb] text-3xl ring-1 ring-[#e7edf3]" aria-hidden="true">{country.flag_emoji || "🌍"}</span>
+                <CountryFlag iso2={country.iso2} name={country.name} className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#f3f7fb] ring-1 ring-[#e7edf3]" />
                 <div className="min-w-0">
                   <h3 className="truncate text-base font-bold text-[#082b4c] transition group-hover:text-[#d7192d]">{country.name}</h3>
                   {country.capital && <p className="mt-1 truncate text-xs text-slate-500">{country.capital}</p>}

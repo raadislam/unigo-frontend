@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ArrowLeft, BadgeCheck, ChevronRight, FileText, Globe2, Headphones, MapPin, Plane, ShieldCheck } from "lucide-react";
 import { getCountry, getVisaRequirement, type Country, type VisaRequirement } from "@/lib/country-directory";
+import { CountryFlag } from "@/components/shared/country-flag";
 
 export function CountryVisaPageClient({ slug, initialCountry, initialRequirement }: { slug: string; initialCountry: Country; initialRequirement: VisaRequirement | null }) {
   const [country, setCountry] = useState<Country | null>(initialCountry);
@@ -90,7 +91,7 @@ export function CountryVisaPageClient({ slug, initialCountry, initialRequirement
             <span className="font-semibold text-white">{country.name}</span>
           </nav>
           <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
-            <span className="flex h-20 w-20 shrink-0 items-center justify-center rounded-3xl border border-white/15 bg-white/10 text-5xl shadow-lg backdrop-blur">{country.flag_emoji || "🌍"}</span>
+            <CountryFlag iso2={country.iso2} name={country.name} className="flex h-20 w-20 shrink-0 items-center justify-center rounded-3xl border border-white/15 bg-white/10 shadow-lg backdrop-blur" />
             <div>
               <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#ff8791]">Visa services from Bangladesh</p>
               <h1 className="mt-2 text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">{country.name} Visa Services</h1>
