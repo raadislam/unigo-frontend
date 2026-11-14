@@ -1,0 +1,1 @@
+Run the standard static frontend deployment with expanded FlagCDN network checks for every published country ISO2, plus AU, AT and BE regression codes.
