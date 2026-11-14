@@ -4,11 +4,11 @@ import { Suspense, useRef, useState } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Html, OrbitControls, Stars, useTexture } from "@react-three/drei";
 import * as THREE from "three";
+import { CountryFlag } from "@/components/shared/country-flag";
 
 type Destination = {
   name: string;
   code: string;
-  flag: string;
   latitude: number;
   longitude: number;
   color: string;
@@ -19,7 +19,6 @@ const destinations: Destination[] = [
   {
     name: "Canada",
     code: "CA",
-    flag: "ca",
     latitude: 56,
     longitude: -106,
     color: "#d7192d",
@@ -28,7 +27,6 @@ const destinations: Destination[] = [
   {
     name: "United Kingdom",
     code: "GB",
-    flag: "gb",
     latitude: 54,
     longitude: -2,
     color: "#3978ff",
@@ -37,7 +35,6 @@ const destinations: Destination[] = [
   {
     name: "Australia",
     code: "AU",
-    flag: "au",
     latitude: -25,
     longitude: 134,
     color: "#1687d9",
@@ -46,7 +43,6 @@ const destinations: Destination[] = [
   {
     name: "United States",
     code: "US",
-    flag: "us",
     latitude: 39,
     longitude: -98,
     color: "#6955f5",
@@ -126,12 +122,7 @@ function DestinationMarker({
             className="earth-destination-flag"
             style={{ borderColor: `${destination.color}25` }}
           >
-            <img
-              src={`https://flagcdn.com/w80/${destination.flag}.png`}
-              alt=""
-              width={32}
-              height={24}
-            />
+            <CountryFlag iso2={destination.code} name={destination.name} className="h-6 w-8 rounded-sm" />
           </span>
           <span className="earth-destination-copy">
             <span className="earth-destination-name">{destination.name}</span>
@@ -290,12 +281,7 @@ export default function EarthScene({
       {selected && (
         <div className="earth-selection-panel">
           <span className="earth-selection-flag">
-            <img
-              src={`https://flagcdn.com/w80/${selected.flag}.png`}
-              alt=""
-              width={32}
-              height={24}
-            />
+            <CountryFlag iso2={selected.code} name={selected.name} className="h-6 w-8 rounded-sm" />
           </span>
 
           <div className="earth-selection-copy">
