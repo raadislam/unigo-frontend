@@ -35,6 +35,7 @@ export function CountryFlag({ iso2, name, className }: CountryFlagProps) {
         alt={`${name} flag`}
         loading="lazy"
         decoding="async"
+        referrerPolicy="no-referrer"
         className="absolute inset-0 h-full w-full object-contain"
         onError={() => setFailedCode(code)}
       />
