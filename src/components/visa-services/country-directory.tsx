@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { Search, Plane, ArrowRight, Globe2, SlidersHorizontal, MapPin, BadgeCheck, BriefcaseBusiness } from "lucide-react";
 import type { Country, VisaCategory } from "@/lib/country-directory";
+import { CountryFlag } from "@/components/shared/country-flag";
 
 const alphabet = ["ALL", ..."ABCDEFGHIJKLMNOPQRSTUVWXYZ"];
 
@@ -102,7 +103,7 @@ export function CountryDirectory({ initialCountries, initialCategories }: Countr
               <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#082b4c] via-[#d7192d] to-[#f5a0a8] opacity-0 transition group-hover:opacity-100" />
               <div className="flex items-start justify-between gap-4">
                 <div className="flex min-w-0 items-center gap-4">
-                  <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-[#f3f7fb] text-4xl ring-1 ring-[#e7edf3]" aria-hidden="true">{country.flag_emoji || "🌍"}</span>
+                  <CountryFlag iso2={country.iso2} name={country.name} className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-[#f3f7fb] ring-1 ring-[#e7edf3]" />
                   <div className="min-w-0 pt-1">
                     <h3 className="truncate text-lg font-bold text-[#082b4c] transition group-hover:text-[#d7192d]">{country.name}</h3>
                     <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.16em] text-slate-400">Destination guide</p>
