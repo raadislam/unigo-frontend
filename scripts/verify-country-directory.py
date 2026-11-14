@@ -16,6 +16,7 @@ class PageInspector(HTMLParser):
         self.title_parts = []
         self.text_parts = []
         self.anchors = set()
+        self.images = []
         self.meta = {}
         self.canonical = ""
         self.in_title = False
@@ -38,6 +39,14 @@ class PageInspector(HTMLParser):
             self.canonical = values.get("href", "")
         if tag == "a" and values.get("href"):
             self.anchors.add(values["href"])
+        if tag == "img":
+            self.images.append({
+                "src": values.get("src", ""),
+                "alt": values.get("alt", ""),
+                "loading": values.get("loading", ""),
+                "decoding": values.get("decoding", ""),
+                "class": values.get("class", ""),
+            })
 
     def handle_endtag(self, tag):
         if tag == "title":
@@ -124,6 +133,90 @@ def normalize_text(value):
     return re.sub(r"\s+", " ", str(value or "")).strip()
 
 
+FLAG_SMOKE_CODES = {
+    "ID", "MU", "NP", "PH", "TR", "BN", "RW", "TZ", "HK", "MO", "UZ", "KR",
+    "AM", "AZ", "PK", "TL", "BB", "JM", "FJ", "KI", "NZ", "TO", "VU", "AS",
+    "CK", "GU", "MP", "NF", "NC", "PF", "WF", "PN", "TK", "AO", "BJ", "BW",
+    "GM", "MZ", "NG", "AL", "IE", "MD", "ME", "RS", "KY", "BM", "PA", "MX",
+}
+
+
+def verify_flag_component_source():
+    component = Path("src/components/shared/country-flag.tsx")
+    if not component.is_file():
+        raise SystemExit("Shared country flag component is missing.")
+    source = component.read_text(encoding="utf-8")
+    required = (
+        '"use client"',
+        'const code = (iso2 ?? "").trim().toLowerCase();',
+        "/^[a-z]{2}$/",
+        "https://flagcdn.com/${code}.svg",
+        'alt={`${name} flag`}',
+        'loading="lazy"',
+        'decoding="async"',
+        "object-cover",
+        "onError",
+        "flag unavailable",
+    )
+    for marker in required:
+        if marker not in source:
+            raise SystemExit(f"Shared country flag component is missing required behavior: {marker}.")
+    if "🌍" in source or "flag_emoji" in source or "fromCodePoint" in source or "String.fromCharCode" in source:
+        raise SystemExit("Shared country flag component contains an emoji or generated-flag fallback.")
+    for path in Path("src").rglob("*"):
+        if path.suffix not in {".ts", ".tsx", ".js", ".jsx"}:
+            continue
+        content = path.read_text(encoding="utf-8", errors="replace")
+        if path != component and "flagcdn.com/" in content:
+            raise SystemExit(f"Direct flag asset implementation remains outside the shared component: {path}.")
+        if "flag_emoji" in content:
+            raise SystemExit(f"Country flag emoji data remains in country UI source: {path}.")
+        if any(0x1F1E6 <= ord(char) <= 0x1F1FF for char in content):
+            raise SystemExit(f"Regional-indicator flag characters remain in source: {path}.")
+    print("Shared SVG flag component source, invalid-code fallback and duplicate-implementation checks passed.")
+
+
+def verify_country_flag_images(parser, countries, label):
+    for country in countries:
+        code = str(country.get("iso2") or "").strip().lower()
+        name = str(country.get("name") or "")
+        if not re.fullmatch(r"[a-z]{2}", code) or not name:
+            raise SystemExit(f"{label} contains a country without a valid ISO-2 code or name.")
+        expected_url = f"https://flagcdn.com/{code}.svg"
+        matches = [image for image in parser.images if image.get("src") == expected_url]
+        if not matches:
+            raise SystemExit(f"{label} is missing the SVG flag image for {name} ({code.upper()}).")
+        image = matches[0]
+        if image.get("alt") != f"{name} flag":
+            raise SystemExit(f"{label} has incorrect accessible flag alt text for {name}.")
+        if image.get("loading") != "lazy" or image.get("decoding") != "async":
+            raise SystemExit(f"{label} flag image for {name} is missing lazy loading or async decoding.")
+        if "object-cover" not in image.get("class", "").split():
+            raise SystemExit(f"{label} flag image for {name} is missing object-cover sizing.")
+
+
+def verify_flag_asset_responses(countries, label):
+    required_codes = FLAG_SMOKE_CODES | {"AU", "AT", "BE"}
+    available_codes = {str(country.get("iso2") or "").upper() for country in countries}
+    missing = sorted(required_codes - available_codes)
+    if missing:
+        raise SystemExit(f"{label} is missing required flag smoke-test countries: {', '.join(missing)}.")
+    for code in sorted(required_codes):
+        url = f"https://flagcdn.com/{code.lower()}.svg"
+        request = Request(url, headers={"User-Agent": "UniGo-Flag-Asset-Check/1.0", "Accept": "image/svg+xml"})
+        try:
+            with urlopen(request, timeout=30) as response:
+                body = response.read()
+                status = response.status
+                content_type = response.headers.get_content_type()
+        except Exception as error:
+            raise SystemExit(f"{label} could not load the {code} SVG flag asset: {error}")
+        if status != 200 or not body or b"<svg" not in body[:4096] or content_type not in {"image/svg+xml", "application/xml", "text/xml"}:
+            raise SystemExit(f"{label} flag asset check failed for {code}: HTTP {status}, content type {content_type}.")
+        print(f"FLAG_ASSET_HTTP_200 {code} {content_type}")
+    print(f"{label} verified {len(required_codes)} live FlagCDN SVG assets.")
+
+
 def require_visible(parser, value, field, label):
     expected = normalize_text(value)
     if expected and expected.casefold() not in normalize_text(parser.text).casefold():
@@ -143,6 +236,7 @@ def validate_country_page(parser, country, base_url, label):
 
     if name.casefold() not in visible:
         raise SystemExit(f"{label} does not render the expected country name: {name}.")
+    verify_country_flag_images(parser, [country], label)
     if name.casefold() not in title.casefold():
         raise SystemExit(f"{label} title/OG title does not include the country name: {name}.")
     if not description.strip():
@@ -238,6 +332,7 @@ def verify_directory_links(parser, countries, label):
     )
     if missing:
         raise SystemExit(f"{label} is missing country-directory links: {', '.join(missing)}")
+    verify_country_flag_images(parser, countries, label)
 
 
 def verify_exact_set(expected, actual, label):
@@ -366,6 +461,7 @@ def snapshot(api_url, expected_file):
 
 def verify_static(site_dir, base_url, expected_file):
     countries = expected_countries(expected_file)
+    verify_flag_asset_responses(countries, "Static build")
     expected = {item["slug"] for item in countries}
     sitemap_path = Path(site_dir) / "sitemap.xml"
     if not sitemap_path.is_file() or sitemap_path.stat().st_size == 0:
@@ -390,6 +486,7 @@ def verify_static(site_dir, base_url, expected_file):
 
 def verify_live(base_url, expected_file):
     countries = expected_countries(expected_file)
+    verify_flag_asset_responses(countries, "Live deployment")
     expected = {item["slug"] for item in countries}
     base = base_url.rstrip("/")
 
@@ -424,6 +521,7 @@ def main():
     parser.add_argument("--base-url", default="https://unigo-bd.com")
     parser.add_argument("--expected-file", default="expected-country-directory.json")
     args = parser.parse_args()
+    verify_flag_component_source()
 
     if args.phase == "snapshot":
         snapshot(args.api_url, args.expected_file)
