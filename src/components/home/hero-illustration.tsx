@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
+import { CountryFlag } from "@/components/shared/country-flag";
 import { GraduationCap, ArrowUpRight } from "lucide-react";
 import "../../styles/home/hero-illustration.css";
 
@@ -11,31 +12,26 @@ const destinations = [
   {
     code: "ca",
     name: "Canada",
-    flag: "https://flagcdn.com/w80/ca.png",
     className: "destination-canada",
   },
   {
     code: "gb",
     name: "United Kingdom",
-    flag: "https://flagcdn.com/w80/gb.png",
     className: "destination-uk",
   },
   {
     code: "us",
     name: "United States",
-    flag: "https://flagcdn.com/w80/us.png",
     className: "destination-us",
   },
   {
     code: "au",
     name: "Australia",
-    flag: "https://flagcdn.com/w80/au.png",
     className: "destination-australia",
   },
   {
     code: "bd",
     name: "Bangladesh",
-    flag: "https://flagcdn.com/w80/bd.png",
     className: "destination-bangladesh",
   },
 ];
@@ -165,14 +161,7 @@ export default function HeroIllustration() {
           key={destination.code}
           className={`destination-label ${destination.className}`}
         >
-          <Image
-            src={destination.flag}
-            alt={`${destination.name} flag`}
-            width={25}
-            height={17}
-            className="destination-flag"
-            unoptimized
-          />
+          <CountryFlag iso2={destination.code} name={destination.name} className="destination-flag" />
           <span>{destination.name}</span>
           <ArrowUpRight
             className="destination-arrow"
