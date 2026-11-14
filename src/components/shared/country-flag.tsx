@@ -1,5 +1,3 @@
-import Image from "next/image";
-
 type CountryFlagProps = {
   iso2: string;
   name: string;
@@ -15,13 +13,15 @@ export function CountryFlag({ iso2, name, className }: CountryFlagProps) {
 
   return (
     <span className={`${className} relative overflow-hidden`} role="img" aria-label={`${name} flag`}>
-      <Image
-        src={`https://flagcdn.com/w160/${code}.png`}
+      <img
+        src={`https://flagcdn.com/${code}.svg`}
         alt=""
-        fill
-        sizes="80px"
-        className="object-cover"
-        unoptimized
+        loading="lazy"
+        decoding="async"
+        className="absolute inset-0 h-full w-full object-cover"
+        onError={(event) => {
+          event.currentTarget.style.display = "none";
+        }}
       />
     </span>
   );
