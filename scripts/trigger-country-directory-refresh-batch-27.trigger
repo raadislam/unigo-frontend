@@ -1,0 +1,1 @@
+Refresh the public static country directory from the live BGD tourism API after verified batch 27 publication. Require exact API/static/sitemap/live-page and FlagCDN SVG parity for all eligible countries, including AU, AT, BE, AI, AW, BQ, CW and SX.
