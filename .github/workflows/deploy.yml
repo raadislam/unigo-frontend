@@ -9,6 +9,8 @@ on:
       - '.github/workflows/read-only-live-country-directory-audit.yml'
       - 'scripts/verify-country-directory.py'
   workflow_dispatch:
+  schedule:
+    - cron: '*/15 * * * *'
   repository_dispatch:
     types:
       - visa-content-updated
