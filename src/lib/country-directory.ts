@@ -100,7 +100,6 @@ export type Country = {
   slug: string;
   iso2: string;
   iso3?: string | null;
-  flag_emoji?: string | null;
   capital?: string | null;
   short_description?: string | null;
   overview?: string | null;
