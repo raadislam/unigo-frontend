@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Country } from "@/lib/country-directory";
+import { CountryFlag } from "@/components/shared/country-flag";
 
 type Props = {
   countries: Country[];
@@ -34,7 +35,7 @@ export function HomepageCountryDiscovery({ countries }: Props) {
               className="group flex min-h-[150px] flex-col rounded-2xl border border-[#e1e8ef] bg-white p-5 shadow-[0_8px_24px_rgba(8,43,76,0.045)] transition duration-300 hover:-translate-y-1 hover:border-[#d7192d]/40 hover:shadow-[0_16px_34px_rgba(8,43,76,0.1)]"
             >
               <div className="flex items-center gap-3">
-                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#f3f7fb] text-3xl ring-1 ring-[#e7edf3]" aria-hidden="true">{country.flag_emoji || "🌍"}</span>
+                <CountryFlag iso2={country.iso2} name={country.name} className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#f3f7fb] ring-1 ring-[#e7edf3]" />
                 <div className="min-w-0">
                   <h3 className="truncate text-base font-bold text-[#082b4c] transition group-hover:text-[#d7192d]">{country.name}</h3>
                   {country.capital && <p className="mt-1 truncate text-xs text-slate-500">{country.capital}</p>}
