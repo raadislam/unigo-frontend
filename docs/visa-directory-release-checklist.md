@@ -11,7 +11,7 @@ For each backend visa publication:
 5. Deploy and request every expected `/visa-services/<slug>/` URL.
 6. Check HTTP status, country-specific rendered content, canonical metadata and directory links. Report missing and extra slugs separately.
 
-The current backend directory after the 14 November 2026 Vietnam publication contains: Australia, Canada, Japan, United Kingdom and Viet Nam (`viet-nam`).
+The current backend directory after the 14 November 2026 Vietnam publication contains: Australia, Canada, Japan, Maldives, United Kingdom and Viet Nam (`viet-nam`).
 
 The canonical public route is `/visa-services/<slug>/`. Do not assume `/countries/<slug>/` is a frontend route.
 
