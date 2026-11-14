@@ -16,3 +16,4 @@ The current backend directory after the 14 November 2026 Vietnam publication con
 The canonical public route is `/visa-services/<slug>/`. Do not assume `/countries/<slug>/` is a frontend route.
 
 A backend import or API publication alone is not proof that the static public page has been deployed.
+Maldives tourism visa note: the current directory entry reflects a fee-free tourist visa on arrival for up to 30 days, subject to Maldives Immigration's published entry conditions.
