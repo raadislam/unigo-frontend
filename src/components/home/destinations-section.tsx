@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { Container } from "@/components/shared/container";
 import { SectionHeading } from "@/components/shared/section-heading";
+import { CountryFlag } from "@/components/shared/country-flag";
 
 const destinations = [
   {
@@ -58,13 +59,7 @@ export function DestinationsSection() {
               <div className="relative flex h-44 items-center justify-center overflow-hidden bg-gradient-to-br from-[#EAF2FC] to-[#F8FAFD]">
                 <div className="absolute size-36 rounded-full border border-blue-200/60 transition duration-500 group-hover:scale-110" />
                 <div className="absolute size-28 rounded-full border border-blue-200/50" />
-                <img
-                  src={`https://flagcdn.com/w160/${destination.code}.png`}
-                  alt={`${destination.name} flag`}
-                  width={96}
-                  height={64}
-                  className="relative rounded-md object-cover shadow-lg transition duration-300 group-hover:scale-105"
-                />
+                <CountryFlag iso2={destination.code} name={destination.name} className="relative h-16 w-24 rounded-md shadow-lg transition duration-300 group-hover:scale-105" />
               </div>
               <div className="p-5">
                 <h3 className="text-lg font-bold text-[#082B4C]">
