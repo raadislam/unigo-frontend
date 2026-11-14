@@ -1,9 +1,11 @@
 import argparse
 import json
 import re
+import time
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import urlparse
+from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 from xml.etree import ElementTree
 
@@ -70,13 +72,26 @@ class PageInspector(HTMLParser):
 
 
 def fetch_bytes(url):
-    request = Request(url, headers={"User-Agent": "UniGo-Country-Parity-Check/1.0", "Accept": "text/html,application/xml,application/json"})
-    with urlopen(request, timeout=45) as response:
-        body = response.read()
-        status = response.status
-    if status != 200 or not body:
-        raise SystemExit(f"HTTP verification failed: {url} returned {status} or an empty body.")
-    return body
+    request = Request(url, headers={"User-Agent": "UniGo-Country-Parity-Check/1.0", "Accept": "text/html,application/xml,application/json,image/svg+xml,*/*"})
+    last_error = None
+    for attempt in range(4):
+        try:
+            with urlopen(request, timeout=45) as response:
+                body = response.read()
+                status = response.status
+            if status != 200 or not body:
+                raise SystemExit(f"HTTP verification failed: {url} returned {status} or an empty body.")
+            return body
+        except HTTPError as error:
+            last_error = error
+            if error.code not in {429, 500, 502, 503, 504} or attempt == 3:
+                raise SystemExit(f"HTTP {error.code} while fetching {url}") from error
+        except (URLError, TimeoutError) as error:
+            last_error = error
+            if attempt == 3:
+                raise SystemExit(f"Network error while fetching {url}: {error}") from error
+        time.sleep(2 ** attempt)
+    raise SystemExit(f"Unable to fetch {url}: {last_error}")
 
 
 def parse_html(body, label):
@@ -137,7 +152,7 @@ FLAG_SMOKE_CODES = {
     "ID", "MU", "NP", "PH", "TR", "BN", "RW", "TZ", "HK", "MO", "UZ", "KR",
     "AM", "AZ", "PK", "TL", "BB", "JM", "FJ", "KI", "NZ", "TO", "VU", "AS",
     "CK", "GU", "MP", "NF", "NC", "PF", "WF", "PN", "TK", "AO", "BJ", "BW",
-    "GM", "MZ", "NG", "AL", "IE", "MD", "ME", "RS", "KY", "BM", "PA", "MX",
+    "GM", "MZ", "NG", "AL", "IE", "MD", "ME", "RS", "KY", "BM", "PA", "MX", "BO", "CU", "HT",
 }
 
 
@@ -154,7 +169,7 @@ def verify_flag_component_source():
         'alt={`${name} flag`}',
         'loading="lazy"',
         'decoding="async"',
-        "object-cover",
+        "object-contain",
         "onError",
         "flag unavailable",
     )
@@ -191,8 +206,8 @@ def verify_country_flag_images(parser, countries, label):
             raise SystemExit(f"{label} has incorrect accessible flag alt text for {name}.")
         if image.get("loading") != "lazy" or image.get("decoding") != "async":
             raise SystemExit(f"{label} flag image for {name} is missing lazy loading or async decoding.")
-        if "object-cover" not in image.get("class", "").split():
-            raise SystemExit(f"{label} flag image for {name} is missing object-cover sizing.")
+        if "object-contain" not in image.get("class", "").split():
+            raise SystemExit(f"{label} flag image for {name} is missing object-contain sizing.")
 
 
 def verify_flag_asset_responses(countries, label):
@@ -202,13 +217,25 @@ def verify_flag_asset_responses(countries, label):
     for code in sorted(required_codes):
         url = f"https://flagcdn.com/{code.lower()}.svg"
         request = Request(url, headers={"User-Agent": "UniGo-Flag-Asset-Check/1.0", "Accept": "image/svg+xml"})
-        try:
-            with urlopen(request, timeout=30) as response:
-                body = response.read()
-                status = response.status
-                content_type = response.headers.get_content_type()
-        except Exception as error:
-            raise SystemExit(f"{label} could not load the {code} SVG flag asset: {error}")
+        last_error = None
+        for attempt in range(4):
+            try:
+                with urlopen(request, timeout=30) as response:
+                    body = response.read()
+                    status = response.status
+                    content_type = response.headers.get_content_type()
+                break
+            except HTTPError as error:
+                last_error = error
+                if error.code not in {429, 500, 502, 503, 504} or attempt == 3:
+                    raise SystemExit(f"{label} could not load the {code} SVG flag asset: HTTP {error.code}") from error
+            except (URLError, TimeoutError) as error:
+                last_error = error
+                if attempt == 3:
+                    raise SystemExit(f"{label} could not load the {code} SVG flag asset: {error}") from error
+            time.sleep(2 ** attempt)
+        else:
+            raise SystemExit(f"{label} could not load the {code} SVG flag asset: {last_error}")
         if status != 200 or not body or b"<svg" not in body[:4096] or content_type not in {"image/svg+xml", "application/xml", "text/xml"}:
             raise SystemExit(f"{label} flag asset check failed for {code}: HTTP {status}, content type {content_type}.")
         print(f"FLAG_ASSET_HTTP_200 {code} {content_type}")
