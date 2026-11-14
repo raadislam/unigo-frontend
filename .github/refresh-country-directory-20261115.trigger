@@ -1,0 +1,1 @@
+Refresh the static country directory from the authoritative live API after verified Batch 31 publication. Checked 2026-11-15.
