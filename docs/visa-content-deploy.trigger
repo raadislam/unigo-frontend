@@ -1,1 +1,1 @@
-Trigger static country-directory rebuild after verified Batch 28 publication. Backend public API now exposes 117 verified destinations, including AX and MC. Build and live parity checks must derive the full slug set from the API.
+Trigger static country-directory rebuild after verified Batch 29 publication. Backend public API now exposes 122 verified destinations, including GF, GP, MQ, RE and PM. Derive the complete slug set from the live API and verify every country page, sitemap and FlagCDN SVG asset.
