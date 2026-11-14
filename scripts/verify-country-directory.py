@@ -7,7 +7,7 @@ from urllib.parse import urlparse
 from urllib.request import Request, urlopen
 from xml.etree import ElementTree
 
-REQUIRED_SLUGS = {"japan", "australia"}
+REQUIRED_SLUGS = {"japan", "australia", "maldives", "viet-nam"}
 
 
 class PageInspector(HTMLParser):
