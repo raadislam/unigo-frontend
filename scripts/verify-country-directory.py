@@ -211,7 +211,9 @@ def verify_country_flag_images(parser, countries, label):
 
 
 def verify_flag_asset_responses(countries, label):
-    required_codes = FLAG_SMOKE_CODES | {"AU", "AT", "BE"}
+    dynamic_country_codes = {str(country.get("iso2") or "").strip().upper() for country in countries if re.fullmatch(r"[A-Za-z]{2}", str(country.get("iso2") or "").strip())}
+    required_codes = FLAG_SMOKE_CODES | {"AU", "AT", "BE"} | dynamic_country_codes
+    print(f"{label} SVG network coverage includes {len(dynamic_country_codes)} live country codes plus regression smoke codes.")
     if not countries:
         raise SystemExit(f"{label} has no countries available for flag asset verification.")
     for code in sorted(required_codes):
