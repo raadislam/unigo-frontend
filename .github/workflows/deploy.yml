@@ -8,6 +8,8 @@ on:
       - '.github/workflows/deploy.yml'
       - '.github/workflows/read-only-live-country-directory-audit.yml'
       - 'scripts/verify-country-directory.py'
+      - '.github/workflows/dependency-audit.yml'
+      - 'docs/dependency-audit.trigger'
   workflow_dispatch:
   schedule:
     - cron: '*/15 * * * *'
