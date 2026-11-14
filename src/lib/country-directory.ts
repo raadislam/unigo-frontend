@@ -31,6 +31,31 @@ export type VisaRequirementSource = {
   is_primary?: boolean;
 };
 
+export type VisaPhotoSpecifications = {
+  status?: string;
+  route?: string;
+  dimensions_mm?: string;
+  digital_dimensions_px?: string;
+  file_size?: string;
+  background?: string;
+  head_measurements?: string;
+  photo_age?: string;
+  format?: string;
+  copies?: string;
+  notes?: string;
+  source_name?: string;
+  source_url?: string;
+  checked_at?: string;
+};
+
+export type ApplicantChecklist = {
+  applicant_type: string;
+  documents: { name: string; status: "required" | "conditional" | "if_applicable"; notes?: string | null }[];
+  source_name?: string;
+  source_url?: string;
+  checked_at?: string;
+};
+
 export type VisaRequirement = {
   id: number;
   passport_nationality_iso3: string;
@@ -55,6 +80,8 @@ export type VisaRequirement = {
   application_fee?: string | null;
   processing_time?: string | null;
   required_documents?: string[] | null;
+  photo_specifications?: VisaPhotoSpecifications | null;
+  applicant_checklists?: ApplicantChecklist[] | null;
   effective_from?: string | null;
   effective_until?: string | null;
   official_source_checked_at?: string | null;
