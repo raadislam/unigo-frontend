@@ -5,9 +5,9 @@ type CountryFlagProps = {
 };
 
 export function CountryFlag({ iso2, name, className }: CountryFlagProps) {
-  const code = iso2.trim().toUpperCase();
+  const code = iso2.trim().toLowerCase();
 
-  if (!/^[A-Z]{2}$/.test(code)) {
+  if (!/^[a-z]{2}$/.test(code)) {
     return (
       <span className={`${className} text-3xl`} role="img" aria-label={`${name} flag unavailable`}>
         🌍
@@ -15,13 +15,15 @@ export function CountryFlag({ iso2, name, className }: CountryFlagProps) {
     );
   }
 
-  const flag = Array.from(code)
-    .map((character) => String.fromCodePoint(127397 + character.charCodeAt(0)))
-    .join("");
-
   return (
-    <span className={`${className} text-4xl leading-none`} role="img" aria-label={`${name} flag`}>
-      {flag}
+    <span className={`${className} relative overflow-hidden`} role="img" aria-label={`${name} flag`}>
+      <img
+        src={`https://flagcdn.com/${code}.svg`}
+        alt={`${name} flag`}
+        loading="lazy"
+        decoding="async"
+        className="absolute inset-0 h-full w-full object-cover"
+      />
     </span>
   );
 }
