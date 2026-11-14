@@ -1,0 +1,1 @@
+The backend production country directory and BGD tourism visa detail API have been redeployed and verified. Rebuild the static frontend against the current public API so generated country pages, directory metadata and sitemap reflect the verified production records.
