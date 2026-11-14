@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - master
+    paths-ignore:
+      - '.github/workflows/deploy.yml'
+      - '.github/workflows/read-only-live-country-directory-audit.yml'
+      - 'scripts/verify-country-directory.py'
   workflow_dispatch:
   repository_dispatch:
     types:
