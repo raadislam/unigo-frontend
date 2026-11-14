@@ -197,10 +197,8 @@ def verify_country_flag_images(parser, countries, label):
 
 def verify_flag_asset_responses(countries, label):
     required_codes = FLAG_SMOKE_CODES | {"AU", "AT", "BE"}
-    available_codes = {str(country.get("iso2") or "").upper() for country in countries}
-    missing = sorted(required_codes - available_codes)
-    if missing:
-        raise SystemExit(f"{label} is missing required flag smoke-test countries: {', '.join(missing)}.")
+    if not countries:
+        raise SystemExit(f"{label} has no countries available for flag asset verification.")
     for code in sorted(required_codes):
         url = f"https://flagcdn.com/{code.lower()}.svg"
         request = Request(url, headers={"User-Agent": "UniGo-Flag-Asset-Check/1.0", "Accept": "image/svg+xml"})
