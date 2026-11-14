@@ -1,0 +1,1 @@
+Trigger static country-directory rebuild after verified Batch 28 publication. Backend public API now exposes 117 verified destinations, including AX and MC. Build and live parity checks must derive the full slug set from the API.
