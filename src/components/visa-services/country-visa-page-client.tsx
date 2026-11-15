@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { ArrowLeft, BadgeCheck, ChevronRight, FileText, Globe2, Headphones, MapPin, Plane, ShieldCheck } from "lucide-react";
 import { getCountry, getVisaRequirement, type Country, type VisaRequirement } from "@/lib/country-directory";
 import { CountryFlag } from "@/components/shared/country-flag";
+import { VisaChecklistGenerator } from "@/components/visa-services/visa-checklist-generator";
 
 function formatPhotoValue(value: unknown, unit?: string): string {
   if (value === null || value === undefined) return "";
@@ -274,6 +275,8 @@ export function CountryVisaPageClient({ slug, initialCountry, initialRequirement
             <p className="rounded-xl bg-[#f6f9fc] p-4 text-sm leading-7 text-slate-500">No currently published and verified tourism requirement is available for Bangladeshi passport holders. Contact UniGo for guidance.</p>
           )}
         </section>
+
+        <VisaChecklistGenerator country={country} requirement={requirement} />
 
         <section className="mt-8">
           <div className="mb-5 flex items-center gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#fff0f1] text-[#d7192d]"><Plane size={19} /></span><div><p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#d7192d]">Entry options</p><h2 className="text-xl font-bold text-[#082b4c]">Visa categories</h2></div></div>
