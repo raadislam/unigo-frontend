@@ -304,7 +304,7 @@ export function VisaChecklistGenerator({ country, requirement }: { country: Coun
             <div>
               <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#d7192d]">Personalised document guide</p>
               <h2 className="mt-1 text-xl font-bold text-[#082b4c]">Download your visa checklist</h2>
-              <p className="mt-2 max-w-2xl text-sm leading-7 text-slate-500">Build a destination-specific checklist for the applicant and, where relevant, their financial sponsor. Download it on official UniGo letterhead.</p>
+              <p className="mt-2 max-w-2xl text-sm leading-7 text-slate-500">Get a simple one-page document list, with a QR code to scan for more destination information.</p>
             </div>
           </div>
           <button type="button" onClick={() => { setMessage(""); setOpen(true); }} disabled={!requirement} className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-[#d7192d] px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#b91426] disabled:cursor-not-allowed disabled:opacity-50"><Download size={17} /> Download checklist</button>
@@ -365,7 +365,7 @@ export function VisaChecklistGenerator({ country, requirement }: { country: Coun
               <div className="rounded-2xl bg-[#f6f9fc] p-4">
                 <p className="text-xs font-bold uppercase tracking-wide text-[#526579]">Your PDF will include</p>
                 <p className="mt-2 text-sm font-semibold text-[#082b4c]">{checklistSummary}</p>
-                <p className="mt-1 text-xs leading-6 text-slate-500">Common destination requirements, relevant occupation evidence, photo guidance, and sponsor evidence where selected. Supporting examples are distinguished from official mandatory requirements.</p>
+                <p className="mt-1 text-xs leading-6 text-slate-500">A short list of key documents, essential notes and a QR code for more information.</p>
               </div>
               {!canGenerate && <p className="rounded-xl bg-amber-50 p-3 text-xs leading-6 text-amber-800">This destination&apos;s verified record does not contain a complete common document list. The checklist download is paused to avoid generating an incomplete document.</p>}
               {message && <p role="status" className="rounded-xl bg-[#f1f7f3] p-3 text-sm text-[#23633c]">{message}</p>}
