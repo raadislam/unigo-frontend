@@ -11,6 +11,11 @@ from urllib.request import Request, urlopen
 from xml.etree import ElementTree
 
 REQUIRED_SLUGS = {"japan", "australia", "maldives", "viet-nam"}
+SCHENGEN_ISO2 = {
+    "AT", "BE", "BG", "HR", "CZ", "DK", "EE", "FI", "FR", "DE",
+    "GR", "HU", "IS", "IT", "LV", "LI", "LT", "LU", "MT", "NL",
+    "NO", "PL", "PT", "RO", "SK", "SI", "ES", "SE", "CH",
+}
 
 
 class PageInspector(HTMLParser):
@@ -339,6 +344,7 @@ def validate_country_page(parser, country, base_url, label):
     for document in requirement.get("required_documents") or []:
         require_visible(parser, document, "required document", label)
 
+    iso2 = str(country.get("iso2") or "").upper()
     applicant_checklists = requirement.get("applicant_checklists") or []
     expected_applicant_types = {
         "employee",
@@ -351,8 +357,11 @@ def validate_country_page(parser, country, base_url, label):
         for checklist in applicant_checklists
         if isinstance(checklist, dict)
     }
-    if len(applicant_checklists) != 4 or actual_applicant_types != expected_applicant_types:
-        raise SystemExit(f"{label} does not expose all four applicant-specific checklist profiles.")
+    if iso2 in SCHENGEN_ISO2 and (
+        len(applicant_checklists) != 4
+        or actual_applicant_types != expected_applicant_types
+    ):
+        raise SystemExit(f"{label} does not expose all four Schengen applicant-specific checklist profiles.")
 
     for checklist in applicant_checklists:
         documents = checklist.get("documents") or []
@@ -364,7 +373,6 @@ def validate_country_page(parser, country, base_url, label):
         if checklist_source and checklist_source not in parser.anchors:
             raise SystemExit(f"{label} is missing an applicant checklist source link.")
 
-    iso2 = str(country.get("iso2") or "").upper()
     source_backed_fragments = {
         "DE": [
             "Original personal bank statements for at least the last 6 months",
