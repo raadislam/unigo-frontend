@@ -160,7 +160,14 @@ function makePdf(jpeg: Uint8Array, pages: string[][], countryName: string) {
   for (let i = 1; i < count; i++) xref += offsets[i] ? `${String(offsets[i]).padStart(10, "0")} 00000 n \n` : "0000000000 00000 f \n";
   xref += `trailer\n<< /Size ${count} /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`;
   push(ascii(xref));
-  return new Blob(chunks, { type: "application/pdf" });
+  const output = new ArrayBuffer(length);
+  const outputView = new Uint8Array(output);
+  let cursor = 0;
+  for (const chunk of chunks) {
+    outputView.set(chunk, cursor);
+    cursor += chunk.length;
+  }
+  return new Blob([output], { type: "application/pdf" });
 }
 
 function buildChecklistLines(country: Country, requirement: VisaRequirement, scope: ChecklistScope, applicant: Occupation, sponsor: Occupation, funding: SponsorFunding, relationship: string) {
