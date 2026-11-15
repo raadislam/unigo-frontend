@@ -5,11 +5,19 @@ on:
     branches:
       - master
     paths:
-      - 'docs/dependency-audit.trigger'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/dependency-audit.yml'
+  schedule:
+    - cron: '15 3 * * 1'
   workflow_dispatch:
 
 permissions:
   contents: read
+
+concurrency:
+  group: unigo-frontend-dependency-audit
+  cancel-in-progress: false
 
 jobs:
   audit:
@@ -30,7 +38,8 @@ jobs:
           node - <<'NODE'
           const fs = require("node:fs");
           const audit = JSON.parse(fs.readFileSync("npm-audit.json", "utf8"));
-          console.log("CURRENT_VULNERABILITY_COUNTS", JSON.stringify(audit.metadata?.vulnerabilities || {}));
+          const counts = audit.metadata?.vulnerabilities || {};
+          console.log("CURRENT_VULNERABILITY_COUNTS", JSON.stringify(counts));
           for (const [name, item] of Object.entries(audit.vulnerabilities || {})) {
             console.log("VULNERABILITY", JSON.stringify({
               name,
@@ -44,6 +53,10 @@ jobs:
                 range: value.range
               }))
             }));
+          }
+          if ((counts.critical || 0) > 0 || (counts.high || 0) > 0) {
+            console.error("High or critical dependency vulnerabilities detected.");
+            process.exit(1);
           }
           NODE
       - name: Upload full audit report
