@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { Search, Plane, ArrowRight, Globe2, SlidersHorizontal, MapPin, BadgeCheck, BriefcaseBusiness } from "lucide-react";
+import { Search, ArrowRight, Globe2, SlidersHorizontal, MapPin, BadgeCheck, BriefcaseBusiness } from "lucide-react";
 import type { Country, VisaCategory } from "@/lib/country-directory";
 import { CountryFlag } from "@/components/shared/country-flag";
 
