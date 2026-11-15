@@ -6,6 +6,7 @@ on:
       - master
     paths:
       - 'src/components/visa-services/country-visa-page-client.tsx'
+      - 'src/components/visa-services/visa-checklist-generator.tsx'
       - 'src/lib/country-directory.ts'
       - 'package.json'
       - 'package-lock.json'
