@@ -105,6 +105,10 @@ export function CountryDirectory({ initialCountries, initialCategories }: Countr
         <span className="hidden items-center gap-1.5 text-xs font-medium text-slate-400 sm:flex"><Globe2 size={14} /> Explore with UniGo</span>
       </div>
 
+      <div className="hidden" aria-hidden="true">
+        {countries.map((country) => <Link href={`/visa-services/${country.slug}/`} key={`directory-index-${country.id}`}>{country.name}</Link>)}
+      </div>
+
       {filteredCountries.length > 0 ? (
         <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
           {paginatedCountries.map((country) => (
