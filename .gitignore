@@ -39,3 +39,14 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Generated WebP assets are recreated from the original source images before dev/build
+/public/images/student-uk.webp
+/public/images/student-australia.webp
+/public/images/student-canada.webp
+/public/images/student-destinations.webp
+/public/images/destinations/italy.webp
+/public/images/destinations/united-kingdom.webp
+/public/images/destinations/niagara-falls.webp
+/public/images/destinations/statue-of-liberty.webp
+/public/images/destinations/thailand.webp
