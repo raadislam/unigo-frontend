@@ -103,10 +103,10 @@ function makePdf(jpeg: Uint8Array, pages: string[][], countryName: string) {
     ...jpeg,
     ...ascii("\nendstream"),
   ]);
-  const pageRefs = pages.map((_, index) => 5 + index * 2);
+  const pageRefs = pages.map((_, index) => 6 + index * 2);
   objects[2] = ascii(`<< /Type /Pages /Kids [${pageRefs.map((ref) => `${ref} 0 R`).join(" ")}] /Count ${pages.length} >>`);
   pages.forEach((lines, index) => {
-    const pageRef = 5 + index * 2;
+    const pageRef = 6 + index * 2;
     const contentRef = pageRef + 1;
     const commands = ["q 595 0 0 842 0 0 cm /Im0 Do Q"];
     let top = 112;
@@ -141,11 +141,11 @@ function makePdf(jpeg: Uint8Array, pages: string[][], countryName: string) {
       }
     }
     const stream = ascii(commands.join("\n"));
-    objects[pageRef] = ascii(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /XObject << /Im0 3 0 R >> /Font << /F1 4 0 R /F2 6 0 R >> >> /Contents ${contentRef} 0 R >>`);
+    objects[pageRef] = ascii(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /XObject << /Im0 3 0 R >> /Font << /F1 4 0 R /F2 5 0 R >> >> /Contents ${contentRef} 0 R >>`);
     objects[contentRef] = new Uint8Array([...ascii(`<< /Length ${stream.length} >>\nstream\n`), ...stream, ...ascii("\nendstream")]);
   });
   objects[4] = ascii("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>");
-  objects[6] = ascii("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>");
+  objects[5] = ascii("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>");
   push(ascii("%PDF-1.4\n%\xE2\xE3\xCF\xD3\n"));
   for (let i = 1; i < objects.length; i++) {
     if (!objects[i]) continue;
@@ -243,9 +243,22 @@ export function VisaChecklistGenerator({ country, requirement }: { country: Coun
     setBusy(true);
     setMessage("");
     try {
-      const response = await fetch("/assets/visa-checklist/unigo-letterhead.jpg", { cache: "force-cache" });
+      const response = await fetch("/assets/visa-checklist/unigo-letterhead.svg", { cache: "force-cache" });
       if (!response.ok) throw new Error("The UniGo letterhead could not be loaded.");
-      const jpeg = new Uint8Array(await response.arrayBuffer());
+      const svg = await response.text();
+      const svgUrl = URL.createObjectURL(new Blob([svg], { type: "image/svg+xml" }));
+      const image = new Image();
+      image.src = svgUrl;
+      await new Promise<void>((resolve, reject) => { image.onload = () => resolve(); image.onerror = () => reject(new Error("The UniGo letterhead could not be rendered.")); });
+      const canvas = document.createElement("canvas");
+      canvas.width = 993;
+      canvas.height = 1404;
+      const context = canvas.getContext("2d");
+      if (!context) throw new Error("Your browser could not prepare the PDF background.");
+      context.drawImage(image, 0, 0, canvas.width, canvas.height);
+      URL.revokeObjectURL(svgUrl);
+      const jpegBlob = await new Promise<Blob>((resolve, reject) => canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error("The PDF background could not be encoded.")), "image/jpeg", 0.88));
+      const jpeg = new Uint8Array(await jpegBlob.arrayBuffer());
       const lines = buildChecklistLines(country, requirement, scope, applicant, sponsor, funding, relationship);
       const pages: string[][] = [];
       let page: string[] = [];
