@@ -7,6 +7,7 @@ on:
     paths:
       - "src/components/home/hero-illustration.tsx"
       - "src/components/home/destination-showcase.tsx"
+      - "src/app/(website)/about/about-page.tsx"
       - "scripts/optimize-public-images.mjs"
       - "package.json"
       - "package-lock.json"
@@ -52,8 +53,13 @@ jobs:
 
       - name: Verify optimized static image output
         run: |
+          test -s out/images/about/hero.webp
+          test -s out/images/about/mission.webp
           test -s out/images/student-destinations.webp
           test -s out/images/destinations/italy.webp
+          for file in hero.png mission.png; do
+            test ! -e "out/images/about/$file"
+          done
           for file in student-uk.png student-australia.png student-canada.png student-destinations.png; do
             test ! -e "out/images/$file"
           done
