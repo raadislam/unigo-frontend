@@ -3,6 +3,8 @@ import { stat } from "node:fs/promises";
 import { resolve } from "node:path";
 
 const assets = [
+  { source: "public/images/about/hero.png", output: "public/images/about/hero.webp", width: 1600 },
+  { source: "public/images/about/mission.png", output: "public/images/about/mission.webp", width: 1400 },
   { source: "public/images/student-uk.png", output: "public/images/student-uk.webp", width: 1000 },
   { source: "public/images/student-australia.png", output: "public/images/student-australia.webp", width: 1000 },
   { source: "public/images/student-canada.png", output: "public/images/student-canada.webp", width: 1000 },
