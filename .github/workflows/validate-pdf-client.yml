@@ -1,0 +1,61 @@
+name: Validate backend-generated checklist PDF client
+
+on:
+  pull_request:
+    branches:
+      - master
+    paths:
+      - 'src/components/visa-services/visa-checklist-generator.tsx'
+      - '.github/workflows/validate-pdf-client.yml'
+      - 'package.json'
+      - 'package-lock.json'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Type check
+        run: npx tsc --noEmit
+      - name: Lint
+        run: npm run lint
+      - name: Build static export
+        run: npm run build
+        env:
+          NEXT_PUBLIC_API_URL: https://api.unigo-bd.com/api
+          UNIGO_CONTENT_VERSION: pdf-client-validation
+      - name: Smoke test deployed Laravel PDF endpoint
+        run: |
+          python3 - <<'PY'
+          import re
+          from urllib.request import Request, urlopen
+
+          endpoint = "https://api.unigo-bd.com/api/visa-requirements/sweden/checklist-pdf"
+          body = b'{"scope":"applicant","applicant_occupation":"employee"}'
+          request = Request(
+              endpoint,
+              data=body,
+              headers={"Accept": "application/pdf", "Content-Type": "application/json", "User-Agent": "UniGo-PDF-Smoke-Test/1.0"},
+              method="POST",
+          )
+          with urlopen(request, timeout=60) as response:
+              pdf = response.read()
+              if response.status != 200:
+                  raise SystemExit(f"PDF endpoint returned HTTP {response.status}.")
+              if response.headers.get_content_type() != "application/pdf":
+                  raise SystemExit(f"Unexpected PDF content type: {response.headers.get_content_type()}")
+          if not pdf.startswith(b"%PDF-") or not pdf.rstrip().endswith(b"%%EOF"):
+              raise SystemExit("The deployed endpoint did not return a valid PDF document.")
+          pages = re.findall(rb"/Type\s*/Page\b", pdf)
+          if not pages:
+              raise SystemExit("The generated PDF contains no page objects.")
+          print(f"Production PDF endpoint passed: {len(pdf)} bytes, {len(pages)} page(s).")
+          PY
