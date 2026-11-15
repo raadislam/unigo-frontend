@@ -124,7 +124,7 @@ export function BlogResources() {
       <div className="blog-resources__container">
         <div className="blog-resources__section-heading">
           <div>
-            <span className="blog-resources__eyebrow">EDITOR'S SELECTION</span>
+            <span className="blog-resources__eyebrow">EDITOR&apos;S SELECTION</span>
             <h2>Featured story</h2>
           </div>
 
