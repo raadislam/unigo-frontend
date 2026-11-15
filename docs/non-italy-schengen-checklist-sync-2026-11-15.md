@@ -8,3 +8,5 @@ Country-specific regression checks cover Germany/Estonia, Denmark/Norway, Nether
 
 Source records and country-specific conditions are maintained in the backend seeder and its audit:
 https://github.com/raadislam/unigo-backend/pull/79
+
+The rendered-page validator requires four applicant profiles only for the 29 Schengen destinations; other destinations may legitimately have no Schengen-specific profiles. A fresh static rebuild is required after this validation correction.
