@@ -86,7 +86,7 @@ function escapePdf(value: string) {
   return cleanText(value).replace(/\\/g, "\\\\").replace(/\(/g, "\\(").replace(/\)/g, "\\)");
 }
 
-function makePdf(jpeg: Uint8Array, pages: string[][], countryName: string) {
+function makePdf(jpeg: Uint8Array, lines: string[], countryName: string) {
   const encoder = new TextEncoder();
   const chunks: Uint8Array[] = [];
   const offsets: number[] = [0];
@@ -99,66 +99,59 @@ function makePdf(jpeg: Uint8Array, pages: string[][], countryName: string) {
   const objects: Uint8Array[] = [];
   objects[1] = ascii("<< /Type /Catalog /Pages 2 0 R >>");
   objects[3] = new Uint8Array([
-    ...ascii(`<< /Type /XObject /Subtype /Image /Width 993 /Height 1404 /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpeg.length} >>\nstream\n`),
+    ...ascii(`<< /Type /XObject /Subtype /Image /Width 993 /Height 1404 /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpeg.length} >>\\nstream\\n`),
     ...jpeg,
-    ...ascii("\nendstream"),
+    ...ascii("\\nendstream"),
   ]);
-  const pageRefs = pages.map((_, index) => 6 + index * 2);
-  objects[2] = ascii(`<< /Type /Pages /Kids [${pageRefs.map((ref) => `${ref} 0 R`).join(" ")}] /Count ${pages.length} >>`);
-  pages.forEach((lines, index) => {
-    const pageRef = 6 + index * 2;
-    const contentRef = pageRef + 1;
-    const commands = ["q 595 0 0 842 0 0 cm /Im0 Do Q"];
-    let top = 112;
-    const addText = (value: string, x: number, yTop: number, size: number, bold = false, color = "0.12 0.19 0.27") => {
-      commands.push(`BT /F${bold ? 2 : 1} ${size} Tf ${color} rg 1 0 0 1 ${x} ${842 - yTop} Tm (${escapePdf(value)}) Tj ET`);
-    };
-    addText(`${countryName.toUpperCase()} VISA CHECKLIST`, 43, top, 13, true, "0.03 0.17 0.30");
-    top += 16;
-    addText("Bangladeshi ordinary passport | Tourism", 43, top, 7.5, false, "0.35 0.41 0.48");
-    addText(`Page ${index + 1} of ${pages.length}`, 510, top, 7, false, "0.35 0.41 0.48");
-    top += 19;
-    for (const line of lines) {
-      if (line.startsWith("## ")) {
-        top += 4;
-        addText(line.slice(3), 43, top, 9, true, "0.03 0.17 0.30");
-        top += 5;
-        commands.push(`0.84 0.88 0.92 RG 0.6 w 43 ${842 - top} m 552 ${842 - top} l S`);
-        top += 11;
-      } else if (line.startsWith("! ")) {
-        const wrapped = wrapText(line.slice(2), 118);
-        for (const part of wrapped) {
-          addText(part, 43, top, 6.4, false, "0.48 0.25 0.10");
-          top += 8;
-        }
-      } else {
-        const wrapped = wrapText(line, 112);
-        for (const part of wrapped) {
-          commands.push(`0.16 0.36 0.53 RG 0.7 w 44 ${842 - top + 1} 5 5 re S`);
-          addText(part, 55, top + 5, 7.1, false, "0.16 0.22 0.29");
-          top += 10;
-        }
+  objects[2] = ascii("<< /Type /Pages /Kids [6 0 R] /Count 1 >>");
+  const commands = ["q 595 0 0 842 0 0 cm /Im0 Do Q"];
+  let top = 112;
+  const addText = (value: string, x: number, yTop: number, size: number, bold = false, color = "0.12 0.19 0.27") => {
+    commands.push(`BT /F${bold ? 2 : 1} ${size} Tf ${color} rg 1 0 0 1 ${x} ${842 - yTop} Tm (${escapePdf(value)}) Tj ET`);
+  };
+  addText(`${countryName.toUpperCase()} VISA CHECKLIST`, 43, top, 13, true, "0.03 0.17 0.30");
+  top += 16;
+  addText("Bangladeshi ordinary passport | Tourism", 43, top, 7.5, false, "0.35 0.41 0.48");
+  top += 22;
+  for (const line of lines) {
+    if (line.startsWith("## ")) {
+      top += 3;
+      addText(line.slice(3), 43, top, 8.2, true, "0.03 0.17 0.30");
+      top += 6;
+      commands.push(`0.84 0.88 0.92 RG 0.6 w 43 ${842 - top} m 552 ${842 - top} l S`);
+      top += 9;
+    } else if (line.startsWith("! ")) {
+      const wrapped = wrapText(line.slice(2), 105);
+      for (const part of wrapped) {
+        addText(part, 43, top, 6.2, false, "0.35 0.41 0.48");
+        top += 7.4;
+      }
+    } else {
+      const wrapped = wrapText(line, 112);
+      for (const part of wrapped) {
+        commands.push(`0.16 0.36 0.53 rg 43 ${842 - top - 1} 3 3 re f`);
+        addText(part, 52, top + 3, 7.1, false, "0.16 0.22 0.29");
+        top += 9;
       }
     }
-    const stream = ascii(commands.join("\n"));
-    objects[pageRef] = ascii(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /XObject << /Im0 3 0 R >> /Font << /F1 4 0 R /F2 5 0 R >> >> /Contents ${contentRef} 0 R >>`);
-    objects[contentRef] = new Uint8Array([...ascii(`<< /Length ${stream.length} >>\nstream\n`), ...stream, ...ascii("\nendstream")]);
-  });
+  }
+  const stream = ascii(commands.join("\\n"));
+  objects[6] = ascii("<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /XObject << /Im0 3 0 R >> /Font << /F1 4 0 R /F2 5 0 R >> >> /Contents 7 0 R >>");
+  objects[7] = new Uint8Array([...ascii(`<< /Length ${stream.length} >>\\nstream\\n`), ...stream, ...ascii("\\nendstream")]);
   objects[4] = ascii("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>");
   objects[5] = ascii("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>");
-  push(ascii("%PDF-1.4\n%\xE2\xE3\xCF\xD3\n"));
+  push(ascii("%PDF-1.4\\n%\\xE2\\xE3\\xCF\\xD3\\n"));
   for (let i = 1; i < objects.length; i++) {
     if (!objects[i]) continue;
     offsets[i] = length;
-    push(ascii(`${i} 0 obj\n`));
+    push(ascii(`${i} 0 obj\\n`));
     push(objects[i]);
-    push(ascii("\nendobj\n"));
+    push(ascii("\\nendobj\\n"));
   }
   const xrefOffset = length;
-  const count = objects.length;
-  let xref = `xref\n0 ${count}\n0000000000 65535 f \n`;
-  for (let i = 1; i < count; i++) xref += offsets[i] ? `${String(offsets[i]).padStart(10, "0")} 00000 n \n` : "0000000000 00000 f \n";
-  xref += `trailer\n<< /Size ${count} /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`;
+  let xref = `xref\\n0 ${objects.length}\\n0000000000 65535 f \\n`;
+  for (let i = 1; i < objects.length; i++) xref += offsets[i] ? `${String(offsets[i]).padStart(10, "0")} 00000 n \\n` : "0000000000 00000 f \\n";
+  xref += `trailer\\n<< /Size ${objects.length} /Root 1 0 R >>\\nstartxref\\n${xrefOffset}\\n%%EOF`;
   push(ascii(xref));
   const output = new ArrayBuffer(length);
   const outputView = new Uint8Array(output);
@@ -176,46 +169,47 @@ function buildChecklistLines(country: Country, requirement: VisaRequirement, sco
     const type = item.applicant_type.toLowerCase();
     return applicant === "business" ? type.includes("business") || type.includes("self_employed") : type === applicant;
   });
-  const common = requirement.required_documents || [];
-  const applicantDocs = applicantChecklist?.documents.map((item) => item.status === "required" ? item.name : "If applicable: " + item.name) || applicantFallback[applicant].map((item) => "If applicable: " + item);
+  const addShort = (value: string, prefix = "") => {
+    const cleaned = cleanText(value);
+    if (cleaned) lines.push(prefix + (cleaned.length > 105 ? cleaned.slice(0, 102).replace(/\\s+\\S*$/, "") + "..." : cleaned));
+  };
+
   if (scope !== "sponsor") {
-    lines.push("## APPLICANT - COMMON DESTINATION REQUIREMENTS");
-    if (common.length) common.forEach((item) => lines.push(item));
-    else lines.push("Check the current official application checklist for this destination before submission.");
-    lines.push("Passport validity: " + (requirement.passport_validity_rule || "Check the current official application instructions."));
-    if (requirement.blank_passport_pages_rule) lines.push("Blank passport pages: " + requirement.blank_passport_pages_rule);
-    if (requirement.return_ticket_rule) lines.push("Return / onward travel: " + requirement.return_ticket_rule);
-    if (requirement.proof_of_funds_rule) lines.push("Proof of funds: " + requirement.proof_of_funds_rule);
-    if (requirement.accommodation_rule) lines.push("Accommodation: " + requirement.accommodation_rule);
-    if (requirement.travel_insurance_rule) lines.push("Travel insurance: " + requirement.travel_insurance_rule);
-    if (requirement.photo_specifications) {
-      const photo = requirement.photo_specifications;
-      lines.push("Photograph: " + [photo.status, photo.dimensions_mm, photo.format, photo.file_size, photo.background, photo.copies].filter(Boolean).join("; "));
-      if (photo.notes) lines.push("Photograph notes: " + photo.notes);
+    lines.push("## APPLICANT DOCUMENTS");
+    (requirement.required_documents || []).slice(0, 11).forEach((item) => addShort(item));
+    if (applicantChecklist?.documents?.length) {
+      lines.push("## OCCUPATION - " + occupationLabels[applicant].toUpperCase());
+      applicantChecklist.documents.filter((item) => item.status === "required").slice(0, 4).forEach((item) => addShort(item.name));
     } else {
-      lines.push("Photograph: verify current size, format, background and number of copies with the official application centre.");
-    }
-    lines.push("## APPLICANT - " + occupationLabels[applicant].toUpperCase() + " SUPPORTING DOCUMENTS");
-    applicantDocs.forEach((item) => lines.push(item));
-    if (applicantChecklist?.documents.length) {
-      applicantChecklist.documents.filter((item) => item.status !== "required").forEach((item) => lines.push("If applicable: " + item.name));
+      lines.push("## OCCUPATION - " + occupationLabels[applicant].toUpperCase());
+      applicantFallback[applicant].slice(0, 3).forEach((item) => addShort(item, "If applicable: "));
     }
   }
+
   if (scope !== "applicant" && funding !== "self") {
-    lines.push("## SPONSOR - COMMON SUPPORTING EVIDENCE (CONDITIONAL)");
-    sponsorCommon.forEach((item) => lines.push(item));
-    lines.push("## SPONSOR - " + occupationLabels[sponsor].toUpperCase() + " EVIDENCE (CONDITIONAL)");
-    sponsorOccupationDocuments[sponsor].forEach((item) => lines.push(item));
-    if (relationship.trim()) lines.push("Relationship to applicant: " + relationship.trim());
-    lines.push("Expenses covered: " + (funding === "full" ? "Full trip sponsorship" : "Partial trip sponsorship; specify expenses in the sponsor letter"));
+    lines.push("## FOR SPONSOR / INVITATION");
+    [
+      "Sponsor passport bio-page and proof of legal status",
+      "Invitation and signed financial-support letter",
+      "Proof of relationship to applicant",
+      "Recent bank statement and solvency certificate",
+      "Address evidence and accommodation details",
+      ...(sponsor === "employee" ? ["Employment letter and recent payslips"] : sponsor === "business" ? ["Trade licence and business financial records"] : sponsor === "student" ? ["Student ID and enrolment certificate"] : sponsor === "retired" ? ["Retirement or pension evidence"] : ["Proof of occupation and income source"]),
+    ].slice(0, 6).forEach((item) => addShort(item));
+    if (relationship.trim()) addShort("Relationship: " + relationship.trim());
   }
-  if (requirement.sources?.length) {
-    lines.push("## OFFICIAL SOURCES");
-    requirement.sources.filter((source) => source.source_type === "official" && source.source_url).slice(0, 2).forEach((source) => lines.push((source.source_name || "Official guidance") + ": " + source.source_url));
-  }
-  lines.push("! Documents marked as supporting evidence are a preparation guide, not a guarantee that an authority will request them. Follow the latest personalised checklist and official instructions.");
-  lines.push("! Last official check: " + (requirement.official_source_checked_at ? new Date(requirement.official_source_checked_at).toLocaleDateString("en-GB") : "Not supplied in the published record"));
-  lines.push("! UniGo Tours & Travels | +880 1901-644300 | contact@unigo-bd.com | unigo-bd.com");
+
+  lines.push("## IMPORTANT NOTES");
+  addShort("Passport validity: " + (requirement.passport_validity_rule || "Check the current official rule."));
+  if (requirement.proof_of_funds_rule) addShort("Funds: " + requirement.proof_of_funds_rule);
+  if (requirement.photo_specifications) {
+    const photo = requirement.photo_specifications;
+    const photoText = [photo.dimensions_mm, photo.format, photo.background, photo.copies].filter(Boolean).join(", ");
+    if (photoText) addShort("Photo: " + photoText);
+    else addShort("Photo: follow the current application-centre instructions.");
+  } else addShort("Photo: confirm the latest photo specification with the visa centre.");
+  addShort("Retired applicants: include retirement or pension documents.", "If applicable: ");
+  lines.push("! This is a quick preparation list. Final requirements may vary by applicant and visa route.");
   return lines;
 }
 
@@ -264,25 +258,27 @@ export function VisaChecklistGenerator({ country, requirement }: { country: Coun
       if (!context) throw new Error("Your browser could not prepare the PDF background.");
       context.drawImage(image, 0, 0, canvas.width, canvas.height);
       URL.revokeObjectURL(svgUrl);
-      const jpegBlob = await new Promise<Blob>((resolve, reject) => canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error("The PDF background could not be encoded.")), "image/jpeg", 0.88));
+      const destinationUrl = `https://unigo-bd.com/visa-services/${country.slug}/`;
+      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=1&data=${encodeURIComponent(destinationUrl)}`;
+      const qrResponse = await fetch(qrUrl, { cache: "no-store" });
+      if (!qrResponse.ok) throw new Error("The information QR code could not be created. Please try again.");
+      const qrBlob = await qrResponse.blob();
+      const qrUrlObject = URL.createObjectURL(qrBlob);
+      const qrImage = new Image();
+      qrImage.src = qrUrlObject;
+      await new Promise<void>((resolve, reject) => { qrImage.onload = () => resolve(); qrImage.onerror = () => reject(new Error("The information QR code could not be loaded.")); });
+      context.fillStyle = "#ffffff";
+      context.fillRect(790, 1110, 165, 190);
+      context.drawImage(qrImage, 810, 1125, 125, 125);
+      context.fillStyle = "#082b4c";
+      context.font = "bold 15px Arial";
+      context.textAlign = "center";
+      context.fillText("SCAN TO KNOW MORE", 872, 1275);
+      URL.revokeObjectURL(qrUrlObject);
+      const jpegBlob = await new Promise<Blob>((resolve, reject) => canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error("The PDF background could not be encoded.")), "image/jpeg", 0.9));
       const jpeg = new Uint8Array(await jpegBlob.arrayBuffer());
       const lines = buildChecklistLines(country, requirement, scope, applicant, sponsor, funding, relationship);
-      const pages: string[][] = [];
-      let page: string[] = [];
-      let used = 0;
-      for (const line of lines) {
-        const wrappedCount = line.startsWith("## ") ? 2 : line.startsWith("! ") ? wrapText(line.slice(2), 118).length : wrapText(line, 112).length;
-        const cost = line.startsWith("## ") ? 2 : wrappedCount;
-        if (used + cost > 49 && page.length) {
-          pages.push(page);
-          page = [];
-          used = 0;
-        }
-        page.push(line);
-        used += cost;
-      }
-      if (page.length) pages.push(page);
-      const pdf = makePdf(jpeg, pages, country.name);
+      const pdf = makePdf(jpeg, lines, country.name);
       const url = URL.createObjectURL(pdf);
       const anchor = document.createElement("a");
       anchor.href = url;
@@ -291,7 +287,7 @@ export function VisaChecklistGenerator({ country, requirement }: { country: Coun
       anchor.click();
       anchor.remove();
       URL.revokeObjectURL(url);
-      setMessage(pages.length === 1 ? "Your one-page checklist has been downloaded." : `Your complete checklist has been downloaded in ${pages.length} pages to keep every item readable.`);
+      setMessage("Your one-page checklist has been downloaded.");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "The checklist could not be generated. Please try again.");
     } finally {
