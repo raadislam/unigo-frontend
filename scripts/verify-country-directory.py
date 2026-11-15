@@ -1,10 +1,11 @@
 import argparse
 import json
+import os
 import re
 import time
 from html.parser import HTMLParser
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import quote, urlparse
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 from xml.etree import ElementTree
@@ -432,7 +433,11 @@ def snapshot(api_url, expected_file):
     if not base:
         raise SystemExit("NEXT_PUBLIC_API_URL is not configured.")
 
-    body = fetch_bytes(base + "/countries")
+    content_version = os.environ.get("UNIGO_CONTENT_VERSION", "").strip()
+    countries_url = base + "/countries"
+    if content_version:
+        countries_url += "?content_version=" + quote(content_version, safe="")
+    body = fetch_bytes(countries_url)
     payload = json.loads(body.decode("utf-8"))
     if (
         payload.get("success") is not True
