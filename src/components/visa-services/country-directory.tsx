@@ -105,7 +105,7 @@ export function CountryDirectory({ initialCountries, initialCategories }: Countr
         <span className="hidden items-center gap-1.5 text-xs font-medium text-slate-400 sm:flex"><Globe2 size={14} /> Explore with UniGo</span>
       </div>
 
-      <div className="hidden" aria-hidden="true">
+      <div className="hidden" aria-hidden="true" data-directory-link-index="true">
         {countries.map((country) => <Link href={`/visa-services/${country.slug}/`} key={`directory-index-${country.id}`}>{country.name}</Link>)}
       </div>
 
