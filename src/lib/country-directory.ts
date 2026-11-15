@@ -34,6 +34,8 @@ export type VisaRequirementSource = {
 export type VisaPhotoSpecifications = {
   status?: string;
   route?: string;
+  representation?: string;
+  captured_at_vac?: boolean;
   dimensions_mm?: string | { width?: number | string; height?: number | string; unit?: string };
   digital_dimensions_px?: string | { width?: number | string; height?: number | string; unit?: string };
   file_size?: string | number;
