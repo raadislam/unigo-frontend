@@ -207,14 +207,18 @@ export function CountryVisaPageClient({ slug, initialCountry, initialRequirement
                 <p className="mt-1 text-xs text-slate-500">Follow the specification for the selected application route. Do not assume one photo size applies to every visa category.</p>
                 {!requirement.photo_specifications ? (
                   <p className="mt-3 rounded-xl bg-amber-50 p-4 text-sm leading-6 text-amber-800">UniGo has not yet verified the photograph dimensions and upload requirements for this application route. Please check the current official embassy or visa-centre checklist before preparing your photo.</p>
+                ) : requirement.photo_specifications.status === "not_verified" ? (
+                  <p className="mt-3 rounded-xl bg-amber-50 p-4 text-sm leading-6 text-amber-800">UniGo has not verified the photograph requirements for this route. Do not assume a photo size or that no printed photo is needed. Check the current personalised application instructions or confirm with the responsible embassy or visa centre.</p>
                 ) : ["not_published", "not_specified", "no_fixed_size_published"].includes(requirement.photo_specifications.status || "") ? (
-                  <p className="mt-3 rounded-xl bg-amber-50 p-4 text-sm leading-6 text-amber-800">The reviewed authority has not published a specific photograph size for this route. Follow the personalised online application instructions or confirm with the responsible application centre before preparing your photo.</p>
+                  <p className="mt-3 rounded-xl bg-amber-50 p-4 text-sm leading-6 text-amber-800">The reviewed authority does not publish a universal fixed photograph size for this route. Follow the personalised online application instructions or confirm with the responsible application centre before preparing your photo.</p>
                 ) : requirement.photo_specifications.status === "biometric_capture" || requirement.photo_specifications.status === "captured_at_vac" || requirement.photo_specifications.status === "captured_at_application_centre" ? (
                   <p className="mt-3 rounded-xl bg-blue-50 p-4 text-sm leading-6 text-blue-800">A photograph is expected to be captured at the designated visa application or biometric centre for this route. Check the appointment instructions to confirm whether you must also bring printed photographs.</p>
                 ) : (
                   <div className="mt-3 grid gap-3 sm:grid-cols-2">
                     {[
                       ["Application route", formatPhotoValue(requirement.photo_specifications.route)],
+                      ["Application authority", formatPhotoValue(requirement.photo_specifications.representation)],
+                      ["Photo capture", requirement.photo_specifications.captured_at_vac ? "Digital photo captured at the visa application centre; confirm whether printed photographs are also required." : undefined],
                       ["Printed photo size", formatPhotoValue(requirement.photo_specifications.dimensions_mm, "mm")],
                       ["Digital dimensions", formatPhotoValue(requirement.photo_specifications.digital_dimensions_px, "px")],
                       ["File size", formatPhotoValue(requirement.photo_specifications.file_size)],
@@ -257,9 +261,9 @@ export function CountryVisaPageClient({ slug, initialCountry, initialRequirement
               ) : null}
               {requirement.sources?.length ? (
                 <div className="mt-6 border-t border-[#edf1f5] pt-5">
-                  <h3 className="text-sm font-bold text-[#082b4c]">Official sources</h3>
+                  <h3 className="text-sm font-bold text-[#082b4c]">Sources and application guidance</h3>
                   <div className="mt-2 flex flex-col gap-2">
-                    {requirement.sources.map((source) => <a key={source.id} href={source.source_url || "#"} target="_blank" rel="noreferrer" className="text-sm font-medium text-[#b91f32] underline underline-offset-4">{source.source_name || "Government source"}{source.is_primary ? " · Primary source" : ""}</a>)}
+                    {requirement.sources.map((source) => <a key={source.id} href={source.source_url || "#"} target="_blank" rel="noreferrer" className="text-sm font-medium text-[#b91f32] underline underline-offset-4">{source.source_name || "Government source"} · {source.source_type === "provider" ? "Application provider" : source.source_type === "secondary" ? "Secondary source" : "Official source"}{source.is_primary ? " · Primary source" : ""}</a>)}
                   </div>
                   {requirement.official_source_checked_at && <p className="mt-3 text-xs text-slate-400">Last official source check: {new Date(requirement.official_source_checked_at).toLocaleDateString("en-GB")}</p>}
                 </div>
