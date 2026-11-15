@@ -85,163 +85,175 @@ function escapePdf(value: string) {
   return cleanText(value).replace(/\\/g, "\\\\").replace(/\(/g, "\\(").replace(/\)/g, "\\)");
 }
 
-function makePdf(jpeg: Uint8Array, qrJpeg: Uint8Array, lines: string[], countryName: string) {
+function makePdf(jpeg: Uint8Array, lines: string[], countryName: string) {
   const encoder = new TextEncoder();
   const ascii = (value: string) => encoder.encode(value);
-  const commands: string[] = ["q 595 0 0 842 0 0 cm /Letterhead Do Q"];
-  const addText = (value: string, x: number, yTop: number, size: number, bold = false, color = "0.12 0.19 0.27") => {
-    commands.push(`BT /F${bold ? 2 : 1} ${size} Tf ${color} rg 1 0 0 1 ${x} ${842 - yTop} Tm (${escapePdf(value)}) Tj ET`);
-  };
-  const addLine = (value: string, y: number, size = 9.2, bold = false, x = 42, width = 510) => {
-    const max = Math.max(36, Math.floor(width / (size * 0.51)));
-    const wrapped = wrapText(value, max);
-    wrapped.forEach((part, index) => {
-      addText(part, x, y + index * (size + 3), size, bold);
-    });
-    return y + wrapped.length * (size + 3) + 2;
-  };
-  const drawSection = (title: string, y: number) => {
-    addText(title.toUpperCase(), 42, y, 10.2, true, "0.03 0.17 0.30");
-    commands.push(`0.84 0.88 0.92 RG 0.6 w 42 ${842 - y - 5} m 553 ${842 - y - 5} l S`);
-    return y + 15;
-  };
-  commands.push("q 58 0 0 58 34 755 cm /QR Do Q");
-  addText("SCAN FOR LATEST", 36, 72, 6.5, true, "0.35 0.41 0.48");
-  addText("VISA CHECKLIST", 112, 52, 16, true, "0.03 0.17 0.30");
-  addText(countryName, 112, 72, 12, true, "0.84 0.09 0.16");
-  addText("Bangladeshi ordinary passport  |  Tourism", 112, 88, 8.5, false, "0.35 0.41 0.48");
-
-  let y = 125;
-  y = drawSection("Visa route", y);
-  y = addLine(lines.find((line) => line.startsWith("ROUTE|"))?.slice(6) || "Check the destination's current visa route.", y, 9.5, true);
-  y = addLine(lines.find((line) => line.startsWith("STAY|"))?.slice(5) || "", y, 9);
-  y = addLine(lines.find((line) => line.startsWith("APPLICATION|"))?.slice(11) || "", y, 9);
-  y = drawSection("Documents to prepare", y + 3);
-  for (const line of lines.filter((item) => item.startsWith("DOC|"))) {
-    const value = line.slice(4);
-    const wrapped = wrapText(value, 88);
-    for (const part of wrapped) {
-      commands.push(`0.84 0.09 0.16 rg 43 ${842 - y - 2} 3 3 re f`);
-      y = addLine(part, y, 9.1, false, 52, 495);
+  const pageLines: string[][] = [];
+  let current: string[] = [];
+  let used = 0;
+  for (const line of lines) {
+    const heading = line.startsWith("## ");
+    const note = line.startsWith("! ");
+    const wrapped = wrapText(heading ? line.slice(3) : note ? line.slice(2) : line, heading ? 78 : 91);
+    const cost = wrapped.length * (heading ? 20 : 15) + (heading ? 8 : 2);
+    if (used + cost > 650 && current.length) {
+      pageLines.push(current);
+      current = [];
+      used = 0;
     }
+    if (heading) current.push("## " + wrapped[0], ...wrapped.slice(1).map((part) => "  " + part));
+    else if (note) current.push(...wrapped.map((part) => "! " + part));
+    else current.push(...wrapped.map((part) => "• " + part));
+    used += cost;
   }
-  const conditions = lines.filter((item) => item.startsWith("KEY|"));
-  if (conditions.length) {
-    y = drawSection("Key requirements", y + 3);
-    for (const line of conditions) y = addLine(line.slice(4), y, 8.7);
-  }
-  const photo = lines.find((line) => line.startsWith("PHOTO|"));
-  if (photo) {
-    y = drawSection("Photo", y + 3);
-    y = addLine(photo.slice(6), y, 8.7);
-  }
-  addText("Prepared by UniGo Tours & Travels  |  Confirm the latest instructions before applying.", 42, Math.min(744, y + 7), 7.5, false, "0.35 0.41 0.48");
+  if (current.length || !pageLines.length) pageLines.push(current);
 
-  const objects: Uint8Array[] = [];
+  const objects: (Uint8Array | null)[] = [null];
   objects[1] = ascii("<< /Type /Catalog /Pages 2 0 R >>");
-  objects[2] = ascii("<< /Type /Pages /Kids [6 0 R] /Count 1 >>");
-  objects[3] = new Uint8Array([...ascii(`<< /Type /XObject /Subtype /Image /Width 595 /Height 842 /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpeg.length} >>\nstream\n`), ...jpeg, ...ascii("\nendstream")]);
-  objects[4] = new Uint8Array([...ascii(`<< /Type /XObject /Subtype /Image /Width 160 /Height 160 /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${qrJpeg.length} >>\nstream\n`), ...qrJpeg, ...ascii("\nendstream")]);
-  objects[5] = ascii("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>");
-  objects[7] = ascii("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>");
-  const stream = ascii(commands.join("\n"));
-  objects[8] = ascii("<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /XObject << /Letterhead 3 0 R /QR 4 0 R >> /Font << /F1 5 0 R /F2 7 0 R >> >> /Contents 9 0 R >>");
-  objects[9] = new Uint8Array([...ascii(`<< /Length ${stream.length} >>\nstream\n`), ...stream, ...ascii("\nendstream")]);
+  objects[3] = new Uint8Array([
+    ...ascii("<< /Type /XObject /Subtype /Image /Width 993 /Height 1404 /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length " + jpeg.length + " >>\nstream\n"),
+    ...jpeg,
+    ...ascii("\nendstream"),
+  ]);
+  objects[4] = ascii("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>");
+  objects[5] = ascii("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>");
+  const pageRefs: string[] = [];
+  pageLines.forEach((page, pageIndex) => {
+    const pageObject = 6 + pageIndex * 2;
+    const contentObject = pageObject + 1;
+    pageRefs.push(pageObject + " 0 R");
+    const commands = ["q 595 0 0 842 0 0 cm /Im0 Do Q"];
+    let y = 108;
+    const text = (value: string, x: number, size: number, bold = false, color = "0.12 0.19 0.27") => {
+      commands.push("BT /F" + (bold ? 2 : 1) + " " + size + " Tf " + color + " rg 1 0 0 1 " + x + " " + (842-y) + " Tm (" + escapePdf(value) + ") Tj ET");
+    };
+    if (pageIndex === 0) {
+      text(countryName.toUpperCase() + " VISA CHECKLIST", 42, 16, true, "0.03 0.17 0.30");
+      y += 22;
+      text("Bangladeshi ordinary passport | Tourism", 42, 10, false, "0.35 0.41 0.48");
+      y += 25;
+    } else {
+      text(countryName.toUpperCase() + " VISA CHECKLIST — CONTINUED", 42, 13, true, "0.03 0.17 0.30");
+      y += 24;
+    }
+    for (const line of page) {
+      if (line.startsWith("## ")) {
+        y += 5;
+        text(line.slice(3), 42, 12, true, "0.03 0.17 0.30");
+        y += 8;
+        commands.push("0.84 0.88 0.92 RG 0.7 w 42 " + (842-y) + " m 553 " + (842-y) + " l S");
+        y += 12;
+      } else if (line.startsWith("! ")) {
+        text(line.slice(2), 42, 9.5, false, "0.35 0.41 0.48");
+        y += 15;
+      } else {
+        text(line.startsWith("• ") ? line.slice(2) : line, 48, 10.5, false, "0.12 0.19 0.27");
+        y += 15;
+      }
+    }
+    objects[pageObject] = ascii("<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /XObject << /Im0 3 0 R >> /Font << /F1 4 0 R /F2 5 0 R >> >> /Contents " + contentObject + " 0 R >>");
+    const stream = ascii(commands.join("\n"));
+    objects[contentObject] = new Uint8Array([...ascii("<< /Length " + stream.length + " >>\nstream\n"), ...stream, ...ascii("\nendstream")]);
+  });
+  objects[2] = ascii("<< /Type /Pages /Kids [" + pageRefs.join(" ") + "] /Count " + pageLines.length + " >>");
   const chunks: Uint8Array[] = [];
   const offsets: number[] = [0];
   let length = 0;
   const push = (bytes: Uint8Array) => { chunks.push(bytes); length += bytes.length; };
   push(ascii("%PDF-1.4\n%\\xE2\\xE3\\xCF\\xD3\n"));
   for (let i = 1; i < objects.length; i++) {
-    if (!objects[i]) continue;
+    const object = objects[i];
+    if (!object) continue;
     offsets[i] = length;
-    push(ascii(`${i} 0 obj\n`));
-    push(objects[i]);
+    push(ascii(i + " 0 obj\n"));
+    push(object);
     push(ascii("\nendobj\n"));
   }
   const xrefOffset = length;
-  let xref = `xref\n0 ${objects.length}\n0000000000 65535 f \n`;
-  for (let i = 1; i < objects.length; i++) xref += offsets[i] ? `${String(offsets[i]).padStart(10, "0")} 00000 n \n` : "0000000000 00000 f \n";
-  xref += `trailer\n<< /Size ${objects.length} /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`;
+  let xref = "xref\n0 " + objects.length + "\n0000000000 65535 f \n";
+  for (let i = 1; i < objects.length; i++) xref += offsets[i] ? String(offsets[i]).padStart(10, "0") + " 00000 n \n" : "0000000000 00000 f \n";
+  xref += "trailer\n<< /Size " + objects.length + " /Root 1 0 R >>\nstartxref\n" + xrefOffset + "\n%%EOF";
   push(ascii(xref));
   const output = new Uint8Array(length);
-  let offset = 0;
-  for (const chunk of chunks) { output.set(chunk, offset); offset += chunk.length; }
+  let cursor = 0;
+  for (const chunk of chunks) { output.set(chunk, cursor); cursor += chunk.length; }
   return new Blob([output], { type: "application/pdf" });
 }
 
 function buildChecklistLines(country: Country, requirement: VisaRequirement, scope: ChecklistScope, applicant: Occupation, sponsor: Occupation, funding: SponsorFunding, relationship: string) {
   const lines: string[] = [];
-  const route = requirement.visa_required === false ? (requirement.visa_free_available ? "Visa-free entry" : requirement.visa_on_arrival_available ? "Visa on arrival" : "No visa required") : requirement.evisa_available ? "eVisa available" : "Visa required";
-  lines.push("ROUTE|" + route);
-  const stay = [
-    requirement.maximum_permitted_stay ? "Stay: " + requirement.maximum_permitted_stay : "",
-    requirement.entry_count ? "Entries: " + requirement.entry_count : "",
-    requirement.passport_validity_rule ? "Passport: " + requirement.passport_validity_rule : "",
-  ].filter(Boolean).join("  |  ");
-  if (stay) lines.push("STAY|" + stay);
-  const application = [
-    requirement.application_channel ? "Apply: " + requirement.application_channel : "",
-    requirement.application_fee ? "Fee: " + requirement.application_fee : "",
-    requirement.processing_time ? "Processing: " + requirement.processing_time : "",
-  ].filter(Boolean).join("  |  ");
-  if (application) lines.push("APPLICATION|" + application);
+  const add = (value?: string | null, prefix = "") => {
+    const cleaned = cleanText(value || "");
+    if (cleaned) lines.push(prefix + cleaned);
+  };
+  const applicantChecklist = requirement.applicant_checklists?.filter((item) => {
+    const type = item.applicant_type.toLowerCase().replace(/[\s-]+/g, "_");
+    if (applicant === "business") return type.includes("business") || type.includes("self_employed") || type.includes("selfemployed");
+    return type === applicant;
+  }) || [];
 
-  (requirement.required_documents || []).forEach((item) => lines.push("DOC|" + cleanText(item)));
   if (scope !== "sponsor") {
-    const profiles = requirement.applicant_checklists || [];
-    const selectedProfile = profiles.find((profile) => {
-      const type = profile.applicant_type.toLowerCase();
-      if (applicant === "business") return type.includes("business") || type.includes("self_employed");
-      return type === applicant || type.includes(applicant);
-    });
-    if (selectedProfile) {
-      selectedProfile.documents.forEach((item) => {
-        const label = item.status === "required" ? "" : item.status === "conditional" ? " (if applicable)" : " (if applicable)";
-        lines.push("DOC|" + cleanText(item.name + label));
+    lines.push("## APPLICANT DOCUMENTS");
+    (requirement.required_documents || []).forEach((item) => add(item, "Required: "));
+    if (applicantChecklist.length) {
+      lines.push("## OCCUPATION-SPECIFIC DOCUMENTS — " + occupationLabels[applicant].toUpperCase());
+      applicantChecklist.forEach((checklist) => {
+        checklist.documents.forEach((document) => {
+          const status = document.status === "required" ? "Required: " : document.status === "conditional" ? "Conditional: " : "If applicable: ";
+          add(document.name, status);
+          add(document.notes, "Note: ");
+        });
+        add(checklist.source_name, "Checklist source: ");
+        add(checklist.source_url, "Checklist source URL: ");
+        add(checklist.checked_at, "Checklist last checked: ");
       });
     } else {
-      const fallback: Record<Occupation, string[]> = {
-        employee: ["Employment confirmation letter", "Recent payslips", "Approved leave letter or employer NOC"],
-        business: ["Business registration or trade licence", "Business bank statements", "Evidence of business ownership"],
-        student: ["Student ID", "Current enrolment letter"],
-        retired: ["Retirement or pension evidence", "Recent pension statement"],
-        other: ["Evidence of current occupation and income source"],
-      };
-      fallback[applicant].forEach((item) => lines.push("DOC|" + cleanText(item + " (if applicable)")));
+      lines.push("## OCCUPATION-SPECIFIC DOCUMENTS — " + occupationLabels[applicant].toUpperCase());
+      (applicantFallback[applicant] || []).forEach((item) => add(item, "Preparation suggestion — verify if required: "));
     }
   }
+
   if (scope !== "applicant" && funding !== "self") {
-    lines.push("DOC|Sponsor: signed support letter, passport/ID and proof of address");
-    lines.push("DOC|Sponsor: recent bank statement or proof of available funds");
-    const occupationDoc: Record<Occupation, string> = {
-      employee: "Sponsor employment letter and recent payslips",
-      business: "Sponsor trade licence and business financial evidence",
-      student: "Sponsor student ID and enrolment evidence",
-      retired: "Sponsor pension or retirement-income evidence",
-      other: "Sponsor evidence of occupation and income source",
-    };
-    lines.push("DOC|" + occupationDoc[sponsor]);
-    if (relationship.trim()) lines.push("KEY|Sponsor relationship: " + cleanText(relationship));
+    lines.push("## SPONSOR DOCUMENTS");
+    sponsorCommon.forEach((item) => add(item));
+    (sponsorOccupationDocuments[sponsor] || []).forEach((item) => add(item));
+    if (funding === "partial") add("Sponsor evidence should identify which trip costs are covered and which costs the applicant will pay.");
+    add(relationship, "Relationship to applicant: ");
   }
-  const keys = [
-    requirement.proof_of_funds_rule ? "Funds: " + requirement.proof_of_funds_rule : "",
-    requirement.return_ticket_rule ? "Return ticket: " + requirement.return_ticket_rule : "",
-    requirement.accommodation_rule ? "Accommodation: " + requirement.accommodation_rule : "",
-    requirement.travel_insurance_rule ? "Insurance: " + requirement.travel_insurance_rule : "",
-    requirement.blank_passport_pages_rule ? "Blank pages: " + requirement.blank_passport_pages_rule : "",
-  ].filter(Boolean);
-  keys.forEach((item) => lines.push("KEY|" + cleanText(item)));
-  const photo = requirement.photo_specifications;
-  if (photo) {
-    const details = [
-      typeof photo.dimensions_mm === "string" ? photo.dimensions_mm : photo.dimensions_mm ? JSON.stringify(photo.dimensions_mm) : "",
-      photo.background ? "Background: " + photo.background : "",
-      photo.format ? "Format: " + photo.format : "",
-      photo.copies ? "Copies: " + photo.copies : "",
-    ].filter(Boolean);
-    if (details.length) lines.push("PHOTO|" + cleanText(details.join("  |  ")));
+
+  lines.push("## VISA AND TRAVEL CONDITIONS");
+  add(requirement.requirement_type, "Route classification: ");
+  if (requirement.visa_required !== null && requirement.visa_required !== undefined) add(requirement.visa_required ? "Visa required" : "Visa not required");
+  add(requirement.maximum_permitted_stay, "Maximum permitted stay: ");
+  add(requirement.entry_count, "Entry: ");
+  add(requirement.passport_validity_rule, "Passport validity: ");
+  add(requirement.blank_passport_pages_rule, "Blank passport pages: ");
+  add(requirement.return_ticket_rule, "Return/onward ticket: ");
+  add(requirement.proof_of_funds_rule, "Proof of funds: ");
+  add(requirement.accommodation_rule, "Accommodation: ");
+  add(requirement.travel_insurance_rule, "Travel insurance: ");
+  add(requirement.health_requirements, "Health requirements: ");
+  add(requirement.transit_requirements, "Transit requirements: ");
+  add(requirement.application_channel, "Application channel: ");
+  add(requirement.application_fee, "Application fee: ");
+  add(requirement.processing_time, "Processing time: ");
+
+  if (requirement.photo_specifications) {
+    lines.push("## PHOTOGRAPH SPECIFICATIONS");
+    Object.entries(requirement.photo_specifications).forEach(([key, value]) => {
+      if (value !== null && value !== undefined && value !== "") add(typeof value === "object" ? JSON.stringify(value) : String(value), key.replace(/_/g, " ") + ": ");
+    });
   }
+  if (requirement.sources?.length) {
+    lines.push("## OFFICIAL AND REFERENCE SOURCES");
+    requirement.sources.forEach((source) => {
+      add(source.source_name || source.source_type, "Source: ");
+      add(source.source_url, "URL: ");
+      add(source.source_last_checked_at, "Last checked: ");
+    });
+  }
+  add(requirement.official_source_checked_at, "Official information last checked: ");
+  lines.push("! Conditional and if-applicable items are labelled separately. Verify current rules with the responsible authority before applying.");
   return lines;
 }
 
