@@ -47,7 +47,7 @@ export function VisaChecklistGenerator({ country, requirement }: { country: Coun
     setBusy(true);
     setMessage("");
     try {
-      const apiBase = process.env.NEXT_PUBLIC_API_URL?.replace(/\\/+$/, "");
+      const apiBase = process.env.NEXT_PUBLIC_API_URL?.replace(/\/+$/, "");
       if (!apiBase) throw new Error("The UniGo API URL is not configured.");
       const response = await fetch(`${apiBase}/visa-requirements/${encodeURIComponent(country.slug)}/checklist-pdf`, {
         method: "POST",
