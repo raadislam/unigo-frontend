@@ -1,2 +1,2 @@
-Rebuild the static country directory and sitemap after four verified Bangladesh ordinary-passport tourism requirements were imported and published in the backend: Burkina Faso, Cabo Verde, Seychelles and Togo.
-Backend schema and public API deployment verified; rebuild country pages with photo specifications and applicant checklists.
+Rebuild the static country directory and sitemap after batch 45 added and published Tristan da Cunha for Bangladeshi ordinary-passport tourism.
+Backend production database readback, primary official-source checks and public API listing/detail verification passed. Rebuild all eligible country pages, sitemap, directory links and SVG flags from the live API, including the Tristan da Cunha SVG fallback.
