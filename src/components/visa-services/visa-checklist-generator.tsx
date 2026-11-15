@@ -76,8 +76,7 @@ function wrapText(value: string, max: number) {
       line = word;
     } else {
       line = next;
-    }
-  }
+    }  }
   if (line) lines.push(line);
   return lines.length ? lines : [""];
 }
@@ -99,9 +98,9 @@ function makePdf(jpeg: Uint8Array, lines: string[], countryName: string) {
   const objects: Uint8Array[] = [];
   objects[1] = ascii("<< /Type /Catalog /Pages 2 0 R >>");
   objects[3] = new Uint8Array([
-    ...ascii(`<< /Type /XObject /Subtype /Image /Width 993 /Height 1404 /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpeg.length} >>\\nstream\\n`),
+    ...ascii(`<< /Type /XObject /Subtype /Image /Width 993 /Height 1404 /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpeg.length} >>\nstream\n`),
     ...jpeg,
-    ...ascii("\\nendstream"),
+    ...ascii("\nendstream"),
   ]);
   objects[2] = ascii("<< /Type /Pages /Kids [6 0 R] /Count 1 >>");
   const commands = ["q 595 0 0 842 0 0 cm /Im0 Do Q"];
@@ -135,23 +134,23 @@ function makePdf(jpeg: Uint8Array, lines: string[], countryName: string) {
       }
     }
   }
-  const stream = ascii(commands.join("\\n"));
+  const stream = ascii(commands.join("\n"));
   objects[6] = ascii("<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /XObject << /Im0 3 0 R >> /Font << /F1 4 0 R /F2 5 0 R >> >> /Contents 7 0 R >>");
-  objects[7] = new Uint8Array([...ascii(`<< /Length ${stream.length} >>\\nstream\\n`), ...stream, ...ascii("\\nendstream")]);
+  objects[7] = new Uint8Array([...ascii(`<< /Length ${stream.length} >>\nstream\n`), ...stream, ...ascii("\nendstream")]);
   objects[4] = ascii("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>");
   objects[5] = ascii("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>");
-  push(ascii("%PDF-1.4\\n%\\xE2\\xE3\\xCF\\xD3\\n"));
+  push(ascii("%PDF-1.4\n%\\xE2\\xE3\\xCF\\xD3\n"));
   for (let i = 1; i < objects.length; i++) {
     if (!objects[i]) continue;
     offsets[i] = length;
-    push(ascii(`${i} 0 obj\\n`));
+    push(ascii(`${i} 0 obj\n`));
     push(objects[i]);
-    push(ascii("\\nendobj\\n"));
+    push(ascii("\nendobj\n"));
   }
   const xrefOffset = length;
-  let xref = `xref\\n0 ${objects.length}\\n0000000000 65535 f \\n`;
-  for (let i = 1; i < objects.length; i++) xref += offsets[i] ? `${String(offsets[i]).padStart(10, "0")} 00000 n \\n` : "0000000000 00000 f \\n";
-  xref += `trailer\\n<< /Size ${objects.length} /Root 1 0 R >>\\nstartxref\\n${xrefOffset}\\n%%EOF`;
+  let xref = `xref\n0 ${objects.length}\n0000000000 65535 f \n`;
+  for (let i = 1; i < objects.length; i++) xref += offsets[i] ? `${String(offsets[i]).padStart(10, "0")} 00000 n \n` : "0000000000 00000 f \n";
+  xref += `trailer\n<< /Size ${objects.length} /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`;
   push(ascii(xref));
   const output = new ArrayBuffer(length);
   const outputView = new Uint8Array(output);
@@ -176,8 +175,7 @@ function buildChecklistLines(country: Country, requirement: VisaRequirement, sco
 
   if (scope !== "sponsor") {
     lines.push("## APPLICANT DOCUMENTS");
-    (requirement.required_documents || []).slice(0, 11).forEach((item) => addShort(item));
-    if (applicantChecklist?.documents?.length) {
+    (requirement.required_documents || []).slice(0, 11).forEach((item) => addShort(item));    if (applicantChecklist?.documents?.length) {
       lines.push("## OCCUPATION - " + occupationLabels[applicant].toUpperCase());
       applicantChecklist.documents.filter((item) => item.status === "required").slice(0, 4).forEach((item) => addShort(item.name));
     } else {
@@ -276,8 +274,7 @@ export function VisaChecklistGenerator({ country, requirement }: { country: Coun
       context.fillText("SCAN TO KNOW MORE", 872, 1275);
       URL.revokeObjectURL(qrUrlObject);
       const jpegBlob = await new Promise<Blob>((resolve, reject) => canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error("The PDF background could not be encoded.")), "image/jpeg", 0.9));
-      const jpeg = new Uint8Array(await jpegBlob.arrayBuffer());
-      const lines = buildChecklistLines(country, requirement, scope, applicant, sponsor, funding, relationship);
+      const jpeg = new Uint8Array(await jpegBlob.arrayBuffer());      const lines = buildChecklistLines(country, requirement, scope, applicant, sponsor, funding, relationship);
       const pdf = makePdf(jpeg, lines, country.name);
       const url = URL.createObjectURL(pdf);
       const anchor = document.createElement("a");
