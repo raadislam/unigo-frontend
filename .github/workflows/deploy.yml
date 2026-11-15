@@ -63,6 +63,10 @@ jobs:
           test -s out/index.html
           python3 scripts/verify-country-directory.py --phase static --site-dir out --base-url https://unigo-bd.com
 
+      - name: Remove original oversized images from static export
+        run: |
+          rm -f out/images/about/hero.png out/images/about/mission.png out/images/student-uk.png out/images/student-australia.png out/images/student-canada.png out/images/student-destinations.png out/images/destinations/italy.jpg out/images/destinations/united-kingdom.jpg out/images/destinations/niagara-falls.jpg out/images/destinations/statue-of-liberty.jpg out/images/destinations/thailand.jpg
+
       - name: Configure SSH
         env:
           SSH_PRIVATE_KEY: ${{ secrets.HOSTINGER_SSH_KEY }}

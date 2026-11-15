@@ -90,10 +90,9 @@ export default function HeroIllustration() {
         <div className="student-card-kicker">01 / EXPLORE</div>
         <div className="student-card-image">
           <Image
-            src="/images/student-uk.png"
+            src="/images/student-uk.webp"
             alt="Student exploring international education opportunities"
             fill
-            priority
             sizes="(max-width: 800px) 42vw, 240px"
           />
         </div>
@@ -107,10 +106,9 @@ export default function HeroIllustration() {
         <div className="student-card-kicker">02 / DISCOVER</div>
         <div className="student-card-image">
           <Image
-            src="/images/student-australia.png"
+            src="/images/student-australia.webp"
             alt="Student preparing for an international education journey"
             fill
-            priority
             sizes="(max-width: 800px) 42vw, 240px"
           />
         </div>
@@ -124,7 +122,7 @@ export default function HeroIllustration() {
         <div className="student-card-kicker">03 / ACHIEVE</div>
         <div className="student-card-image">
           <Image
-            src="/images/student-canada.png"
+            src="/images/student-canada.webp"
             alt="Students celebrating their education journey"
             fill
             sizes="(max-width: 800px) 42vw, 240px"
@@ -143,7 +141,7 @@ export default function HeroIllustration() {
         </div>
         <div className="student-card-image">
           <Image
-            src="/images/student-destinations.png"
+            src="/images/student-destinations.webp"
             alt="Student celebrating an international education achievement"
             fill
             priority
