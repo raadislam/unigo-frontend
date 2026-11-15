@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Download, FileCheck2, X } from "lucide-react";
 import type { Country, VisaRequirement } from "@/lib/country-directory";
 
