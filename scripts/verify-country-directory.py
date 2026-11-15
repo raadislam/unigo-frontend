@@ -158,7 +158,7 @@ FLAG_SMOKE_CODES = {
     "ID", "MU", "NP", "PH", "TR", "BN", "RW", "TZ", "HK", "MO", "UZ", "KR",
     "AM", "AZ", "PK", "TL", "BB", "JM", "FJ", "KI", "NZ", "TO", "VU", "AS",
     "CK", "GU", "MP", "NF", "NC", "PF", "WF", "PN", "TK", "AO", "BJ", "BW",
-    "GM", "MZ", "NG", "AL", "IE", "MD", "ME", "RS", "KY", "BM", "PA", "MX", "BO", "CU", "HT",
+    "GM", "MZ", "NG", "AL", "IE", "MD", "ME", "RS", "KY", "BM", "PA", "MX", "BO", "CU", "HT", "AC", "TA",
 }
 
 
