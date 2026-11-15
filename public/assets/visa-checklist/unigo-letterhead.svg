@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="993" height="1404" viewBox="0 0 595 842">
+<rect width="595" height="842" fill="#fff"/>
+<g transform="translate(0 0)">
+<text x="396" y="48" font-family="Arial,sans-serif" font-size="31" font-weight="800" letter-spacing="-2" fill="#242326">UniG</text>
+<circle cx="482" cy="38" r="12" fill="#ed1c2b"/>
+<path d="M502 20V65" stroke="#ed1c2b" stroke-width="1"/>
+<text x="512" y="25" font-family="Arial,sans-serif" font-size="7.5" fill="#222">YOUR GLOBAL</text>
+<text x="512" y="36" font-family="Arial,sans-serif" font-size="7.5" fill="#222">JOURNEY</text>
+<text x="512" y="47" font-family="Arial,sans-serif" font-size="7.5" fill="#222">STARTS HERE</text>
+</g>
+<g fill="#f6f6f7" opacity="0.95">
+<path d="M82 350l18-22 27-12 17-18 26-3 13 10 22-4 13 15-10 14-26 7-7 17-25 4-9 21-23 5-11 26-15-8-3-24-16-11z"/>
+<path d="M180 421l20-7 24 10 12 19-10 24-15 21-7 35-14 18-9-26-5-34-13-20 4-23z"/>
+<path d="M262 319l24-15 25 5 19-10 25 8 22-4 20 15 31-4 21 12-5 14-25 4-13 17-26-3-15 18-23-3-12 17-23-3-9-20-18-5-11-22-17-8z"/>
+<path d="M302 391l19-14 21 8 8 22-12 24-4 37-18 26-12-19-2-37-12-24z"/>
+<path d="M399 390l20-9 23 12 16 22-5 20-20-4-14-17-21-7z"/>
+<path d="M454 480l18-10 24 8 14 21-8 19-22-1-19-15z"/>
+<path d="M509 531l16-6 14 12-4 17-19 4-12-12z"/>
+<path d="M215 293l10-10 16 2 5 12-13 8-14-4z"/>
+<path d="M366 279l14-9 17 5 6 11-17 7-17-4z"/>
+</g>
+<g fill="none" stroke="#f4f4f5" stroke-width="2" opacity="0.8">
+<path d="M96 366c55-70 111-89 169-76s100 6 148 30 87 70 114 120"/>
+<path d="M124 452c66 35 120 52 185 38s122-5 190 41"/>
+</g>
+<text x="35" y="786" font-family="Arial,sans-serif" font-size="9" font-style="italic" fill="#222">City Center, 29th Floor (lift-29), Unit- 28A, 90/1Motijheel C/A, Dhaka-1000</text>
+<text x="35" y="800" font-family="Arial,sans-serif" font-size="9" font-style="italic" fill="#222">+880 1901-644300, +880 1901-644301 || contact@unigo-bd.com</text>
+<text x="35" y="814" font-family="Arial,sans-serif" font-size="9" font-style="italic" fill="#222">https://unigo-bd.com || UniGo Tours &amp; Travels – Facebook</text>
+<text x="456" y="808" font-family="Arial,sans-serif" font-size="28" font-weight="800" fill="#f5f5f6">UniGo</text>
+</svg>
