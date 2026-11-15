@@ -141,7 +141,11 @@ function getApiUrl() {
 }
 
 export async function getCountryDirectory(): Promise<CountryListResponse> {
-  const response = await fetch(`${getApiUrl()}/countries`, {
+  const contentVersion = process.env.UNIGO_CONTENT_VERSION;
+  const contentVersionQuery = contentVersion
+    ? `?content_version=${encodeURIComponent(contentVersion)}`
+    : "";
+  const response = await fetch(`${getApiUrl()}/countries${contentVersionQuery}`, {
     headers: {
       Accept: "application/json",
     },
