@@ -162,8 +162,8 @@ FLAG_SMOKE_CODES = {
 }
 
 FLAG_FALLBACK_SOURCES = {
-    "ac": "https://upload.wikimedia.org/wikipedia/commons/6/65/Flag_of_Ascension_Island.svg",
-    "ta": "https://upload.wikimedia.org/wikipedia/commons/8/89/Flag_of_Tristan_da_Cunha.svg",
+    "ac": "https://game.lipis.dev/flags/4x3/ac.svg",
+    "ta": "https://game.lipis.dev/flags/4x3/ta.svg",
 }
 
 
@@ -183,8 +183,8 @@ def verify_flag_component_source():
         "/^[a-z]{2}$/",
         "https://flagcdn.com/${code}.svg",
         "FLAG_FALLBACK_SOURCES",
-        "https://upload.wikimedia.org/wikipedia/commons/6/65/Flag_of_Ascension_Island.svg",
-        "https://upload.wikimedia.org/wikipedia/commons/8/89/Flag_of_Tristan_da_Cunha.svg",
+        "https://game.lipis.dev/flags/4x3/ac.svg",
+        "https://game.lipis.dev/flags/4x3/ta.svg",
         'alt={`${name} flag`}',
         'loading="lazy"',
         'decoding="async"',
