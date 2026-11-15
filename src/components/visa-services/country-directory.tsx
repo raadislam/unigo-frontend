@@ -7,6 +7,7 @@ import type { Country, VisaCategory } from "@/lib/country-directory";
 import { CountryFlag } from "@/components/shared/country-flag";
 
 const alphabet = ["ALL", ..."ABCDEFGHIJKLMNOPQRSTUVWXYZ"];
+const PAGE_SIZE = 15;
 
 type CountryDirectoryProps = {
   initialCountries: Country[];
@@ -19,6 +20,7 @@ export function CountryDirectory({ initialCountries, initialCategories }: Countr
   const [search, setSearch] = useState("");
   const [activeLetter, setActiveLetter] = useState("ALL");
   const [activeCategory, setActiveCategory] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
 
   const filteredCountries = useMemo(() => {
     const normalizedSearch = search.trim().toLowerCase();
@@ -31,10 +33,17 @@ export function CountryDirectory({ initialCountries, initialCategories }: Countr
     });
   }, [countries, search, activeLetter, activeCategory]);
 
+  const totalPages = Math.max(1, Math.ceil(filteredCountries.length / PAGE_SIZE));
+  const pageStart = (currentPage - 1) * PAGE_SIZE;
+  const paginatedCountries = useMemo(() => filteredCountries.slice(pageStart, pageStart + PAGE_SIZE), [filteredCountries, pageStart]);
+  const firstVisibleCountry = filteredCountries.length ? pageStart + 1 : 0;
+  const lastVisibleCountry = Math.min(pageStart + PAGE_SIZE, filteredCountries.length);
+
   const clearFilters = () => {
     setSearch("");
     setActiveLetter("ALL");
     setActiveCategory("all");
+    setCurrentPage(1);
   };
 
   return (
@@ -54,7 +63,7 @@ export function CountryDirectory({ initialCountries, initialCategories }: Countr
             <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               value={search}
-              onChange={(event) => { setSearch(event.target.value); setActiveLetter("ALL"); }}
+              onChange={(event) => { setSearch(event.target.value); setActiveLetter("ALL"); setCurrentPage(1); }}
               placeholder="Search a country..."
               aria-label="Search countries"
               className="h-12 w-full rounded-xl border border-[#dce5ee] bg-[#f8fafc] pl-11 pr-4 text-sm text-[#082b4c] outline-none transition placeholder:text-slate-400 focus:border-[#d7192d] focus:bg-white focus:ring-4 focus:ring-[#d7192d]/10"
@@ -63,13 +72,13 @@ export function CountryDirectory({ initialCountries, initialCategories }: Countr
         </div>
 
         <div className="flex flex-wrap gap-2">
-          <button type="button" onClick={() => setActiveCategory("all")} className={`rounded-full border px-4 py-2.5 text-xs font-semibold transition ${activeCategory === "all" ? "border-[#082b4c] bg-[#082b4c] text-white shadow-sm" : "border-[#dce5ee] bg-white text-[#42566a] hover:border-[#d7192d] hover:text-[#d7192d]"}`}>
+          <button type="button" onClick={() => { setActiveCategory("all"); setCurrentPage(1); }} className={`rounded-full border px-4 py-2.5 text-xs font-semibold transition ${activeCategory === "all" ? "border-[#082b4c] bg-[#082b4c] text-white shadow-sm" : "border-[#dce5ee] bg-white text-[#42566a] hover:border-[#d7192d] hover:text-[#d7192d]"}`}>
             All destinations <span className="ml-1 opacity-70">({countries.length})</span>
           </button>
           {categories.map((category) => {
             const count = countries.filter((country) => country.visa_categories.some((item) => item.slug === category.slug)).length;
             return (
-              <button key={category.slug} type="button" onClick={() => setActiveCategory(category.slug)} className={`rounded-full border px-4 py-2.5 text-xs font-semibold transition ${activeCategory === category.slug ? "border-[#082b4c] bg-[#082b4c] text-white shadow-sm" : "border-[#dce5ee] bg-white text-[#42566a] hover:border-[#d7192d] hover:text-[#d7192d]"}`}>
+              <button key={category.slug} type="button" onClick={() => { setActiveCategory(category.slug); setCurrentPage(1); }} className={`rounded-full border px-4 py-2.5 text-xs font-semibold transition ${activeCategory === category.slug ? "border-[#082b4c] bg-[#082b4c] text-white shadow-sm" : "border-[#dce5ee] bg-white text-[#42566a] hover:border-[#d7192d] hover:text-[#d7192d]"}`}>
                 {category.name} <span className="ml-1 opacity-70">({count})</span>
               </button>
             );
@@ -83,7 +92,7 @@ export function CountryDirectory({ initialCountries, initialCategories }: Countr
           </div>
           <div className="flex flex-wrap gap-1.5">
             {alphabet.map((letter) => (
-              <button key={letter} type="button" onClick={() => { setActiveLetter(letter); setSearch(""); }} aria-pressed={activeLetter === letter} className={`flex h-8 min-w-8 items-center justify-center rounded-lg px-2 text-[11px] font-bold transition ${activeLetter === letter ? "bg-[#d7192d] text-white shadow-sm" : "bg-[#f1f5f9] text-[#526579] hover:bg-[#e4ebf2] hover:text-[#082b4c]"}`}>
+              <button key={letter} type="button" onClick={() => { setActiveLetter(letter); setSearch(""); setCurrentPage(1); }} aria-pressed={activeLetter === letter} className={`flex h-8 min-w-8 items-center justify-center rounded-lg px-2 text-[11px] font-bold transition ${activeLetter === letter ? "bg-[#d7192d] text-white shadow-sm" : "bg-[#f1f5f9] text-[#526579] hover:bg-[#e4ebf2] hover:text-[#082b4c]"}`}>
                 {letter}
               </button>
             ))}
@@ -98,7 +107,7 @@ export function CountryDirectory({ initialCountries, initialCategories }: Countr
 
       {filteredCountries.length > 0 ? (
         <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-          {filteredCountries.map((country) => (
+          {paginatedCountries.map((country) => (
             <Link href={`/visa-services/${country.slug}/`} key={country.id} className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-[#e3eaf1] bg-white p-5 shadow-[0_10px_32px_rgba(8,43,76,0.055)] transition duration-300 hover:-translate-y-1 hover:border-[#d7192d]/35 hover:shadow-[0_20px_48px_rgba(8,43,76,0.12)] sm:p-6">
               <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#082b4c] via-[#d7192d] to-[#f5a0a8] opacity-0 transition group-hover:opacity-100" />
               <div className="flex items-start justify-between gap-4">
@@ -158,6 +167,48 @@ export function CountryDirectory({ initialCountries, initialCategories }: Countr
           <p className="mt-4 text-lg font-bold text-[#082b4c]">No destinations found</p>
           <p className="mt-2 text-sm text-slate-500">Try another country name, letter or visa category.</p>
           <button type="button" onClick={clearFilters} className="mt-5 rounded-xl bg-[#d7192d] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#b91426]">Reset search</button>
+        </div>
+      )}
+
+      {filteredCountries.length > 0 && (
+        <div className="flex flex-col gap-4 rounded-2xl border border-[#e3eaf1] bg-white px-4 py-4 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:px-5">
+          <p className="text-xs font-medium text-slate-500" aria-live="polite">
+            Showing <span className="font-bold text-[#082b4c]">{firstVisibleCountry}–{lastVisibleCountry}</span> of <span className="font-bold text-[#082b4c]">{filteredCountries.length}</span> destinations
+          </p>
+          {totalPages > 1 && (
+            <nav aria-label="Country directory pagination" className="flex flex-wrap items-center justify-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+                disabled={currentPage === 1}
+                aria-label="Go to previous page"
+                className="inline-flex h-9 items-center rounded-lg border border-[#dce5ee] px-3 text-xs font-semibold text-[#42566a] transition hover:border-[#d7192d] hover:text-[#d7192d] disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                Previous
+              </button>
+              {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
+                <button
+                  key={page}
+                  type="button"
+                  onClick={() => setCurrentPage(page)}
+                  aria-label={`Go to page ${page}`}
+                  aria-current={currentPage === page ? "page" : undefined}
+                  className={`flex h-9 min-w-9 items-center justify-center rounded-lg px-2.5 text-xs font-bold transition ${currentPage === page ? "bg-[#082b4c] text-white shadow-sm" : "border border-[#dce5ee] bg-white text-[#526579] hover:border-[#d7192d] hover:text-[#d7192d]"}`}
+                >
+                  {page}
+                </button>
+              ))}
+              <button
+                type="button"
+                onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+                disabled={currentPage === totalPages}
+                aria-label="Go to next page"
+                className="inline-flex h-9 items-center rounded-lg border border-[#dce5ee] px-3 text-xs font-semibold text-[#42566a] transition hover:border-[#d7192d] hover:text-[#d7192d] disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                Next
+              </button>
+            </nav>
+          )}
         </div>
       )}
     </div>
