@@ -18,11 +18,10 @@ const occupationLabels: Record<Occupation, string> = {
 
 export function VisaChecklistGenerator({ country, requirement }: { country: Country; requirement: VisaRequirement | null }) {
   const [open, setOpen] = useState(false);
-  const [scope, setScope] = useState<ChecklistScope>("both");
+  const [scope, setScope] = useState<ChecklistScope>("applicant");
   const [applicant, setApplicant] = useState<Occupation>("employee");
   const [sponsor, setSponsor] = useState<Occupation>("employee");
-  const [funding, setFunding] = useState<SponsorFunding>("full");
-  const [relationship, setRelationship] = useState("");
+  const [funding, setFunding] = useState<SponsorFunding>("self");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -52,7 +51,7 @@ export function VisaChecklistGenerator({ country, requirement }: { country: Coun
       const response = await fetch(`${apiBase}/visa-requirements/${encodeURIComponent(country.slug)}/checklist-pdf`, {
         method: "POST",
         headers: { Accept: "application/pdf", "Content-Type": "application/json" },
-        body: JSON.stringify({ scope, applicant_occupation: applicant, sponsor_occupation: sponsor, funding, relationship }),
+        body: JSON.stringify({ scope, applicant_occupation: applicant, sponsor_occupation: sponsor, funding }),
         cache: "no-store",
       });
       if (!response.ok) {
@@ -69,7 +68,7 @@ export function VisaChecklistGenerator({ country, requirement }: { country: Coun
       anchor.click();
       anchor.remove();
       window.setTimeout(() => URL.revokeObjectURL(url), 1000);
-      setMessage("Your complete checklist PDF has been downloaded.");
+      setMessage("Your one-page required-documents checklist has been downloaded.");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "The checklist could not be generated. Please try again.");
     } finally {
@@ -86,7 +85,7 @@ export function VisaChecklistGenerator({ country, requirement }: { country: Coun
             <div>
               <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#d7192d]">Personalised document guide</p>
               <h2 className="mt-1 text-xl font-bold text-[#082b4c]">Download your visa checklist</h2>
-              <p className="mt-2 max-w-2xl text-sm leading-7 text-slate-500">A complete, multi-page A4 checklist with the original UniGo letterhead, QR code and official sources.</p>
+              <p className="mt-2 max-w-2xl text-sm leading-7 text-slate-500">A simple one-page checklist containing only the documents required for your selected applicant profile.</p>
             </div>
           </div>
           <button type="button" onClick={() => { setMessage(""); setOpen(true); }} disabled={!requirement} className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-[#d7192d] px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#b91426] disabled:cursor-not-allowed disabled:opacity-50"><Download size={17} /> Download checklist</button>
@@ -101,7 +100,7 @@ export function VisaChecklistGenerator({ country, requirement }: { country: Coun
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#ff9aa3]">UniGo document assistant</p>
                 <h2 id="visa-checklist-title" className="mt-1 text-xl font-bold sm:text-2xl">{country.name} visa checklist</h2>
-                <p className="mt-1 text-xs text-white/70">A few details help us select the relevant documents.</p>
+                <p className="mt-1 text-xs text-white/70">Select the applicant or sponsor profile to filter the required documents.</p>
               </div>
               <button type="button" onClick={() => setOpen(false)} aria-label="Close checklist" className="rounded-full p-2 text-white/80 transition hover:bg-white/10 hover:text-white"><X size={20} /></button>
             </div>
@@ -138,23 +137,19 @@ export function VisaChecklistGenerator({ country, requirement }: { country: Coun
                       {scope !== "sponsor" && <option value="self">Self-funded (no sponsor documents)</option>}
                     </select>
                   </div>
-                  <div>
-                    <label htmlFor="sponsor-relationship" className="mb-2 block text-sm font-bold text-[#082b4c]">Relationship to applicant <span className="font-normal text-slate-400">(optional)</span></label>
-                    <input id="sponsor-relationship" value={relationship} onChange={(event) => setRelationship(event.target.value)} placeholder="e.g. Father, mother, spouse, sibling, employer" className="w-full rounded-xl border border-[#dbe4ed] px-4 py-3 text-sm text-[#263f59] outline-none focus:border-[#d7192d] focus:ring-2 focus:ring-[#d7192d]/10" />
-                  </div>
                 </div>
               )}
               <div className="rounded-2xl bg-[#f6f9fc] p-4">
                 <p className="text-xs font-bold uppercase tracking-wide text-[#526579]">Your PDF will include</p>
                 <p className="mt-2 text-sm font-semibold text-[#082b4c]">{checklistSummary}</p>
-                <p className="mt-1 text-xs leading-6 text-slate-500">A readable, multi-page document containing the available checklist, photo, fee, travel-condition and source details.</p>
+                <p className="mt-1 text-xs leading-6 text-slate-500">One page with required documents only. Scan its QR code for full destination information.</p>
               </div>
               {!canGenerate && <p className="rounded-xl bg-amber-50 p-3 text-xs leading-6 text-amber-800">This destination&apos;s verified record does not contain a complete common document list. The checklist download is paused to avoid generating an incomplete document.</p>}
               {message && <p role="status" className="rounded-xl bg-[#f1f7f3] p-3 text-sm text-[#23633c]">{message}</p>}
             </div>
             <div className="flex flex-col-reverse gap-3 border-t border-[#edf1f5] bg-[#fbfcfd] px-6 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-8">
               <button type="button" onClick={() => setOpen(false)} className="rounded-xl border border-[#dbe4ed] px-5 py-3 text-sm font-semibold text-[#526579] transition hover:bg-white">Cancel</button>
-              <button type="button" onClick={downloadChecklist} disabled={!canGenerate || busy} className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#d7192d] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#b91426] disabled:cursor-not-allowed disabled:opacity-50"><Download size={16} /> {busy ? "Preparing PDF..." : "Download PDF checklist"}</button>
+              <button type="button" onClick={downloadChecklist} disabled={!canGenerate || busy} className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#d7192d] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#b91426] disabled:cursor-not-allowed disabled:opacity-50"><Download size={16} /> {busy ? "Preparing PDF..." : "Download one-page checklist"}</button>
             </div>
           </div>
         </div>
