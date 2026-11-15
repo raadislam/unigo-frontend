@@ -60,7 +60,7 @@ export function VisaChecklistGenerator({ country, requirement }: { country: Coun
         throw new Error(payload?.message || `The PDF service returned HTTP ${response.status}.`);
       }
       const blob = await response.blob();
-      if (blob.type !== "application/pdf" && blob.size < 100) throw new Error("The server returned an invalid PDF.");
+      if (blob.type !== "application/pdf" && !(await blob.slice(0, 5).text()).startsWith("%PDF-")) throw new Error("The server returned an invalid PDF.");
       const url = URL.createObjectURL(blob);
       const anchor = document.createElement("a");
       anchor.href = url;
@@ -68,7 +68,7 @@ export function VisaChecklistGenerator({ country, requirement }: { country: Coun
       document.body.appendChild(anchor);
       anchor.click();
       anchor.remove();
-      URL.revokeObjectURL(url);
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000);
       setMessage("Your complete checklist PDF has been downloaded.");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "The checklist could not be generated. Please try again.");
