@@ -1,0 +1,84 @@
+name: UniGo Frontend Dependency Remediation
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'docs/dependency-remediation.trigger'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: unigo-frontend-dependency-remediation
+  cancel-in-progress: false
+
+jobs:
+  remediate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: true
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Apply compatible minimatch security override
+        run: |
+          npm pkg set 'overrides.@typescript-eslint/typescript-estree.minimatch=^11.0.8'
+          npm install --package-lock-only --ignore-scripts
+      - name: Apply non-breaking security updates
+        run: npm audit fix || true
+      - name: Reinstall exact updated lockfile
+        run: npm ci
+      - name: Type check
+        run: npx tsc --noEmit
+      - name: Lint
+        run: npm run lint
+      - name: Build static export
+        run: npm run build
+        env:
+          NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
+      - name: Verify patched minimatch and dependency audit
+        run: |
+          npm ls minimatch --all
+          node - <<'NODE'
+          const fs = require("node:fs");
+          const lock = JSON.parse(fs.readFileSync("package-lock.json", "utf8"));
+          const vulnerable = Object.entries(lock.packages || {}).filter(([path, item]) =>
+            path.endsWith("node_modules/minimatch") && /^([7-9]|10)\./.test(item.version)
+          );
+          if (vulnerable.length) {
+            console.error("Vulnerable minimatch versions remain:", vulnerable);
+            process.exit(1);
+          }
+          const scoped = Object.entries(lock.packages || {}).find(([path]) =>
+            path.includes("@typescript-eslint/typescript-estree/node_modules/minimatch")
+          );
+          if (!scoped || !scoped[1].version.startsWith("11.")) {
+            console.error("typescript-estree is not using patched minimatch 11.x");
+            process.exit(1);
+          }
+          const audit = require("./package.json");
+          console.log("TYPESCRIPT_ESTREE_MINIMATCH_PATCHED", scoped[1].version);
+          NODE
+          npm audit --audit-level=high
+      - name: Commit tested dependency updates
+        run: |
+          if git diff --quiet -- package.json package-lock.json; then
+            echo "No dependency changes were required."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package.json package-lock.json
+          git commit -m "Fix frontend dependency security vulnerabilities"
+          git fetch origin master
+          git rebase origin/master
+          git push origin HEAD:master
