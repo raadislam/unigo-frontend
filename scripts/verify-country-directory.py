@@ -338,6 +338,62 @@ def validate_country_page(parser, country, base_url, label):
     for document in requirement.get("required_documents") or []:
         require_visible(parser, document, "required document", label)
 
+    applicant_checklists = requirement.get("applicant_checklists") or []
+    expected_applicant_types = {
+        "employee",
+        "self_employed_or_business_owner",
+        "student",
+        "retired",
+    }
+    actual_applicant_types = {
+        checklist.get("applicant_type")
+        for checklist in applicant_checklists
+        if isinstance(checklist, dict)
+    }
+    if len(applicant_checklists) != 4 or actual_applicant_types != expected_applicant_types:
+        raise SystemExit(f"{label} does not expose all four applicant-specific checklist profiles.")
+
+    for checklist in applicant_checklists:
+        documents = checklist.get("documents") or []
+        if not documents:
+            raise SystemExit(f"{label} has an empty applicant checklist: {checklist.get('applicant_type')}.")
+        for document in documents:
+            require_visible(parser, document.get("name"), "applicant-specific checklist document", label)
+        checklist_source = checklist.get("source_url")
+        if checklist_source and checklist_source not in parser.anchors:
+            raise SystemExit(f"{label} is missing an applicant checklist source link.")
+
+    iso2 = str(country.get("iso2") or "").upper()
+    source_backed_fragments = {
+        "DE": [
+            "Original personal bank statements for at least the last 6 months",
+            "Memorandum and Articles of Association",
+            "All photocopies on A4 paper",
+        ],
+        "DK": [
+            "Printed and signed Schengen Visa Application Cover Letter generated through ApplyVisa",
+            "Completed and signed VU2 online invitation form",
+            "Evidence of establishment and ties in Bangladesh",
+        ],
+        "NL": [
+            "Online completed and signed Schengen application form with its unique code",
+            "Additional ties where relevant: caregiver evidence",
+            "Round-trip airline reservation with Passenger Registration Number",
+        ],
+        "SE": [
+            "Completed, signed and dated Swedish Schengen application form 119031",
+            "For self-employed applicants: City Corporation trade licence",
+            "For non-Bangladeshi applicants: Bangladesh residence permit valid at least 3 months",
+        ],
+        "HR": [
+            "original bank statements for savings/current accounts covering the last 3 months",
+            "salary certificates for the last 3 months",
+            "notarised guardian consent",
+        ],
+    }
+    for fragment in source_backed_fragments.get(iso2, []):
+        require_visible(parser, fragment, "source-backed applicant checklist", label)
+
     sources = requirement.get("sources") or []
     if not any(source.get("source_type") == "official" and source.get("is_primary") is True for source in sources):
         raise SystemExit(f"{label} has no published primary official source.")
