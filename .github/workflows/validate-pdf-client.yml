@@ -54,7 +54,7 @@ jobs:
                   raise SystemExit(f"Unexpected PDF content type: {response.headers.get_content_type()}")
           if not pdf.startswith(b"%PDF-") or not pdf.rstrip().endswith(b"%%EOF"):
               raise SystemExit("The deployed endpoint did not return a valid PDF document.")
-          pages = re.findall(rb"/Type\\s*/Page\\b", pdf)
+          pages = re.findall(rb"/Type\s*/Page\b", pdf)
           if not pages:
               raise SystemExit("The generated PDF contains no page objects.")
           print(f"Production PDF endpoint passed: {len(pdf)} bytes, {len(pages)} page(s).")
