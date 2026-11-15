@@ -6,6 +6,28 @@ import { ArrowLeft, BadgeCheck, ChevronRight, FileText, Globe2, Headphones, MapP
 import { getCountry, getVisaRequirement, type Country, type VisaRequirement } from "@/lib/country-directory";
 import { CountryFlag } from "@/components/shared/country-flag";
 
+function formatPhotoValue(value: unknown, unit?: string): string {
+  if (value === null || value === undefined) return "";
+  if (typeof value === "string") return value.trim();
+  if (typeof value === "number" || typeof value === "boolean") return String(value);
+  if (Array.isArray(value)) return value.map((item) => formatPhotoValue(item)).filter(Boolean).join(", ");
+  if (typeof value === "object") {
+    const record = value as Record<string, unknown>;
+    if (record.width !== undefined && record.height !== undefined) {
+      const resolvedUnit = typeof record.unit === "string" && record.unit.trim() ? record.unit.trim() : unit;
+      return `${formatPhotoValue(record.width)} × ${formatPhotoValue(record.height)}${resolvedUnit ? ` ${resolvedUnit}` : ""}`;
+    }
+    return Object.entries(record)
+      .map(([key, item]) => {
+        const formatted = formatPhotoValue(item);
+        return formatted ? `${key.replaceAll("_", " ")}: ${formatted}` : "";
+      })
+      .filter(Boolean)
+      .join("; ");
+  }
+  return "";
+}
+
 export function CountryVisaPageClient({ slug, initialCountry, initialRequirement }: { slug: string; initialCountry: Country; initialRequirement: VisaRequirement | null }) {
   const [country, setCountry] = useState<Country | null>(initialCountry);
   const [loading, setLoading] = useState(false);
@@ -192,16 +214,16 @@ export function CountryVisaPageClient({ slug, initialCountry, initialRequirement
                 ) : (
                   <div className="mt-3 grid gap-3 sm:grid-cols-2">
                     {[
-                      ["Application route", requirement.photo_specifications.route],
-                      ["Printed photo size", requirement.photo_specifications.dimensions_mm],
-                      ["Digital dimensions", requirement.photo_specifications.digital_dimensions_px],
-                      ["File size", requirement.photo_specifications.file_size],
-                      ["Background", requirement.photo_specifications.background],
-                      ["Head measurements", requirement.photo_specifications.head_measurements],
-                      ["Photo age", requirement.photo_specifications.photo_age],
-                      ["File format", requirement.photo_specifications.format],
-                      ["Number of copies", requirement.photo_specifications.copies],
-                    ].filter((item): item is [string, string] => Boolean(item[1]?.trim())).map(([label, value]) => (
+                      ["Application route", formatPhotoValue(requirement.photo_specifications.route)],
+                      ["Printed photo size", formatPhotoValue(requirement.photo_specifications.dimensions_mm, "mm")],
+                      ["Digital dimensions", formatPhotoValue(requirement.photo_specifications.digital_dimensions_px, "px")],
+                      ["File size", formatPhotoValue(requirement.photo_specifications.file_size)],
+                      ["Background", formatPhotoValue(requirement.photo_specifications.background)],
+                      ["Head measurements", formatPhotoValue(requirement.photo_specifications.head_measurements)],
+                      ["Photo age", formatPhotoValue(requirement.photo_specifications.photo_age)],
+                      ["File format", formatPhotoValue(requirement.photo_specifications.format)],
+                      ["Number of copies", formatPhotoValue(requirement.photo_specifications.copies)],
+                    ].filter((item): item is [string, string] => Boolean(item[1])).map(([label, value]) => (
                       <div key={label} className="rounded-xl bg-[#f6f9fc] p-4">
                         <p className="text-xs font-semibold text-slate-500">{label}</p>
                         <p className="mt-1 whitespace-pre-line text-sm leading-6 text-[#263f59]">{value}</p>
