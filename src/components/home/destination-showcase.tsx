@@ -11,7 +11,7 @@ const experiences = [
     id: "uk",
     title: "Discover the United Kingdom",
     category: "EXPLORE",
-    image: "/images/destinations/united-kingdom.jpg",
+    image: "/images/destinations/united-kingdom.webp",
     heading:
       "Discover iconic landmarks, vibrant cities, and exciting opportunities across the United Kingdom.",
     description:
@@ -23,7 +23,7 @@ const experiences = [
     id: "italy",
     title: "Discover the Beauty of Italy",
     category: "EXPLORE",
-    image: "/images/destinations/italy.jpg",
+    image: "/images/destinations/italy.webp",
     heading:
       "Experience Italy’s timeless beauty, rich culture, iconic landmarks, and exciting opportunities.",
     description:
@@ -35,7 +35,7 @@ const experiences = [
     id: "niagara",
     title: "Discover Niagara Falls, Canada",
     category: "EXPLORE",
-    image: "/images/destinations/niagara-falls.jpg",
+    image: "/images/destinations/niagara-falls.webp",
     heading: "Experience the breathtaking beauty of Niagara Falls.",
     description:
       "Discover the magnificent waterfalls, scenic views, boat tours, and vibrant attractions of Niagara Falls, one of Canada's most iconic destinations.",
@@ -47,7 +47,7 @@ const experiences = [
     id: "usa",
     title: "Discover the Statue of Liberty",
     category: "EXPLORE",
-    image: "/images/destinations/statue-of-liberty.jpg",
+    image: "/images/destinations/statue-of-liberty.webp",
     heading: "Explore the iconic Statue of Liberty in New York City.",
     description:
       "Discover America's iconic landmark, enjoy stunning harbor views, and experience the vibrant culture of New York City.",
@@ -59,7 +59,7 @@ const experiences = [
     id: "thailand",
     title: "Discover the Beauty of Thailand",
     category: "EXPLORE",
-    image: "/images/destinations/thailand.jpg",
+    image: "/images/destinations/thailand.webp",
     heading: "Experience Thailand’s tropical beauty and vibrant culture.",
     description:
       "Explore stunning beaches, golden temples, bustling markets, and delicious Thai cuisine in one of Southeast Asia’s most exciting destinations.",
@@ -192,7 +192,6 @@ export function DestinationShowcase() {
             src={active.image}
             alt={active.title}
             fill
-            priority={activeIndex === 0}
             sizes="(max-width: 760px) 100vw, 53vw"
             className="destination-showcase-main-image"
           />
