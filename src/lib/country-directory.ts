@@ -34,14 +34,14 @@ export type VisaRequirementSource = {
 export type VisaPhotoSpecifications = {
   status?: string;
   route?: string;
-  dimensions_mm?: string;
-  digital_dimensions_px?: string;
-  file_size?: string;
+  dimensions_mm?: string | { width?: number | string; height?: number | string; unit?: string };
+  digital_dimensions_px?: string | { width?: number | string; height?: number | string; unit?: string };
+  file_size?: string | number;
   background?: string;
   head_measurements?: string;
   photo_age?: string;
   format?: string;
-  copies?: string;
+  copies?: string | number;
   notes?: string;
   source_name?: string;
   source_url?: string;
