@@ -161,6 +161,16 @@ FLAG_SMOKE_CODES = {
     "GM", "MZ", "NG", "AL", "IE", "MD", "ME", "RS", "KY", "BM", "PA", "MX", "BO", "CU", "HT", "AC", "TA",
 }
 
+FLAG_FALLBACK_SOURCES = {
+    "ac": "https://upload.wikimedia.org/wikipedia/commons/6/65/Flag_of_Ascension_Island.svg",
+    "ta": "https://upload.wikimedia.org/wikipedia/commons/8/89/Flag_of_Tristan_da_Cunha.svg",
+}
+
+
+def flag_asset_url(code):
+    normalized = str(code or "").strip().lower()
+    return FLAG_FALLBACK_SOURCES.get(normalized, f"https://flagcdn.com/{normalized}.svg")
+
 
 def verify_flag_component_source():
     component = Path("src/components/shared/country-flag.tsx")
@@ -172,6 +182,9 @@ def verify_flag_component_source():
         'const code = (iso2 ?? "").trim().toLowerCase();',
         "/^[a-z]{2}$/",
         "https://flagcdn.com/${code}.svg",
+        "FLAG_FALLBACK_SOURCES",
+        "https://upload.wikimedia.org/wikipedia/commons/6/65/Flag_of_Ascension_Island.svg",
+        "https://upload.wikimedia.org/wikipedia/commons/8/89/Flag_of_Tristan_da_Cunha.svg",
         'alt={`${name} flag`}',
         'loading="lazy"',
         'decoding="async"',
@@ -203,7 +216,7 @@ def verify_country_flag_images(parser, countries, label):
         name = str(country.get("name") or "")
         if not re.fullmatch(r"[a-z]{2}", code) or not name:
             raise SystemExit(f"{label} contains a country without a valid ISO-2 code or name.")
-        expected_url = f"https://flagcdn.com/{code}.svg"
+        expected_url = flag_asset_url(code)
         matches = [image for image in parser.images if image.get("src") == expected_url]
         if not matches:
             raise SystemExit(f"{label} is missing the SVG flag image for {name} ({code.upper()}).")
@@ -223,7 +236,7 @@ def verify_flag_asset_responses(countries, label):
     if not countries:
         raise SystemExit(f"{label} has no countries available for flag asset verification.")
     for code in sorted(required_codes):
-        url = f"https://flagcdn.com/{code.lower()}.svg"
+        url = flag_asset_url(code)
         request = Request(url, headers={"User-Agent": "UniGo-Flag-Asset-Check/1.0", "Accept": "image/svg+xml"})
         last_error = None
         for attempt in range(4):
@@ -246,8 +259,8 @@ def verify_flag_asset_responses(countries, label):
             raise SystemExit(f"{label} could not load the {code} SVG flag asset: {last_error}")
         if status != 200 or not body or b"<svg" not in body[:4096] or content_type not in {"image/svg+xml", "application/xml", "text/xml"}:
             raise SystemExit(f"{label} flag asset check failed for {code}: HTTP {status}, content type {content_type}.")
-        print(f"FLAG_ASSET_HTTP_200 {code} {content_type}")
-    print(f"{label} verified {len(required_codes)} live FlagCDN SVG assets.")
+        print(f"FLAG_ASSET_HTTP_200 {code} {urlparse(url).netloc} {content_type}")
+    print(f"{label} verified {len(required_codes)} live SVG flag assets, including exceptional territory fallbacks.")
 
 
 def require_visible(parser, value, field, label):

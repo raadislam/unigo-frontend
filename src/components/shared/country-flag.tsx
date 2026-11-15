@@ -2,6 +2,11 @@
 
 import { useState } from "react";
 
+const FLAG_FALLBACK_SOURCES: Record<string, string> = {
+  ac: "https://upload.wikimedia.org/wikipedia/commons/6/65/Flag_of_Ascension_Island.svg",
+  ta: "https://upload.wikimedia.org/wikipedia/commons/8/89/Flag_of_Tristan_da_Cunha.svg",
+};
+
 type CountryFlagProps = {
   iso2?: string | null;
   name: string;
@@ -12,6 +17,7 @@ export function CountryFlag({ iso2, name, className }: CountryFlagProps) {
   const code = (iso2 ?? "").trim().toLowerCase();
   const [failedCode, setFailedCode] = useState<string | null>(null);
   const isValid = /^[a-z]{2}$/.test(code);
+  const flagSource = FLAG_FALLBACK_SOURCES[code] ?? `https://flagcdn.com/${code}.svg`;
 
   if (!isValid || failedCode === code) {
     return (
@@ -31,7 +37,7 @@ export function CountryFlag({ iso2, name, className }: CountryFlagProps) {
   return (
     <span className={`${className} relative overflow-hidden`}>
       <img
-        src={`https://flagcdn.com/${code}.svg`}
+        src={flagSource}
         alt={`${name} flag`}
         loading="lazy"
         decoding="async"
