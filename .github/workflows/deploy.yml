@@ -66,6 +66,8 @@ jobs:
       - name: Remove original oversized images from static export
         run: |
           rm -f \\
+            out/images/about/hero.png \\
+            out/images/about/mission.png \\
             out/images/student-uk.png \\
             out/images/student-australia.png \\
             out/images/student-canada.png \\
