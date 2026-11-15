@@ -207,8 +207,10 @@ export function CountryVisaPageClient({ slug, initialCountry, initialRequirement
                 <p className="mt-1 text-xs text-slate-500">Follow the specification for the selected application route. Do not assume one photo size applies to every visa category.</p>
                 {!requirement.photo_specifications ? (
                   <p className="mt-3 rounded-xl bg-amber-50 p-4 text-sm leading-6 text-amber-800">UniGo has not yet verified the photograph dimensions and upload requirements for this application route. Please check the current official embassy or visa-centre checklist before preparing your photo.</p>
-                ) : ["not_published", "not_specified", "no_fixed_size_published", "not_verified"].includes(requirement.photo_specifications.status || "") ? (
-                  <p className="mt-3 rounded-xl bg-amber-50 p-4 text-sm leading-6 text-amber-800">The reviewed authority has not published a specific photograph size for this route. Follow the personalised online application instructions or confirm with the responsible application centre before preparing your photo.</p>
+                ) : requirement.photo_specifications.status === "not_verified" ? (
+                  <p className="mt-3 rounded-xl bg-amber-50 p-4 text-sm leading-6 text-amber-800">UniGo has not verified the photograph requirements for this route. Do not assume a photo size or that no printed photo is needed. Check the current personalised application instructions or confirm with the responsible embassy or visa centre.</p>
+                ) : ["not_published", "not_specified", "no_fixed_size_published"].includes(requirement.photo_specifications.status || "") ? (
+                  <p className="mt-3 rounded-xl bg-amber-50 p-4 text-sm leading-6 text-amber-800">The reviewed authority does not publish a universal fixed photograph size for this route. Follow the personalised online application instructions or confirm with the responsible application centre before preparing your photo.</p>
                 ) : requirement.photo_specifications.status === "biometric_capture" || requirement.photo_specifications.status === "captured_at_vac" || requirement.photo_specifications.status === "captured_at_application_centre" ? (
                   <p className="mt-3 rounded-xl bg-blue-50 p-4 text-sm leading-6 text-blue-800">A photograph is expected to be captured at the designated visa application or biometric centre for this route. Check the appointment instructions to confirm whether you must also bring printed photographs.</p>
                 ) : (
