@@ -107,7 +107,7 @@ export function VisaChecklistGenerator({ country, requirement }: { country: Coun
             <div className="space-y-6 px-6 py-6 sm:px-8">
               <div>
                 <label htmlFor="checklist-scope" className="mb-2 block text-sm font-bold text-[#082b4c]">1. Who needs a checklist?</label>
-                <select id="checklist-scope" value={scope} onChange={(event) => setScope(event.target.value as ChecklistScope)} className="w-full rounded-xl border border-[#dbe4ed] bg-white px-4 py-3 text-sm text-[#263f59] outline-none focus:border-[#d7192d] focus:ring-2 focus:ring-[#d7192d]/10">
+                <select id="checklist-scope" value={scope} onChange={(event) => { const nextScope = event.target.value as ChecklistScope; setScope(nextScope); if (nextScope === "sponsor" && funding === "self") setFunding("full"); }} className="w-full rounded-xl border border-[#dbe4ed] bg-white px-4 py-3 text-sm text-[#263f59] outline-none focus:border-[#d7192d] focus:ring-2 focus:ring-[#d7192d]/10">
                   <option value="applicant">Main applicant only</option>
                   <option value="both">Applicant and sponsor</option>
                   <option value="sponsor">Sponsor only</option>
