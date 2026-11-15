@@ -51,6 +51,21 @@ jobs:
           NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
           UNIGO_CONTENT_VERSION: ${{ github.sha }}
 
+      - name: Remove superseded source images from validation export
+        run: |
+          rm -f \\
+            out/images/about/hero.png \\
+            out/images/about/mission.png \\
+            out/images/student-uk.png \\
+            out/images/student-australia.png \\
+            out/images/student-canada.png \\
+            out/images/student-destinations.png \\
+            out/images/destinations/italy.jpg \\
+            out/images/destinations/united-kingdom.jpg \\
+            out/images/destinations/niagara-falls.jpg \\
+            out/images/destinations/statue-of-liberty.jpg \\
+            out/images/destinations/thailand.jpg
+
       - name: Verify optimized static image output
         run: |
           test -s out/images/about/hero.webp
