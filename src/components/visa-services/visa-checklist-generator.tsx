@@ -5,9 +5,6 @@ import { Download, FileCheck2, X } from "lucide-react";
 import type { Country, VisaRequirement } from "@/lib/country-directory";
 
 type Occupation = "employee" | "business" | "student" | "retired" | "other";
-type ChecklistScope = "applicant" | "both" | "sponsor";
-type SponsorFunding = "self" | "full" | "partial";
-
 const occupationLabels: Record<Occupation, string> = {
   employee: "Employed",
   business: "Business owner / self-employed",
@@ -16,12 +13,21 @@ const occupationLabels: Record<Occupation, string> = {
   other: "Other",
 };
 
+function matchesOccupation(applicantType: string, occupation: Occupation) {
+  const type = applicantType.toLowerCase().trim().replace(/[ -]/g, "_");
+  const aliases: Record<Occupation, string[]> = {
+    employee: ["employee", "employed", "salaried_employee", "government_employee", "private_employee"],
+    business: ["business", "business_owner", "self_employed", "self_employed_or_business_owner", "entrepreneur", "trader"],
+    student: ["student", "pupil"],
+    retired: ["retired", "pensioner"],
+    other: ["other", "unemployed", "freelancer"],
+  };
+  return aliases[occupation].includes(type);
+}
+
 export function VisaChecklistGenerator({ country, requirement }: { country: Country; requirement: VisaRequirement | null }) {
   const [open, setOpen] = useState(false);
-  const [scope, setScope] = useState<ChecklistScope>("applicant");
   const [applicant, setApplicant] = useState<Occupation>("employee");
-  const [sponsor, setSponsor] = useState<Occupation>("employee");
-  const [funding, setFunding] = useState<SponsorFunding>("self");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -34,12 +40,7 @@ export function VisaChecklistGenerator({ country, requirement }: { country: Coun
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [open]);
 
-  const canGenerate = Boolean(requirement && (requirement.required_documents?.length || requirement.applicant_checklists?.length));
-  const checklistSummary = useMemo(() => {
-    if (scope === "applicant") return "Applicant documents only";
-    if (scope === "sponsor") return "Sponsor supporting documents only";
-    return funding === "self" ? "Applicant documents only (self-funded)" : "Applicant and sponsor documents";
-  }, [scope, funding]);
+  const canGenerate = Boolean(requirement && (requirement.required_documents?.length || requirement.applicant_checklists?.some((profile) => matchesOccupation(profile.applicant_type, applicant) && profile.documents?.some((document) => document.status === "required"))));
 
   async function downloadChecklist() {
     if (!requirement) return;
@@ -51,7 +52,7 @@ export function VisaChecklistGenerator({ country, requirement }: { country: Coun
       const response = await fetch(`${apiBase}/visa-requirements/${encodeURIComponent(country.slug)}/checklist-pdf`, {
         method: "POST",
         headers: { Accept: "application/pdf", "Content-Type": "application/json" },
-        body: JSON.stringify({ scope, applicant_occupation: applicant, sponsor_occupation: sponsor, funding }),
+        body: JSON.stringify({ scope: "applicant", applicant_occupation: applicant }),
         cache: "no-store",
       });
       if (!response.ok) {
@@ -100,51 +101,23 @@ export function VisaChecklistGenerator({ country, requirement }: { country: Coun
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#ff9aa3]">UniGo document assistant</p>
                 <h2 id="visa-checklist-title" className="mt-1 text-xl font-bold sm:text-2xl">{country.name} visa checklist</h2>
-                <p className="mt-1 text-xs text-white/70">Select the applicant or sponsor profile to filter the required documents.</p>
+                <p className="mt-1 text-xs text-white/70">Select your occupation to filter the required documents.</p>
               </div>
               <button type="button" onClick={() => setOpen(false)} aria-label="Close checklist" className="rounded-full p-2 text-white/80 transition hover:bg-white/10 hover:text-white"><X size={20} /></button>
             </div>
             <div className="space-y-6 px-6 py-6 sm:px-8">
               <div>
-                <label htmlFor="checklist-scope" className="mb-2 block text-sm font-bold text-[#082b4c]">1. Who needs a checklist?</label>
-                <select id="checklist-scope" value={scope} onChange={(event) => { const nextScope = event.target.value as ChecklistScope; setScope(nextScope); if (nextScope === "sponsor" && funding === "self") setFunding("full"); }} className="w-full rounded-xl border border-[#dbe4ed] bg-white px-4 py-3 text-sm text-[#263f59] outline-none focus:border-[#d7192d] focus:ring-2 focus:ring-[#d7192d]/10">
-                  <option value="applicant">Main applicant only</option>
-                  <option value="both">Applicant and sponsor</option>
-                  <option value="sponsor">Sponsor only</option>
+                <label htmlFor="applicant-occupation" className="mb-2 block text-sm font-bold text-[#082b4c]">What is the applicant&apos;s current occupation?</label>
+                <select id="applicant-occupation" value={applicant} onChange={(event) => setApplicant(event.target.value as Occupation)} className="w-full rounded-xl border border-[#dbe4ed] bg-white px-4 py-3 text-sm text-[#263f59] outline-none focus:border-[#d7192d] focus:ring-2 focus:ring-[#d7192d]/10">
+                  {Object.entries(occupationLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
                 </select>
               </div>
-              {scope !== "sponsor" && (
-                <div>
-                  <label htmlFor="applicant-occupation" className="mb-2 block text-sm font-bold text-[#082b4c]">2. What is the applicant&apos;s current occupation?</label>
-                  <select id="applicant-occupation" value={applicant} onChange={(event) => setApplicant(event.target.value as Occupation)} className="w-full rounded-xl border border-[#dbe4ed] bg-white px-4 py-3 text-sm text-[#263f59] outline-none focus:border-[#d7192d] focus:ring-2 focus:ring-[#d7192d]/10">
-                    {Object.entries(occupationLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
-                  </select>
-                </div>
-              )}
-              {scope !== "applicant" && (
-                <div className="space-y-4">
-                  <div>
-                    <label htmlFor="sponsor-occupation" className="mb-2 block text-sm font-bold text-[#082b4c]">3. What is the sponsor&apos;s current occupation?</label>
-                    <select id="sponsor-occupation" value={sponsor} onChange={(event) => setSponsor(event.target.value as Occupation)} className="w-full rounded-xl border border-[#dbe4ed] bg-white px-4 py-3 text-sm text-[#263f59] outline-none focus:border-[#d7192d] focus:ring-2 focus:ring-[#d7192d]/10">
-                      {Object.entries(occupationLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
-                    </select>
-                  </div>
-                  <div>
-                    <label htmlFor="sponsor-funding" className="mb-2 block text-sm font-bold text-[#082b4c]">How will the trip be funded?</label>
-                    <select id="sponsor-funding" value={funding} onChange={(event) => setFunding(event.target.value as SponsorFunding)} className="w-full rounded-xl border border-[#dbe4ed] bg-white px-4 py-3 text-sm text-[#263f59] outline-none focus:border-[#d7192d] focus:ring-2 focus:ring-[#d7192d]/10">
-                      <option value="full">Fully sponsored</option>
-                      <option value="partial">Partially sponsored</option>
-                      {scope !== "sponsor" && <option value="self">Self-funded (no sponsor documents)</option>}
-                    </select>
-                  </div>
-                </div>
-              )}
               <div className="rounded-2xl bg-[#f6f9fc] p-4">
                 <p className="text-xs font-bold uppercase tracking-wide text-[#526579]">Your PDF will include</p>
-                <p className="mt-2 text-sm font-semibold text-[#082b4c]">{checklistSummary}</p>
-                <p className="mt-1 text-xs leading-6 text-slate-500">One page with required documents only. Scan its QR code for full destination information.</p>
+                <p className="mt-2 text-sm font-semibold text-[#082b4c]">Applicant documents for the selected occupation</p>
+                <p className="mt-1 text-xs leading-6 text-slate-500">One page with required documents only. Sponsor documents are not included unless verified sponsor-specific requirements are recorded.</p>
               </div>
-              {!canGenerate && <p className="rounded-xl bg-amber-50 p-3 text-xs leading-6 text-amber-800">This destination&apos;s verified record does not contain a complete common document list. The checklist download is paused to avoid generating an incomplete document.</p>}
+              {!canGenerate && <p className="rounded-xl bg-amber-50 p-3 text-xs leading-6 text-amber-800">No common or required documents are recorded for this occupation. Choose another occupation or check the full destination guide.</p>}
               {message && <p role="status" className="rounded-xl bg-[#f1f7f3] p-3 text-sm text-[#23633c]">{message}</p>}
             </div>
             <div className="flex flex-col-reverse gap-3 border-t border-[#edf1f5] bg-[#fbfcfd] px-6 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-8">
