@@ -7,6 +7,7 @@ on:
     paths:
       - "src/components/home/hero-illustration.tsx"
       - "src/components/home/destination-showcase.tsx"
+      - "src/components/visa-services/country-directory.tsx"
       - "src/app/(website)/about/about-page.tsx"
       - "scripts/optimize-public-images.mjs"
       - "package.json"
