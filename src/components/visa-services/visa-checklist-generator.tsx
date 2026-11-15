@@ -88,98 +88,98 @@ function escapePdf(value: string) {
 function makePdf(jpeg: Uint8Array, lines: string[], countryName: string) {
   const encoder = new TextEncoder();
   const ascii = (value: string) => encoder.encode(value);
-  const pageLines: string[][] = [];
-  let current: string[] = [];
-  let used = 0;
+  const pageHeight = 842;
+  const left = 43;
+  const right = 552;
+  const wrapped: { text: string; kind: "heading" | "note" | "item" }[] = [];
   for (const line of lines) {
-    const heading = line.startsWith("## ");
-    const note = line.startsWith("! ");
-    const wrapped = wrapText(heading ? line.slice(3) : note ? line.slice(2) : line, heading ? 78 : 91);
-    const cost = wrapped.length * (heading ? 20 : 15) + (heading ? 8 : 2);
-    if (used + cost > 650 && current.length) {
-      pageLines.push(current);
-      current = [];
-      used = 0;
+    const kind = line.startsWith("## ") ? "heading" : line.startsWith("! ") ? "note" : "item";
+    const value = line.startsWith("## ") || line.startsWith("! ") ? line.slice(2) : line;
+    const words = cleanText(value).split(" ");
+    let current = "";
+    for (const word of words) {
+      const next = current ? current + " " + word : word;
+      if (next.length > 88 && current) { wrapped.push({ text: current, kind }); current = word; }
+      else current = next;
     }
-    if (heading) current.push("## " + wrapped[0], ...wrapped.slice(1).map((part) => "  " + part));
-    else if (note) current.push(...wrapped.map((part) => "! " + part));
-    else current.push(...wrapped.map((part) => "• " + part));
-    used += cost;
+    if (current) wrapped.push({ text: current, kind });
   }
-  if (current.length || !pageLines.length) pageLines.push(current);
-
-  const objects: (Uint8Array | null)[] = [null];
-  objects[1] = ascii("<< /Type /Catalog /Pages 2 0 R >>");
-  objects[3] = new Uint8Array([
-    ...ascii("<< /Type /XObject /Subtype /Image /Width 993 /Height 1404 /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length " + jpeg.length + " >>\nstream\n"),
-    ...jpeg,
-    ...ascii("\nendstream"),
-  ]);
-  objects[4] = ascii("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>");
-  objects[5] = ascii("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>");
-  const pageRefs: string[] = [];
-  pageLines.forEach((page, pageIndex) => {
-    const pageObject = 6 + pageIndex * 2;
-    const contentObject = pageObject + 1;
-    pageRefs.push(pageObject + " 0 R");
-    const commands = ["q 595 0 0 842 0 0 cm /Im0 Do Q"];
-    let y = 108;
-    const text = (value: string, x: number, size: number, bold = false, color = "0.12 0.19 0.27") => {
-      commands.push("BT /F" + (bold ? 2 : 1) + " " + size + " Tf " + color + " rg 1 0 0 1 " + x + " " + (842-y) + " Tm (" + escapePdf(value) + ") Tj ET");
-    };
-    if (pageIndex === 0) {
-      text(countryName.toUpperCase() + " VISA CHECKLIST", 42, 16, true, "0.03 0.17 0.30");
-      y += 22;
-      text("Bangladeshi ordinary passport | Tourism", 42, 10, false, "0.35 0.41 0.48");
-      y += 25;
-    } else {
-      text(countryName.toUpperCase() + " VISA CHECKLIST — CONTINUED", 42, 13, true, "0.03 0.17 0.30");
-      y += 24;
-    }
-    for (const line of page) {
-      if (line.startsWith("## ")) {
-        y += 5;
-        text(line.slice(3), 42, 12, true, "0.03 0.17 0.30");
-        y += 8;
-        commands.push("0.84 0.88 0.92 RG 0.7 w 42 " + (842-y) + " m 553 " + (842-y) + " l S");
-        y += 12;
-      } else if (line.startsWith("! ")) {
-        text(line.slice(2), 42, 9.5, false, "0.35 0.41 0.48");
-        y += 15;
-      } else {
-        text(line.startsWith("• ") ? line.slice(2) : line, 48, 10.5, false, "0.12 0.19 0.27");
-        y += 15;
-      }
-    }
-    objects[pageObject] = ascii("<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /XObject << /Im0 3 0 R >> /Font << /F1 4 0 R /F2 5 0 R >> >> /Contents " + contentObject + " 0 R >>");
-    const stream = ascii(commands.join("\n"));
-    objects[contentObject] = new Uint8Array([...ascii("<< /Length " + stream.length + " >>\nstream\n"), ...stream, ...ascii("\nendstream")]);
-  });
-  objects[2] = ascii("<< /Type /Pages /Kids [" + pageRefs.join(" ") + "] /Count " + pageLines.length + " >>");
+  const pages: typeof wrapped[] = [];
+  let page: typeof wrapped = [];
+  let y = 140;
+  for (const item of wrapped) {
+    const height = item.kind === "heading" ? 25 : item.kind === "note" ? 18 : 19;
+    if (y + height > 755 && page.length) { pages.push(page); page = []; y = 140; }
+    page.push(item);
+    y += height;
+  }
+  if (page.length || !pages.length) pages.push(page);
   const chunks: Uint8Array[] = [];
-  const offsets: number[] = [0];
+  const offsets: number[] = [];
   let length = 0;
   const push = (bytes: Uint8Array) => { chunks.push(bytes); length += bytes.length; };
+  const objects: Uint8Array[] = [];
+  objects[1] = ascii("<< /Type /Catalog /Pages 2 0 R >>");
+  objects[3] = new Uint8Array([...ascii(`<< /Type /XObject /Subtype /Image /Width 1489 /Height 2105 /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpeg.length} >>\nstream\n`), ...jpeg, ...ascii("\nendstream")]);
+  objects[4] = ascii("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>");
+  objects[5] = ascii("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>");
+  const pageIds = pages.map((_, index) => 6 + index * 2);
+  const contentIds = pages.map((_, index) => 7 + index * 2);
+  objects[2] = ascii(`<< /Type /Pages /Kids [${pageIds.map(id => `${id} 0 R`).join(" ")}] /Count ${pages.length} >>`);
+  pages.forEach((pageLines, pageIndex) => {
+    const commands = ["q 595 0 0 842 0 0 cm /Im0 Do Q"];
+    let top = 112;
+    const addText = (value: string, x: number, yTop: number, size: number, bold = false, color = "0.12 0.19 0.27") => {
+      commands.push(`BT /F${bold ? 2 : 1} ${size} Tf ${color} rg 1 0 0 1 ${x} ${pageHeight - yTop} Tm (${escapePdf(value)}) Tj ET`);
+    };
+    if (pageIndex === 0) {
+      addText(`${countryName.toUpperCase()} VISA CHECKLIST`, left, top, 15, true, "0.03 0.17 0.30");
+      top += 22;
+      addText("Bangladeshi ordinary passport | Tourism", left, top, 10, false, "0.35 0.41 0.48");
+      top += 27;
+    } else {
+      addText(`${countryName.toUpperCase()} VISA CHECKLIST - CONTINUED`, left, top, 12, true, "0.03 0.17 0.30");
+      top += 30;
+    }
+    for (const item of pageLines) {
+      if (item.kind === "heading") {
+        top += 3;
+        addText(item.text.toUpperCase(), left, top, 11, true, "0.03 0.17 0.30");
+        top += 8;
+        commands.push(`0.84 0.88 0.92 RG 0.6 w ${left} ${pageHeight - top} m ${right} ${pageHeight - top} l S`);
+        top += 13;
+      } else if (item.kind === "note") {
+        addText(item.text, left, top, 9.5, false, "0.35 0.41 0.48");
+        top += 18;
+      } else {
+        commands.push(`0.16 0.36 0.53 rg ${left} ${pageHeight - top - 2} 4 4 re f`);
+        addText(item.text, left + 12, top + 2, 10, false, "0.12 0.19 0.27");
+        top += 19;
+      }
+    }
+    addText(`Page ${pageIndex + 1} of ${pages.length}`, 490, 810, 8.5, false, "0.35 0.41 0.48");
+    const stream = ascii(commands.join("\n"));
+    objects[pageIds[pageIndex]] = ascii(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /XObject << /Im0 3 0 R >> /Font << /F1 4 0 R /F2 5 0 R >> >> /Contents ${contentIds[pageIndex]} 0 R >>`);
+    objects[contentIds[pageIndex]] = new Uint8Array([...ascii(`<< /Length ${stream.length} >>\nstream\n`), ...stream, ...ascii("\nendstream")]);
+  });
   push(ascii("%PDF-1.4\n%\\xE2\\xE3\\xCF\\xD3\n"));
   for (let i = 1; i < objects.length; i++) {
-    const object = objects[i];
-    if (!object) continue;
+    if (!objects[i]) continue;
     offsets[i] = length;
-    push(ascii(i + " 0 obj\n"));
-    push(object);
+    push(ascii(`${i} 0 obj\n`));
+    push(objects[i]);
     push(ascii("\nendobj\n"));
   }
   const xrefOffset = length;
-  let xref = "xref\n0 " + objects.length + "\n0000000000 65535 f \n";
-  for (let i = 1; i < objects.length; i++) xref += offsets[i] ? String(offsets[i]).padStart(10, "0") + " 00000 n \n" : "0000000000 00000 f \n";
-  xref += "trailer\n<< /Size " + objects.length + " /Root 1 0 R >>\nstartxref\n" + xrefOffset + "\n%%EOF";
+  let xref = `xref\n0 ${objects.length}\n0000000000 65535 f \n`;
+  for (let i = 1; i < objects.length; i++) xref += offsets[i] ? `${String(offsets[i]).padStart(10, "0")} 00000 n \n` : "0000000000 00000 f \n";
+  xref += `trailer\n<< /Size ${objects.length} /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`;
   push(ascii(xref));
   const output = new Uint8Array(length);
   let cursor = 0;
   for (const chunk of chunks) { output.set(chunk, cursor); cursor += chunk.length; }
   return new Blob([output], { type: "application/pdf" });
 }
-
 function buildChecklistLines(country: Country, requirement: VisaRequirement, scope: ChecklistScope, applicant: Occupation, sponsor: Occupation, funding: SponsorFunding, relationship: string) {
   const lines: string[] = [];
   const add = (value?: string | null, prefix = "") => {
