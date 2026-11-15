@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { LandingPage } from "@/components/shared/landing-page";
 import { BlogResources } from "@/components/blog/blog-resources";
 
 export const metadata: Metadata = {
