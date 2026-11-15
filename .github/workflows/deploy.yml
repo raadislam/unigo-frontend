@@ -45,14 +45,17 @@ jobs:
       - name: Snapshot authoritative public country directory and validate shared SVG flag component
         env:
           NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
+          UNIGO_CONTENT_VERSION: ${{ github.sha }}
         run: |
           test -n "$NEXT_PUBLIC_API_URL"
+          test -n "$UNIGO_CONTENT_VERSION"
           python3 scripts/verify-country-directory.py --phase snapshot --api-url "$NEXT_PUBLIC_API_URL"
 
       - name: Build static website
         run: npm run build
         env:
           NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
+          UNIGO_CONTENT_VERSION: ${{ github.sha }}
 
       - name: Verify static export, every country SVG and FlagCDN network responses
         run: |
