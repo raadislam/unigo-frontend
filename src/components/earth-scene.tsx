@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useRef, useState } from "react";
+import { Suspense, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Html, OrbitControls, Stars, useTexture } from "@react-three/drei";
 import * as THREE from "three";
@@ -145,9 +145,12 @@ function EarthModel({
 }) {
   const earthRef = useRef<THREE.Group>(null);
   const texture = useTexture(earthTextureUrl);
-
-  texture.colorSpace = THREE.SRGBColorSpace;
-  texture.anisotropy = 8;
+  const earthTexture = useMemo(() => {
+    const nextTexture = texture.clone();
+    nextTexture.colorSpace = THREE.SRGBColorSpace;
+    nextTexture.anisotropy = 8;
+    return nextTexture;
+  }, [texture]);
 
   useFrame((_, delta) => {
     if (earthRef.current) {
@@ -159,7 +162,7 @@ function EarthModel({
     <group ref={earthRef}>
       <mesh>
         <sphereGeometry args={[1, 96, 96]} />
-        <meshStandardMaterial map={texture} roughness={0.88} metalness={0.02} />
+        <meshStandardMaterial map={earthTexture} roughness={0.88} metalness={0.02} />
       </mesh>
 
       <mesh scale={1.018}>
