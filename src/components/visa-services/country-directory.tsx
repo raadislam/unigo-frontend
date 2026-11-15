@@ -7,6 +7,7 @@ import type { Country, VisaCategory } from "@/lib/country-directory";
 import { CountryFlag } from "@/components/shared/country-flag";
 
 const alphabet = ["ALL", ..."ABCDEFGHIJKLMNOPQRSTUVWXYZ"];
+const PAGE_SIZE = 15;
 
 type CountryDirectoryProps = {
   initialCountries: Country[];
@@ -20,7 +21,6 @@ export function CountryDirectory({ initialCountries, initialCategories }: Countr
   const [activeLetter, setActiveLetter] = useState("ALL");
   const [activeCategory, setActiveCategory] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 15;
 
   const filteredCountries = useMemo(() => {
     const normalizedSearch = search.trim().toLowerCase();
@@ -33,11 +33,11 @@ export function CountryDirectory({ initialCountries, initialCategories }: Countr
     });
   }, [countries, search, activeLetter, activeCategory]);
 
-  const totalPages = Math.max(1, Math.ceil(filteredCountries.length / pageSize));
-  const pageStart = (currentPage - 1) * pageSize;
-  const paginatedCountries = useMemo(() => filteredCountries.slice(pageStart, pageStart + pageSize), [filteredCountries, pageStart]);
+  const totalPages = Math.max(1, Math.ceil(filteredCountries.length / PAGE_SIZE));
+  const pageStart = (currentPage - 1) * PAGE_SIZE;
+  const paginatedCountries = useMemo(() => filteredCountries.slice(pageStart, pageStart + PAGE_SIZE), [filteredCountries, pageStart]);
   const firstVisibleCountry = filteredCountries.length ? pageStart + 1 : 0;
-  const lastVisibleCountry = Math.min(pageStart + pageSize, filteredCountries.length);
+  const lastVisibleCountry = Math.min(pageStart + PAGE_SIZE, filteredCountries.length);
 
   const clearFilters = () => {
     setSearch("");
