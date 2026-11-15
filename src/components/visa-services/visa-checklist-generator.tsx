@@ -170,9 +170,9 @@ function buildChecklistLines(country: Country, requirement: VisaRequirement, sco
     return applicant === "business" ? type.includes("business") || type.includes("self_employed") : type === applicant;
   });
   const common = requirement.required_documents || [];
-  const applicantDocs = applicantChecklist?.documents.map((item) => item.name) || applicantFallback[applicant];
-  lines.push("## APPLICANT - COMMON DESTINATION REQUIREMENTS");
+  const applicantDocs = applicantChecklist?.documents.map((item) => item.status === "required" ? item.name : "If applicable: " + item.name) || applicantFallback[applicant].map((item) => "If applicable: " + item);
   if (scope !== "sponsor") {
+    lines.push("## APPLICANT - COMMON DESTINATION REQUIREMENTS");
     if (common.length) common.forEach((item) => lines.push(item));
     else lines.push("Check the current official application checklist for this destination before submission.");
     lines.push("Passport validity: " + (requirement.passport_validity_rule || "Check the current official application instructions."));
@@ -195,9 +195,9 @@ function buildChecklistLines(country: Country, requirement: VisaRequirement, sco
     }
   }
   if (scope !== "applicant" && funding !== "self") {
-    lines.push("## SPONSOR - COMMON SUPPORTING DOCUMENTS");
+    lines.push("## SPONSOR - COMMON SUPPORTING EVIDENCE (CONDITIONAL)");
     sponsorCommon.forEach((item) => lines.push(item));
-    lines.push("## SPONSOR - " + occupationLabels[sponsor].toUpperCase() + " SUPPORTING DOCUMENTS");
+    lines.push("## SPONSOR - " + occupationLabels[sponsor].toUpperCase() + " EVIDENCE (CONDITIONAL)");
     sponsorOccupationDocuments[sponsor].forEach((item) => lines.push(item));
     if (relationship.trim()) lines.push("Relationship to applicant: " + relationship.trim());
     lines.push("Expenses covered: " + (funding === "full" ? "Full trip sponsorship" : "Partial trip sponsorship; specify expenses in the sponsor letter"));
@@ -235,8 +235,8 @@ export function VisaChecklistGenerator({ country, requirement }: { country: Coun
   const checklistSummary = useMemo(() => {
     if (scope === "applicant") return "Applicant documents only";
     if (scope === "sponsor") return "Sponsor supporting documents only";
-    return "Applicant and sponsor documents";
-  }, [scope]);
+    return funding === "self" ? "Applicant documents only (self-funded)" : "Applicant and sponsor documents";
+  }, [scope, funding]);
 
   async function downloadChecklist() {
     if (!requirement) return;
@@ -266,7 +266,7 @@ export function VisaChecklistGenerator({ country, requirement }: { country: Coun
       for (const line of lines) {
         const wrappedCount = line.startsWith("## ") ? 2 : line.startsWith("! ") ? wrapText(line.slice(2), 118).length : wrapText(line, 112).length;
         const cost = line.startsWith("## ") ? 2 : wrappedCount;
-        if (used + cost > 57 && page.length) {
+        if (used + cost > 49 && page.length) {
           pages.push(page);
           page = [];
           used = 0;
@@ -350,7 +350,7 @@ export function VisaChecklistGenerator({ country, requirement }: { country: Coun
                     <select id="sponsor-funding" value={funding} onChange={(event) => setFunding(event.target.value as SponsorFunding)} className="w-full rounded-xl border border-[#dbe4ed] bg-white px-4 py-3 text-sm text-[#263f59] outline-none focus:border-[#d7192d] focus:ring-2 focus:ring-[#d7192d]/10">
                       <option value="full">Fully sponsored</option>
                       <option value="partial">Partially sponsored</option>
-                      <option value="self">Self-funded (no sponsor documents)</option>
+                      {scope !== "sponsor" && <option value="self">Self-funded (no sponsor documents)</option>}
                     </select>
                   </div>
                   <div>
