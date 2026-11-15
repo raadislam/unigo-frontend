@@ -1,0 +1,42 @@
+name: Validate Schengen Photo and Checklist UI
+
+on:
+  pull_request:
+    branches:
+      - master
+    paths:
+      - 'src/components/visa-services/country-visa-page-client.tsx'
+      - 'src/lib/country-directory.ts'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/validate-schengen-photo-checklist-ui.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: unigo-schengen-photo-ui-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout frontend
+        uses: actions/checkout@v7
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Type check
+        run: npx tsc --noEmit
+      - name: Lint
+        run: npm run lint
+      - name: Build static website
+        run: npm run build
+        env:
+          NEXT_PUBLIC_API_URL: https://api.unigo-bd.com/api
