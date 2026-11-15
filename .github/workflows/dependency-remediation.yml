@@ -80,5 +80,5 @@ jobs:
           git add package.json package-lock.json
           git commit -m "Fix frontend dependency security vulnerabilities"
           git fetch origin master
-          git rebase origin/master
+          git -c rebase.autoStash=true rebase origin/master
           git push origin HEAD:master
