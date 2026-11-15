@@ -1,0 +1,62 @@
+name: Validate Homepage Performance Assets
+
+on:
+  pull_request:
+    branches:
+      - master
+    paths:
+      - "src/components/home/hero-illustration.tsx"
+      - "src/components/home/destination-showcase.tsx"
+      - "scripts/optimize-public-images.mjs"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/deploy.yml"
+      - ".github/workflows/validate-performance-assets.yml"
+      - "public/images/student-*.png"
+      - "public/images/destinations/*.jpg"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: unigo-performance-validation-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify image optimizer dependency
+        run: node --input-type=module -e "import('sharp').then(() => console.log('Sharp is available'))"
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build static website with optimized images
+        run: npm run build
+        env:
+          NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
+          UNIGO_CONTENT_VERSION: ${{ github.sha }}
+
+      - name: Verify optimized static image output
+        run: |
+          test -s out/images/student-destinations.webp
+          test -s out/images/destinations/italy.webp
+          for file in student-uk.png student-australia.png student-canada.png student-destinations.png; do
+            test ! -e "out/images/$file"
+          done
+          for file in italy.jpg united-kingdom.jpg niagara-falls.jpg statue-of-liberty.jpg thailand.jpg; do
+            test ! -e "out/images/destinations/$file"
+          done
