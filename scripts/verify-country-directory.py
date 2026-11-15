@@ -437,7 +437,19 @@ def verify_directory_links(parser, countries, label):
     )
     if missing:
         raise SystemExit(f"{label} is missing country-directory links: {', '.join(missing)}")
-    verify_country_flag_images(parser, countries, label)
+
+    visible_names = {
+        image.get("alt", "")[:-5]
+        for image in parser.images
+        if image.get("alt", "").endswith(" flag")
+    }
+    visible_countries = [country for country in countries if country.get("name") in visible_names]
+    expected_visible_count = min(15, len(countries))
+    if len(visible_countries) != expected_visible_count:
+        raise SystemExit(
+            f"{label} renders {len(visible_countries)} country cards; expected {expected_visible_count}."
+        )
+    verify_country_flag_images(parser, visible_countries, label)
 
 
 def verify_exact_set(expected, actual, label):
