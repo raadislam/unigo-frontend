@@ -338,7 +338,7 @@ export function VisaChecklistGenerator({ country, requirement }: { country: Coun
               </div>
               {scope !== "sponsor" && (
                 <div>
-                  <label htmlFor="applicant-occupation" className="mb-2 block text-sm font-bold text-[#082b4c]">2. What is the applicant's current occupation?</label>
+                  <label htmlFor="applicant-occupation" className="mb-2 block text-sm font-bold text-[#082b4c]">2. What is the applicant&apos;s current occupation?</label>
                   <select id="applicant-occupation" value={applicant} onChange={(event) => setApplicant(event.target.value as Occupation)} className="w-full rounded-xl border border-[#dbe4ed] bg-white px-4 py-3 text-sm text-[#263f59] outline-none focus:border-[#d7192d] focus:ring-2 focus:ring-[#d7192d]/10">
                     {Object.entries(occupationLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
                   </select>
@@ -347,7 +347,7 @@ export function VisaChecklistGenerator({ country, requirement }: { country: Coun
               {scope !== "applicant" && (
                 <div className="space-y-4">
                   <div>
-                    <label htmlFor="sponsor-occupation" className="mb-2 block text-sm font-bold text-[#082b4c]">3. What is the sponsor's current occupation?</label>
+                    <label htmlFor="sponsor-occupation" className="mb-2 block text-sm font-bold text-[#082b4c]">3. What is the sponsor&apos;s current occupation?</label>
                     <select id="sponsor-occupation" value={sponsor} onChange={(event) => setSponsor(event.target.value as Occupation)} className="w-full rounded-xl border border-[#dbe4ed] bg-white px-4 py-3 text-sm text-[#263f59] outline-none focus:border-[#d7192d] focus:ring-2 focus:ring-[#d7192d]/10">
                       {Object.entries(occupationLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
                     </select>
@@ -371,7 +371,7 @@ export function VisaChecklistGenerator({ country, requirement }: { country: Coun
                 <p className="mt-2 text-sm font-semibold text-[#082b4c]">{checklistSummary}</p>
                 <p className="mt-1 text-xs leading-6 text-slate-500">Common destination requirements, relevant occupation evidence, photo guidance, and sponsor evidence where selected. Supporting examples are distinguished from official mandatory requirements.</p>
               </div>
-              {!canGenerate && <p className="rounded-xl bg-amber-50 p-3 text-xs leading-6 text-amber-800">This destination's verified record does not contain a complete common document list. The checklist download is paused to avoid generating an incomplete document.</p>}
+              {!canGenerate && <p className="rounded-xl bg-amber-50 p-3 text-xs leading-6 text-amber-800">This destination&apos;s verified record does not contain a complete common document list. The checklist download is paused to avoid generating an incomplete document.</p>}
               {message && <p role="status" className="rounded-xl bg-[#f1f7f3] p-3 text-sm text-[#23633c]">{message}</p>}
             </div>
             <div className="flex flex-col-reverse gap-3 border-t border-[#edf1f5] bg-[#fbfcfd] px-6 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-8">
