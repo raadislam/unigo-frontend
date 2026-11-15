@@ -36,7 +36,7 @@ export function WhyUnigoSection() {
             </div>
 
             <p className="relative mt-7 text-sm leading-7 text-slate-300">
-              Every student's journey is different. We help you explore
+              Every student&apos;s journey is different. We help you explore
               available options and understand the decisions ahead.
             </p>
           </div>
