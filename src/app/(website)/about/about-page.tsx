@@ -6,7 +6,6 @@ import {
   Globe2,
   GraduationCap,
   Compass,
-  Users,
 } from "lucide-react";
 import "../../../styles/about/about-page.css";
 
