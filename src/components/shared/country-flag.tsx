@@ -3,8 +3,8 @@
 import { useState } from "react";
 
 const FLAG_FALLBACK_SOURCES: Record<string, string> = {
-  ac: "https://upload.wikimedia.org/wikipedia/commons/6/65/Flag_of_Ascension_Island.svg",
-  ta: "https://upload.wikimedia.org/wikipedia/commons/8/89/Flag_of_Tristan_da_Cunha.svg",
+  ac: "https://game.lipis.dev/flags/4x3/ac.svg",
+  ta: "https://game.lipis.dev/flags/4x3/ta.svg",
 };
 
 type CountryFlagProps = {
