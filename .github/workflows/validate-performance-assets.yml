@@ -55,8 +55,15 @@ jobs:
         run: |
           test -s out/images/about/hero.webp
           test -s out/images/about/mission.webp
+          test -s out/images/student-uk.webp
+          test -s out/images/student-australia.webp
+          test -s out/images/student-canada.webp
           test -s out/images/student-destinations.webp
           test -s out/images/destinations/italy.webp
+          test -s out/images/destinations/united-kingdom.webp
+          test -s out/images/destinations/niagara-falls.webp
+          test -s out/images/destinations/statue-of-liberty.webp
+          test -s out/images/destinations/thailand.webp
           for file in hero.png mission.png; do
             test ! -e "out/images/about/$file"
           done
