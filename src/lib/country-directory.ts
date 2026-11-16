@@ -53,6 +53,10 @@ export type VisaPhotoSpecifications = {
 export type ApplicantChecklist = {
   applicant_type: string;
   documents: { name: string; status: "required" | "conditional" | "if_applicable"; notes?: string | null }[];
+  client_documents?: { name: string; status: "required" | "conditional" | "if_applicable"; notes?: string | null }[];
+  checklist_purpose?: string;
+  checklist_review_status?: "awaiting_country_specific_classification" | "verified";
+  checklist_review_note?: string;
   source_name?: string;
   source_url?: string;
   checked_at?: string;
