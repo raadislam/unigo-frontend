@@ -47,7 +47,7 @@ export function VisaChecklistGenerator({ country, requirement }: { country: Coun
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [open]);
 
-  const canGenerate = Boolean(requirement && (requirement.required_documents?.some(isRequiredDocument) || requirement.applicant_checklists?.some((profile) => matchesOccupation(profile.applicant_type, applicant) && profile.client_documents?.some(isRequiredDocument))));
+  const canGenerate = Boolean(requirement?.applicant_checklists?.some((profile) => matchesOccupation(profile.applicant_type, applicant) && profile.checklist_review_status === "verified" && profile.client_documents?.some(isRequiredDocument)));
 
   async function downloadChecklist() {
     if (!requirement) return;
@@ -76,7 +76,7 @@ export function VisaChecklistGenerator({ country, requirement }: { country: Coun
       anchor.click();
       anchor.remove();
       window.setTimeout(() => URL.revokeObjectURL(url), 1000);
-      setMessage("Your one-page required-documents checklist has been downloaded.");
+      setMessage("Your one-page UniGo document-submission checklist has been downloaded.");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "The checklist could not be generated. Please try again.");
     } finally {
