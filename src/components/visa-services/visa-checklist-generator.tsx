@@ -13,6 +13,13 @@ const occupationLabels: Record<Occupation, string> = {
   other: "Other",
 };
 
+function isRequiredDocument(document: unknown) {
+  if (typeof document === "string") return document.trim().length > 0;
+  if (!document || typeof document !== "object") return false;
+  const item = document as { name?: unknown; status?: unknown };
+  return typeof item.name === "string" && item.name.trim().length > 0 && typeof item.status === "string" && ["required", "mandatory"].includes(item.status.trim().toLowerCase());
+}
+
 function matchesOccupation(applicantType: string, occupation: Occupation) {
   const type = applicantType.toLowerCase().trim().replace(/[ -]/g, "_");
   const aliases: Record<Occupation, string[]> = {
@@ -40,7 +47,7 @@ export function VisaChecklistGenerator({ country, requirement }: { country: Coun
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [open]);
 
-  const canGenerate = Boolean(requirement && (requirement.required_documents?.length || requirement.applicant_checklists?.some((profile) => matchesOccupation(profile.applicant_type, applicant) && profile.documents?.some((document) => document.status === "required"))));
+  const canGenerate = Boolean(requirement && (requirement.required_documents?.some(isRequiredDocument) || requirement.applicant_checklists?.some((profile) => matchesOccupation(profile.applicant_type, applicant) && profile.documents?.some(isRequiredDocument))));
 
   async function downloadChecklist() {
     if (!requirement) return;
