@@ -115,7 +115,7 @@ export function VisaChecklistGenerator({ country, requirement }: { country: Coun
               <div className="rounded-2xl bg-[#f6f9fc] p-4">
                 <p className="text-xs font-bold uppercase tracking-wide text-[#526579]">Your PDF will include</p>
                 <p className="mt-2 text-sm font-semibold text-[#082b4c]">Applicant documents for the selected occupation</p>
-                <p className="mt-1 text-xs leading-6 text-slate-500">One page with required documents only. Sponsor documents are not included unless verified sponsor-specific requirements are recorded.</p>
+                <p className="mt-1 text-xs leading-6 text-slate-500">Only documents explicitly marked as required are included. Conditional and if-applicable items are omitted.</p>
               </div>
               {!canGenerate && <p className="rounded-xl bg-amber-50 p-3 text-xs leading-6 text-amber-800">No common or required documents are recorded for this occupation. Choose another occupation or check the full destination guide.</p>}
               {message && <p role="status" className="rounded-xl bg-[#f1f7f3] p-3 text-sm text-[#23633c]">{message}</p>}
