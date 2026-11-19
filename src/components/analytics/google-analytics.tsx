@@ -26,7 +26,10 @@ export function GoogleAnalytics() {
 
     window.gtag("js", new Date());
     window.gtag("config", measurementId, { send_page_view: false });
-    window.gtag("event", "page_view", {
+  }, []);
+
+  useEffect(() => {
+    window.gtag?.("event", "page_view", {
       page_path: pathname,
       page_location: window.location.href,
       page_title: document.title,
