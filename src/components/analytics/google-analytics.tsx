@@ -17,18 +17,6 @@ export function GoogleAnalytics() {
   const pathname = usePathname();
 
   useEffect(() => {
-    window.dataLayer = window.dataLayer || [];
-    window.gtag =
-      window.gtag ||
-      ((...args: unknown[]) => {
-        window.dataLayer.push(args);
-      });
-
-    window.gtag("js", new Date());
-    window.gtag("config", measurementId, { send_page_view: false });
-  }, []);
-
-  useEffect(() => {
     window.gtag?.("event", "page_view", {
       page_path: pathname,
       page_location: window.location.href,
@@ -37,9 +25,17 @@ export function GoogleAnalytics() {
   }, [pathname]);
 
   return (
-    <Script
-      src={`https://www.googletagmanager.com/gtag/js?id=${measurementId}`}
-      strategy="afterInteractive"
-    />
+    <>
+      <Script id="google-analytics-init" strategy="afterInteractive">
+        {`window.dataLayer = window.dataLayer || [];
+window.gtag = window.gtag || function(){window.dataLayer.push(arguments);};
+window.gtag('js', new Date());
+window.gtag('config', '${measurementId}', { send_page_view: false });`}
+      </Script>
+      <Script
+        src={`https://www.googletagmanager.com/gtag/js?id=${measurementId}`}
+        strategy="afterInteractive"
+      />
+    </>
   );
 }
