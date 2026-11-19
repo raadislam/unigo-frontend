@@ -157,9 +157,9 @@ export default function SiteFooter() {
         <div className="site-footer__column site-footer__contact">
           <h2>Contact Us</h2>
 
-          <a href="tel:+8801901644300" className="site-footer__contact-item">
+          <a href="tel:+8801901644302" className="site-footer__contact-item">
             <Phone size={18} />
-            <span>+880 1901 644300</span>
+            <span>+880 1901 644302</span>
           </a>
           <a
             href="tel:+8801901644301"
@@ -179,11 +179,11 @@ export default function SiteFooter() {
 
           <div className="site-footer__contact-item">
             <MapPin size={19} />
-            <span>Dhaka, Bangladesh</span>
+            <span>City Centre, Level-28, lift-29, Unit-28A, 90/1, Motijheel C/A, Dhaka-1000</span>
           </div>
 
           <a
-            href="https://www.google.com/maps/search/?api=1&query=Dhaka%2C+Bangladesh"
+            href="https://www.google.com/maps/search/?api=1&query=City+Centre%2C+Level-28%2C+lift-29%2C+Unit-28A%2C+90%2F1%2C+Motijheel+C%2FA%2C+Dhaka-1000"
             className="site-footer__text-link site-footer__directions"
             target="_blank"
             rel="noopener noreferrer"
