@@ -1,0 +1,40 @@
+name: Validate Google Analytics Integration
+
+on:
+  pull_request:
+    branches:
+      - master
+    paths:
+      - "src/app/layout.tsx"
+      - "src/components/analytics/google-analytics.tsx"
+      - ".github/workflows/validate-google-analytics.yml"
+      - "package.json"
+      - "package-lock.json"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: unigo-ga4-validation-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Type check
+        run: npx tsc --noEmit
+      - name: Lint
+        run: npm run lint
+      - name: Build static website
+        run: npm run build
+        env:
+          NEXT_PUBLIC_API_URL: https://api.unigo-bd.com/api
+          UNIGO_CONTENT_VERSION: ga4-validation
