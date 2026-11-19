@@ -51,11 +51,13 @@ const organizationSchema = {
   url: "https://unigo-bd.com/",
   description:
     "UniGo provides international education guidance, university admission support, visa application assistance and travel services in Bangladesh.",
-  telephone: "+8801901644300",
+  telephone: "+8801901644302",
   email: "contact@unigo-bd.com",
   address: {
     "@type": "PostalAddress",
+    streetAddress: "City Centre, Level-28, lift-29, Unit-28A, 90/1, Motijheel C/A",
     addressLocality: "Dhaka",
+    postalCode: "1000",
     addressCountry: "BD",
   },
   areaServed: {
