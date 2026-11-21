@@ -162,11 +162,11 @@ export default function SiteFooter() {
             <span>+880 1901 644302</span>
           </a>
           <a
-            href="tel:+8801901644301"
+            href="tel:+8801901644300"
             style={{ marginLeft: 30 }}
             className="site-footer__contact-item"
           >
-            <span>+880 1901 644301</span>
+            <span>+880 1901 644300</span>
           </a>
 
           <a
@@ -179,7 +179,10 @@ export default function SiteFooter() {
 
           <div className="site-footer__contact-item">
             <MapPin size={19} />
-            <span>City Centre, Level-28, lift-29, Unit-28A, 90/1, Motijheel C/A, Dhaka-1000</span>
+            <span>
+              City Centre, Level-28, lift-29, Unit-28A, 90/1, Motijheel C/A,
+              Dhaka-1000
+            </span>
           </div>
 
           <a
