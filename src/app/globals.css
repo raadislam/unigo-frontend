@@ -365,3 +365,24 @@ button {
     transition: none;
   }
 }
+
+
+body.unigo-copy-protected,
+body.unigo-copy-protected *:not(input):not(textarea):not(select):not([contenteditable="true"]) {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+body.unigo-copy-protected img,
+body.unigo-copy-protected svg {
+  -webkit-user-drag: none;
+  user-drag: none;
+}
+
+body.unigo-copy-protected input,
+body.unigo-copy-protected textarea,
+body.unigo-copy-protected select,
+body.unigo-copy-protected [contenteditable="true"] {
+  -webkit-user-select: text;
+  user-select: text;
+}
