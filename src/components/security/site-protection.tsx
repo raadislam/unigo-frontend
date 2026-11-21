@@ -10,6 +10,20 @@ export function SiteProtection() {
 
     const prevent = (event: Event) => event.preventDefault();
 
+    const handleContextMenu = (event: MouseEvent) => {
+      const target = event.target;
+      if (
+        target instanceof HTMLElement &&
+        (target.isContentEditable ||
+          target instanceof HTMLInputElement ||
+          target instanceof HTMLTextAreaElement ||
+          target instanceof HTMLSelectElement)
+      ) {
+        return;
+      }
+      event.preventDefault();
+    };
+
     const handleKeyDown = (event: KeyboardEvent) => {
       const key = event.key.toLowerCase();
       const modifier = event.ctrlKey || event.metaKey;
@@ -37,17 +51,17 @@ export function SiteProtection() {
       event.preventDefault();
     };
 
-    document.addEventListener("contextmenu", prevent);
+    document.addEventListener("contextmenu", handleContextMenu);
     document.addEventListener("copy", handleCopy);
-    document.addEventListener("cut", prevent);
+    document.addEventListener("cut", handleCopy);
     document.addEventListener("dragstart", prevent);
     document.addEventListener("keydown", handleKeyDown, true);
 
     return () => {
       document.body.classList.remove("unigo-copy-protected");
-      document.removeEventListener("contextmenu", prevent);
+      document.removeEventListener("contextmenu", handleContextMenu);
       document.removeEventListener("copy", handleCopy);
-      document.removeEventListener("cut", prevent);
+      document.removeEventListener("cut", handleCopy);
       document.removeEventListener("dragstart", prevent);
       document.removeEventListener("keydown", handleKeyDown, true);
     };
