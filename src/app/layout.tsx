@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { siteConfig } from "@/config/site";
 import { GoogleAnalytics } from "@/components/analytics/google-analytics";
+import { SiteProtection } from "@/components/security/site-protection";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
@@ -82,6 +83,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <GoogleAnalytics />
+        <SiteProtection />
         {children}
         <script
           type="application/ld+json"
